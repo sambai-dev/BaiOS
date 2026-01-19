@@ -33,6 +33,12 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>() {
     const animatableElements = container.querySelectorAll(".animate-on-scroll");
     if (animatableElements.length === 0) return;
 
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mediaQuery.matches) {
+      animatableElements.forEach((el) => el.classList.add("in-view"));
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

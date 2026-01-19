@@ -15,17 +15,6 @@
   --color-dark-400: #404040;
   --color-dark-700: #4d4d4d;
 
-  /* Shimmer animation */
-  --animate-shimmer: shimmer 2s linear infinite;
-
-  @keyframes shimmer {
-    from {
-      background-position: 0 0;
-    }
-    to {
-      background-position: -200% 0;
-    }
-  }
 }
 
 /* ============================================

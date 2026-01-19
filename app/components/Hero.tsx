@@ -8,8 +8,8 @@
 // - Grid background pattern
 // - Fully mobile responsive
 
-import { motion } from "framer-motion";
-import { MapPin, ChevronRight, Download, Github, Linkedin } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { MapPin, ChevronRight, Download } from "lucide-react";
 import WordReveal from "./WordReveal";
 import { useLenis } from "lenis/react";
 import { useRef } from "react";
@@ -17,8 +17,12 @@ import { useRef } from "react";
 export default function Hero() {
   const badgeRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useLenis(({ scroll }) => {
+    if (prefersReducedMotion) {
+      return;
+    }
     if (heroRef.current) {
       heroRef.current.style.transform = `translateY(${scroll * 0.5}px)`;
       // Fade out hero text as you scroll

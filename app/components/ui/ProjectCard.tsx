@@ -28,12 +28,12 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div
       className={cn(
-        "group relative rounded-xl overflow-hidden",
+        "group relative rounded-xl overflow-hidden h-full flex flex-col",
         "bg-dark-200 border border-dark-700",
         "hover:border-stone-500 transition-all duration-300",
         // Featured card gets subtle glow and spans full width
         featured &&
-          "md:col-span-2 ring-1 ring-primary/20 shadow-lg shadow-primary/5"
+          "ring-1 ring-primary/20 shadow-lg shadow-primary/5"
       )}
     >
       {/* Featured badge - PERF FIX: Removed backdrop-blur-sm, using solid bg */}
@@ -46,19 +46,24 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
       {/* Project image */}
       <div className="relative h-44 sm:h-52 overflow-hidden">
-        <Image
-          src={imageUrl}
-          alt={heading}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          priority={featured}
-          className="object-cover"
-        />
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={heading}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority={featured}
+            unoptimized
+            className="object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-dark-300 to-dark-400" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-dark-200 via-dark-200/40 to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-1">
         {/* Subheading */}
         <p className="text-xs text-primary font-medium mb-1">{subheading}</p>
 
@@ -101,7 +106,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </div>
 
         {/* CTAs */}
-        <div className="flex items-center gap-4 pt-3 border-t border-dark-700">
+        <div className="flex items-center gap-4 pt-3 border-t border-dark-700 mt-auto">
           {liveUrl && (
             <Link
               href={liveUrl}

@@ -32,7 +32,7 @@ export interface Project {
   valueProp: string;
   highlights: string[];
   role: string;
-  imageUrl: string;
+  imageUrl?: string;
   techStack: string[];
   liveUrl?: string;
   githubUrl?: string;

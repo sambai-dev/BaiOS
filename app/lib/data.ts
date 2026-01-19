@@ -58,6 +58,29 @@ export const techCardsItems: TechCard[] = [
 // Portfolio projects - displayed in the Projects section
 export const portfolioProjects: Project[] = [
   {
+    id: "project-4",
+    heading: "Job Tracker",
+    subheading: "Full-Stack Job Application OS",
+    valueProp:
+      "Track applications, manage interviews, and analyze what works — a Kanban-style job search OS.",
+    highlights: [],
+    role: "Full-stack Developer · Personal Project",
+    imageUrl: "/imgs/projects/jobtracker.png",
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "MongoDB",
+      "Mongoose",
+      "shadcn/ui",
+      "GSAP",
+      "Framer Motion",
+    ],
+    liveUrl: "https://job-tracker-app-cyan.vercel.app/",
+    githubUrl: "https://github.com/sambai-dev/job-tracker-app",
+    featured: true,
+  },
+  {
     id: "project-1",
     heading: "TaskFlow",
     subheading: "SaaS Task Management Platform",
@@ -69,7 +92,7 @@ export const portfolioProjects: Project[] = [
     techStack: ["Next.js", "TypeScript", "Supabase", "Clerk", "PostgreSQL"],
     liveUrl: "https://taskboard-nextjs.vercel.app/",
     githubUrl: "https://github.com/sambai-dev/taskflow-board",
-    featured: true,
+    featured: false,
   },
   {
     id: "project-2",

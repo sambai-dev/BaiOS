@@ -120,11 +120,12 @@ export const Navbar = ({ className }: NavbarProps) => {
           "px-4 sm:px-8 py-3 sm:py-4 items-center justify-center gap-3 sm:gap-4",
           className
         )}
+        aria-label="Primary"
       >
         {/* Render each navigation item */}
-        {navItems.map((navItem, idx) => (
+        {navItems.map((navItem) => (
           <Link
-            key={`link-${idx}`}
+            key={navItem.link}
             href={navItem.link}
             onClick={(e) => handleNavClick(e, navItem.link)}
             className={cn(
