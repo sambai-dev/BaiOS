@@ -16,7 +16,6 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     heading,
     subheading,
     valueProp,
-    highlights,
     role,
     imageUrl,
     techStack,
@@ -75,20 +74,6 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           {valueProp}
         </p>
 
-        {/* Highlights - only show if present */}
-        {highlights.length > 0 && (
-          <ul className="space-y-1.5 mb-3">
-            {highlights.map((highlight, index) => (
-              <li
-                key={index}
-                className="flex items-start gap-2 text-sm text-stone-400"
-              >
-                <span className="w-1.5 h-1.5 mt-1.5 rounded-full bg-primary shrink-0" />
-                <span className="leading-relaxed">{highlight}</span>
-              </li>
-            ))}
-          </ul>
-        )}
 
         {/* Role */}
         <p className="text-xs text-stone-500 mb-3">{role}</p>
