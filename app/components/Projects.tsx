@@ -30,7 +30,7 @@ export default function Projects() {
         <p className="text-sm sm:text-base max-w-lg text-stone-400">
           Production-ready projects showcasing full-stack capabilities.
         </p>
-        <p className="text-xs text-stone-500">Last updated: Dec 2025</p>
+        <p className="text-xs text-stone-500">Last updated: Jan 2026</p>
       </div>
 
       {/* Projects grid - 2 columns for impact */}
