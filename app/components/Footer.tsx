@@ -20,7 +20,7 @@ export default function Footer() {
 
         {/* Line 2: Availability + Email */}
         <p className="text-sm text-stone-400">
-          Open to graduate & junior full-stack roles
+          Open to frontend & full-stack roles in New Zealand
           <span className="text-stone-600 mx-2">·</span>
           <Link
             href="mailto:sambai.codes@gmail.com"

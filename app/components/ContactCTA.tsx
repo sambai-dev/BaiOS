@@ -24,8 +24,9 @@ export default function ContactCTA() {
 
         {/* Supporting sentence - concise value prop */}
         <p className="text-base sm:text-lg text-stone-400 mb-8 leading-relaxed">
-          I&apos;m looking for graduate and junior full-stack roles in New
-          Zealand. Let&apos;s chat about how I can help your team ship faster.
+          I build React/Next.js TypeScript apps end&#x2011;to&#x2011;end and
+          I&apos;m looking for frontend or full&#x2011;stack roles in New
+          Zealand.
         </p>
 
         {/* Action buttons - stacked mobile, side-by-side desktop */}
