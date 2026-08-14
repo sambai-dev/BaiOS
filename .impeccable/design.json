@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-14T23:31:20.6951903+12:00",
+  "title": "Design System: Quiet Junction / Sam Bai Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "carbon": {
+        "role": "neutral",
+        "displayName": "Carbon Grain",
+        "canonical": "#11110f",
+        "tonalRamp": ["oklch(15% 0.006 100)", "oklch(26% 0.006 100)", "oklch(38% 0.006 100)", "oklch(50% 0.006 100)", "oklch(62% 0.006 100)", "oklch(74% 0.006 100)", "oklch(86% 0.006 100)", "oklch(95% 0.006 100)"]
+      },
+      "carbon-soft": {
+        "role": "neutral",
+        "displayName": "Soft Carbon",
+        "canonical": "#1b1b18",
+        "tonalRamp": ["oklch(15% 0.008 100)", "oklch(26% 0.008 100)", "oklch(38% 0.008 100)", "oklch(50% 0.008 100)", "oklch(62% 0.008 100)", "oklch(74% 0.008 100)", "oklch(86% 0.008 100)", "oklch(95% 0.008 100)"]
+      },
+      "ivory": {
+        "role": "neutral",
+        "displayName": "Ivory Paper",
+        "canonical": "#f0efe8",
+        "tonalRamp": ["oklch(15% 0.012 95)", "oklch(26% 0.012 95)", "oklch(38% 0.012 95)", "oklch(50% 0.012 95)", "oklch(62% 0.012 95)", "oklch(74% 0.012 95)", "oklch(86% 0.012 95)", "oklch(95% 0.012 95)"]
+      },
+      "ivory-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ivory",
+        "canonical": "#bbb9b0",
+        "tonalRamp": ["oklch(15% 0.012 90)", "oklch(26% 0.012 90)", "oklch(38% 0.012 90)", "oklch(50% 0.012 90)", "oklch(62% 0.012 90)", "oklch(74% 0.012 90)", "oklch(86% 0.012 90)", "oklch(95% 0.012 90)"]
+      },
+      "cobalt": {
+        "role": "primary",
+        "displayName": "Cobalt Operational Light",
+        "canonical": "#4c5ce5",
+        "tonalRamp": ["oklch(15% 0.19 272)", "oklch(26% 0.19 272)", "oklch(38% 0.19 272)", "oklch(50% 0.19 272)", "oklch(62% 0.19 272)", "oklch(74% 0.19 272)", "oklch(86% 0.19 272)", "oklch(95% 0.19 272)"]
+      },
+      "cobalt-deep": {
+        "role": "primary",
+        "displayName": "Deep Cobalt",
+        "canonical": "#3543bd",
+        "tonalRamp": ["oklch(15% 0.18 272)", "oklch(26% 0.18 272)", "oklch(38% 0.18 272)", "oklch(50% 0.18 272)", "oklch(62% 0.18 272)", "oklch(74% 0.18 272)", "oklch(86% 0.18 272)", "oklch(95% 0.18 272)"]
+      },
+      "signal": {
+        "role": "secondary",
+        "displayName": "Signal Green",
+        "canonical": "#59df79",
+        "tonalRamp": ["oklch(15% 0.18 148)", "oklch(26% 0.18 148)", "oklch(38% 0.18 148)", "oklch(50% 0.18 148)", "oklch(62% 0.18 148)", "oklch(74% 0.18 148)", "oklch(86% 0.18 148)", "oklch(95% 0.18 148)"]
+      },
+      "rule-dark": {
+        "role": "neutral",
+        "displayName": "Dark Rule",
+        "canonical": "rgba(17, 17, 15, 0.26)",
+        "tonalRamp": ["oklch(15% 0.006 100)", "oklch(26% 0.006 100)", "oklch(38% 0.006 100)", "oklch(50% 0.006 100)", "oklch(62% 0.006 100)", "oklch(74% 0.006 100)", "oklch(86% 0.006 100)", "oklch(95% 0.006 100)"]
+      },
+      "rule-light": {
+        "role": "neutral",
+        "displayName": "Light Rule",
+        "canonical": "rgba(240, 239, 232, 0.24)",
+        "tonalRamp": ["oklch(15% 0.012 95)", "oklch(26% 0.012 95)", "oklch(38% 0.012 95)", "oklch(50% 0.012 95)", "oklch(62% 0.012 95)", "oklch(74% 0.012 95)", "oklch(86% 0.012 95)", "oklch(95% 0.012 95)"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Monumental Display",
+        "purpose": "One decisive public statement at radical scale."
+      },
+      "headline": {
+        "displayName": "Workbench Headline",
+        "purpose": "App propositions and major window headings."
+      },
+      "title": {
+        "displayName": "Instrument Title",
+        "purpose": "Compact headings inside labs and technical panels."
+      },
+      "body": {
+        "displayName": "Working Body",
+        "purpose": "Plain-language explanations inside the Workbench."
+      },
+      "label": {
+        "displayName": "Operational Label",
+        "purpose": "State, shortcuts, coordinates, legends, and navigation metadata."
+      }
+    },
+    "shadows": [
+      {
+        "name": "aperture-rest",
+        "value": "0 14px 36px rgba(0, 0, 0, 0.28)",
+        "purpose": "Holds the live Workbench aperture above the public field."
+      },
+      {
+        "name": "aperture-hover",
+        "value": "0 20px 52px rgba(0, 0, 0, 0.42)",
+        "purpose": "Confirms that the live aperture can open."
+      },
+      {
+        "name": "window-rest",
+        "value": "0 22px 58px rgba(10, 10, 9, 0.32)",
+        "purpose": "Separates a movable ivory window from the cobalt desktop."
+      },
+      {
+        "name": "window-active",
+        "value": "0 28px 78px rgba(10, 10, 9, 0.46)",
+        "purpose": "Raises the focused Workbench window."
+      },
+      {
+        "name": "palette",
+        "value": "0 30px 90px rgba(10, 10, 9, 0.5)",
+        "purpose": "Reserves the strongest lift for the modal command surface."
+      },
+      {
+        "name": "lab-overlay",
+        "value": "0 18px 50px rgba(10, 10, 9, 0.34)",
+        "purpose": "Lifts the Subsurface start and restart prompt."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Shared spatial easing for route underlines, the aperture, Workbench reveal, and windows."
+      },
+      {
+        "name": "workbench-reveal",
+        "value": "720ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Expands the Workbench from the top-right aperture."
+      },
+      {
+        "name": "window-enter",
+        "value": "240ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Reveals an opened Workbench window with scale, opacity, and clipping."
+      },
+      {
+        "name": "control-state",
+        "value": "150ms–220ms ease",
+        "purpose": "Keeps hover, focus, and active inversions immediate."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "10ms transitions; 150ms Workbench opacity fade",
+        "purpose": "Removes spatial movement while preserving legible state change."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "workbench-single-window",
+        "value": "980px"
+      },
+      {
+        "name": "public-two-column",
+        "value": "620px"
+      },
+      {
+        "name": "workbench-compact-data",
+        "value": "520px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Public Index Link",
+      "kind": "nav",
+      "refersTo": "public-index-link",
+      "description": "A quiet mono route whose underline draws only on hover or keyboard focus.",
+      "html": "<a class=\"ds-index-link\" href=\"#\">Visit Solynth Labs</a>",
+      "css": ".ds-index-link { position: relative; display: inline-block; width: fit-content; padding: 0; color: var(--ivory); background: transparent; font-family: var(--font-data), monospace; font-size: 0.68rem; line-height: 1.45; text-decoration: none; } .ds-index-link::after { position: absolute; right: 0; bottom: -0.12rem; left: 0; height: 1px; background: currentColor; content: ''; transform: scaleX(0); transform-origin: right; transition: transform 280ms var(--ease-out-expo); } .ds-index-link:hover::after, .ds-index-link:focus-visible::after { transform: scaleX(1); transform-origin: left; } .ds-index-link:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }"
+    },
+    {
+      "name": "Workbench Instrument Button",
+      "kind": "button",
+      "refersTo": "workbench-control",
+      "description": "A square, outlined toolbar action that inverts to signal green for hover and focus.",
+      "html": "<button class=\"ds-workbench-control\" type=\"button\">Command [/]</button>",
+      "css": ".ds-workbench-control { min-height: 2rem; padding: 0 0.65rem; color: var(--ivory); background: transparent; border: 1px solid var(--rule-light); border-radius: 0; cursor: pointer; font-family: var(--font-data), monospace; font-size: 0.65rem; text-transform: uppercase; transition: color 160ms ease, background 160ms ease, border-color 160ms ease; } .ds-workbench-control:hover, .ds-workbench-control:focus-visible { color: var(--carbon); background: var(--signal); border-color: var(--signal); } .ds-workbench-control:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }"
+    },
+    {
+      "name": "Workbench Aperture",
+      "kind": "custom",
+      "description": "The live, top-level entry instrument into the personal Workbench layer.",
+      "html": "<button class=\"ds-aperture\" type=\"button\"><span class=\"ds-aperture-bar\"><span>Workbench [W]</span><span class=\"ds-aperture-live\"><i></i>Live</span></span><span class=\"ds-aperture-body\"><span>NOW<br>METHOD<br>TOOLKIT</span><strong>SOLYNTH / OPERATING<br>TREKKY / CURRENT<br>HAMILTON / 23:13</strong></span><span class=\"ds-aperture-action\">Open the personal layer <b>Open</b></span></button>",
+      "css": ".ds-aperture { display: grid; grid-template-rows: auto 1fr auto; width: min(20rem, 100%); min-height: 10.75rem; padding: 0; overflow: hidden; color: var(--ivory); background: rgba(17, 17, 15, 0.96); border: 1px solid var(--cobalt); border-radius: 0; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28); cursor: pointer; text-align: left; transition: transform 420ms var(--ease-out-expo), box-shadow 420ms var(--ease-out-expo), border-color 220ms ease; } .ds-aperture:hover { border-color: var(--signal); box-shadow: 0 20px 52px rgba(0, 0, 0, 0.42); transform: scale(1.025); } .ds-aperture:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; } .ds-aperture-bar, .ds-aperture-action { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.7rem; font-family: var(--font-data), monospace; font-size: 0.62rem; } .ds-aperture-bar { color: white; background: var(--cobalt); } .ds-aperture-live { display: inline-flex; gap: 0.35rem; align-items: center; color: #baffc9; text-transform: uppercase; } .ds-aperture-live i { width: 0.4rem; height: 0.4rem; background: var(--signal); border-radius: 50%; box-shadow: 0 0 0 3px rgba(89, 223, 121, 0.12); } .ds-aperture-body { display: grid; grid-template-columns: 0.82fr 1.55fr; gap: 0.75rem; padding: 0.8rem 0.7rem; color: var(--ivory-muted); font-family: var(--font-data), monospace; font-size: 0.52rem; line-height: 1.8; } .ds-aperture-body > span { padding-right: 0.7rem; border-right: 1px solid var(--rule-light); font-weight: 400; } .ds-aperture-body strong { color: var(--ivory); font-weight: 400; } .ds-aperture-action { border-top: 1px solid var(--rule-light); } .ds-aperture-action b { color: var(--signal); font-weight: 400; text-transform: uppercase; }"
+    },
+    {
+      "name": "Workbench Window",
+      "kind": "custom",
+      "description": "A draggable, focusable ivory workspace with carbon chrome and an explicit resize grip.",
+      "html": "<section class=\"ds-window\" tabindex=\"-1\" aria-label=\"Stack window\"><div class=\"ds-window-bar\"><span>Stack</span><span class=\"ds-window-state\">Active</span><span class=\"ds-window-controls\"><button>Minimize</button><button>Maximize</button><button>Close</button></span></div><div class=\"ds-window-content\"><h2>One shipping surface.</h2><p>Web, mobile, data, infrastructure, and product loops.</p></div><button class=\"ds-window-resize\" aria-label=\"Resize Stack window\"></button></section>",
+      "css": ".ds-window { position: relative; display: flex; width: min(38rem, 100%); min-height: 18rem; flex-direction: column; overflow: hidden; color: var(--carbon); background: var(--ivory); box-shadow: 0 28px 78px rgba(10, 10, 9, 0.46); outline: 1px solid var(--signal); } .ds-window-bar { display: flex; min-height: 2.4rem; align-items: center; gap: 0.7rem; padding-left: 0.8rem; color: var(--ivory); background: var(--carbon); border-bottom: 1px solid var(--rule-light); cursor: grab; font-family: var(--font-data), monospace; font-size: 0.6rem; text-transform: uppercase; } .ds-window-state { color: var(--ivory-muted); } .ds-window-controls { display: flex; align-self: stretch; margin-left: auto; } .ds-window-controls button { min-width: 3.9rem; padding: 0 0.55rem; color: var(--ivory-muted); background: transparent; border: 0; border-left: 1px solid var(--rule-light); font: inherit; text-transform: uppercase; } .ds-window-controls button:hover, .ds-window-controls button:focus-visible { color: var(--carbon); background: var(--signal); } .ds-window-content { flex: 1; padding: 1.2rem; } .ds-window-content h2 { max-width: 13ch; margin: 0; font-family: var(--font-display), sans-serif; font-size: clamp(1.8rem, 3vw, 3.45rem); font-weight: 400; line-height: 0.92; letter-spacing: -0.03em; } .ds-window-content p { max-width: 48ch; font-family: var(--font-body), sans-serif; font-size: 0.9rem; line-height: 1.48; } .ds-window-resize { position: absolute; right: 0; bottom: 0; width: 1.25rem; height: 1.25rem; padding: 0; background: linear-gradient(135deg, transparent 46%, var(--carbon) 47%, var(--carbon) 52%, transparent 53%), linear-gradient(135deg, transparent 64%, var(--carbon) 65%, var(--carbon) 70%, transparent 71%); border: 0; cursor: nwse-resize; } .ds-window-resize:hover, .ds-window-resize:focus-visible { background-color: var(--signal); outline: 1px solid var(--carbon); outline-offset: -1px; }"
+    },
+    {
+      "name": "Workbench Dock App",
+      "kind": "nav",
+      "refersTo": "dock-app-active",
+      "description": "A compact app switcher that exposes shortcut and open-state metadata.",
+      "html": "<nav class=\"ds-dock\" aria-label=\"Workbench applications\"><button class=\"ds-dock-app is-active\" type=\"button\" aria-pressed=\"true\"><span>Vector</span><span>[8]</span><small>Open</small></button><button class=\"ds-dock-app\" type=\"button\" aria-pressed=\"false\"><span>Subsurface</span><span>[7]</span><small>Closed</small></button></nav>",
+      "css": ".ds-dock { display: flex; min-height: 4.6rem; overflow-x: auto; color: var(--ivory); background: var(--carbon); border-top: 1px solid var(--rule-light); } .ds-dock-app { display: grid; min-width: 7rem; grid-template-columns: 1fr auto; grid-template-rows: 1fr auto; gap: 0.35rem; padding: 0.6rem 0.75rem; color: var(--ivory); background: transparent; border: 0; border-right: 1px solid var(--rule-light); cursor: pointer; font-family: var(--font-data), monospace; font-size: 0.58rem; text-align: left; text-transform: uppercase; transition: color 160ms ease, background 160ms ease; } .ds-dock-app small { grid-column: 1 / -1; color: var(--ivory-muted); font: inherit; font-size: 0.5rem; } .ds-dock-app:hover, .ds-dock-app:focus-visible, .ds-dock-app.is-active { color: white; background: var(--cobalt); } .ds-dock-app:focus-visible { outline: 2px solid var(--signal); outline-offset: -3px; } .ds-dock-app.is-active small { color: #dfe2ff; }"
+    },
+    {
+      "name": "Command Palette",
+      "kind": "custom",
+      "description": "A modal command surface with a native combobox and visibly active results.",
+      "html": "<section class=\"ds-palette\" role=\"dialog\" aria-modal=\"true\" aria-label=\"Workbench command palette\"><div class=\"ds-palette-search\"><label for=\"ds-command\">Run a command</label><span>Esc to close</span><input id=\"ds-command\" role=\"combobox\" aria-expanded=\"true\" value=\"Open\" readonly></div><div class=\"ds-palette-results\" role=\"listbox\"><button class=\"is-selected\" role=\"option\" aria-selected=\"true\"><span>Open Vector</span><span>App · 8</span></button><button role=\"option\" aria-selected=\"false\"><span>Open Subsurface</span><span>App · 7</span></button></div></section>",
+      "css": ".ds-palette { width: min(39rem, 100%); max-height: 38rem; overflow: hidden; color: var(--carbon); background: var(--ivory); box-shadow: 0 30px 90px rgba(10, 10, 9, 0.5); } .ds-palette-search { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem 1rem; padding: 1rem; border-bottom: 1px solid var(--rule-dark); } .ds-palette-search label, .ds-palette-search span { font-family: var(--font-data), monospace; font-size: 0.58rem; text-transform: uppercase; } .ds-palette-search span { color: #585851; } .ds-palette-search input { grid-column: 1 / -1; width: 100%; padding: 0.4rem 0; color: var(--carbon); background: transparent; border: 0; outline: 0; font-family: var(--font-display), sans-serif; font-size: clamp(1.65rem, 3.4vw, 2.8rem); line-height: 1; letter-spacing: -0.025em; } .ds-palette-results button { display: flex; width: 100%; min-height: 3.35rem; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; color: var(--carbon); background: transparent; border: 0; border-bottom: 1px solid var(--rule-dark); cursor: pointer; text-align: left; } .ds-palette-results button span:last-child { color: #56564f; font-family: var(--font-data), monospace; font-size: 0.58rem; text-transform: uppercase; } .ds-palette-results button:hover, .ds-palette-results button:focus-visible, .ds-palette-results button.is-selected { color: white; background: var(--cobalt); } .ds-palette-results button:hover span:last-child, .ds-palette-results button:focus-visible span:last-child, .ds-palette-results button.is-selected span:last-child { color: #dfe2ff; }"
+    },
+    {
+      "name": "Scratchpad Field",
+      "kind": "input",
+      "refersTo": "scratchpad-field",
+      "description": "A square, locally persisted writing field with explicit browser-only language.",
+      "html": "<div class=\"ds-scratch\"><label for=\"ds-scratchpad\">Scratchpad</label><textarea id=\"ds-scratchpad\" placeholder=\"Capture a thought, a question, or the next thing to build.\"></textarea><p>Saved only in this browser.</p></div>",
+      "css": ".ds-scratch { display: grid; gap: 0.65rem; color: var(--carbon); background: var(--ivory); padding: 1.2rem; } .ds-scratch label, .ds-scratch p { font-family: var(--font-data), monospace; font-size: 0.62rem; text-transform: uppercase; } .ds-scratch textarea { min-height: 9rem; padding: 0.9rem; color: var(--carbon); background: transparent; border: 1px solid var(--rule-dark); border-radius: 0; outline: none; resize: none; font-family: var(--font-body), sans-serif; font-size: 1rem; line-height: 1.5; } .ds-scratch textarea:focus { border-color: var(--cobalt); box-shadow: inset 0 0 0 1px var(--cobalt); } .ds-scratch textarea::placeholder { color: #66665e; } .ds-scratch p { margin: 0; color: #56564f; font-size: 0.58rem; text-transform: none; }"
+    },
+    {
+      "name": "Method Tabs",
+      "kind": "custom",
+      "description": "A rule-separated operational tablist with a cobalt selected state and real tab semantics.",
+      "html": "<div class=\"ds-method\"><div class=\"ds-method-tabs\" role=\"tablist\" aria-label=\"Product method\"><button role=\"tab\" aria-selected=\"true\">Clarify</button><button role=\"tab\" aria-selected=\"false\">Shape</button><button role=\"tab\" aria-selected=\"false\">Ship</button><button role=\"tab\" aria-selected=\"false\">Learn</button></div><section class=\"ds-method-panel\" role=\"tabpanel\"><h2>Clarify</h2><p>Find the actual decision hiding underneath the requested feature.</p></section></div>",
+      "css": ".ds-method { display: grid; grid-template-columns: minmax(7rem, 0.62fr) minmax(12rem, 1.38fr); gap: 1.2rem; padding: 1.2rem; color: var(--carbon); background: var(--ivory); } .ds-method-tabs { display: flex; flex-direction: column; border-top: 1px solid var(--rule-dark); } .ds-method-tabs button { min-height: 2.75rem; padding: 0.65rem; color: var(--carbon); background: transparent; border: 0; border-bottom: 1px solid var(--rule-dark); cursor: pointer; font-family: var(--font-data), monospace; font-size: 0.64rem; text-align: left; text-transform: uppercase; } .ds-method-tabs button:hover, .ds-method-tabs button:focus-visible, .ds-method-tabs button[aria-selected='true'] { color: white; background: var(--cobalt); } .ds-method-tabs button:focus-visible { outline: 2px solid var(--signal); outline-offset: -3px; } .ds-method-panel { align-self: center; } .ds-method-panel h2 { margin: 0; font-family: var(--font-display), sans-serif; font-size: clamp(1.8rem, 3vw, 3.45rem); font-weight: 400; line-height: 0.92; letter-spacing: -0.03em; } .ds-method-panel p { max-width: 48ch; margin: 1rem 0 0; font-family: var(--font-body), sans-serif; font-size: 0.9rem; line-height: 1.48; }"
+    },
+    {
+      "name": "Subsurface Lab",
+      "kind": "custom",
+      "description": "An optional, user-started depth-control game rendered as a cobalt sonar instrument.",
+      "html": "<div class=\"ds-lab\"><header class=\"ds-lab-heading\"><span>Experiment 01</span><strong>Subsurface</strong><p>Hold depth through a live sonar channel.</p></header><div class=\"ds-subsurface\" tabindex=\"0\" aria-label=\"Subsurface depth game. Press Space, Enter, Arrow Up, or tap to rise.\"><div class=\"ds-subsurface-hud\"><span>Depth control / manual</span><span>Score 00</span><span>Best 06</span></div><i class=\"ds-gate ds-gate-a\"></i><i class=\"ds-gate ds-gate-b\"></i><i class=\"ds-sub\"></i><div class=\"ds-subsurface-overlay\"><strong>Channel ready.</strong><button type=\"button\">Start dive</button></div></div><footer class=\"ds-lab-controls\"><span>Tap · Space · ↑ to pulse</span><span>Best score stays in this browser</span></footer></div>",
+      "css": ".ds-lab { display: grid; width: min(42rem, 100%); min-height: 25rem; grid-template-rows: auto 1fr auto; overflow: hidden; color: var(--ivory); background: var(--carbon); } .ds-lab-heading { display: grid; grid-template-columns: auto auto 1fr; gap: 0.75rem; align-items: baseline; padding: 0.8rem 0.9rem; border-bottom: 1px solid var(--rule-light); } .ds-lab-heading span, .ds-lab-heading p, .ds-lab-controls, .ds-subsurface-hud { font-family: var(--font-data), monospace; font-size: 0.58rem; letter-spacing: 0.02em; text-transform: uppercase; } .ds-lab-heading span, .ds-lab-heading p { color: var(--ivory-muted); } .ds-lab-heading strong { font-family: var(--font-display), sans-serif; font-size: 1.45rem; font-weight: 560; letter-spacing: -0.03em; } .ds-lab-heading p { justify-self: end; margin: 0; } .ds-subsurface { position: relative; min-height: 18rem; overflow: hidden; cursor: crosshair; background-color: #1424f5; background-image: repeating-linear-gradient(to right, transparent 0, transparent 38px, rgba(244, 241, 225, 0.16) 39px), repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(244, 241, 225, 0.16) 32px); outline: none; } .ds-subsurface:focus-visible { box-shadow: inset 0 0 0 2px var(--signal); } .ds-subsurface-hud { position: absolute; z-index: 4; top: 0; right: 0; left: 0; display: flex; justify-content: space-between; gap: 0.8rem; padding: 0.55rem 0.7rem; } .ds-gate { position: absolute; top: 0; bottom: 0; width: 2.4rem; background: linear-gradient(to bottom, #10100e 0 31%, #f0eddb 31% 31.6%, transparent 31.6% 66%, #f0eddb 66% 66.6%, #10100e 66.6% 100%); } .ds-gate-a { left: 62%; } .ds-gate-b { left: 88%; transform: translateY(12%); } .ds-sub { position: absolute; top: 52%; left: 18%; width: 3.2rem; height: 1.15rem; background: #f0eddb; border-radius: 50%; transform: rotate(-6deg); } .ds-sub::after { position: absolute; top: 0.36rem; right: 0.55rem; width: 0.38rem; height: 0.38rem; background: #1424f5; border-radius: 50%; content: ''; } .ds-subsurface-overlay { position: absolute; z-index: 5; top: 50%; left: 50%; display: grid; min-width: 12rem; gap: 0.7rem; padding: 1rem; color: var(--carbon); background: var(--signal); box-shadow: 0 18px 50px rgba(10, 10, 9, 0.34); transform: translate(-50%, -50%); text-align: center; } .ds-subsurface-overlay strong { font-family: var(--font-display), sans-serif; font-size: 1.25rem; } .ds-subsurface-overlay button { min-height: 2.25rem; padding: 0 0.85rem; color: var(--ivory); background: var(--carbon); border: 0; cursor: pointer; font-family: var(--font-data), monospace; font-size: 0.6rem; text-transform: uppercase; } .ds-subsurface-overlay button:hover, .ds-subsurface-overlay button:focus-visible { color: white; background: var(--cobalt); } .ds-lab-controls { display: flex; justify-content: space-between; gap: 1rem; padding: 0.6rem 0.9rem; color: var(--ivory-muted); border-top: 1px solid var(--rule-light); }"
+    },
+    {
+      "name": "Vector Lab",
+      "kind": "custom",
+      "description": "A spatial calculator coupling direct canvas manipulation with editable decimal drafts, accessible validation, and conditional live results.",
+      "html": "<div class=\"ds-vector\"><div class=\"ds-vector-stage\" role=\"img\" aria-label=\"Interactive vector plot. Complete both vectors with values from minus three to three.\"><i class=\"ds-vector-a\"></i><span>Drag to orbit</span></div><div class=\"ds-vector-panel\"><header><span>Spatial calculator</span><h2>Vector field</h2></header><div class=\"ds-vector-inputs\"><fieldset><legend>Vector A</legend><label><span>X</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-a-guidance\" value=\"1.8\"></label><label><span>Y</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-a-guidance\" value=\"1.2\"></label><label><span>Z</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-a-guidance\" value=\"0.6\"></label><p class=\"ds-vector-error is-valid\" id=\"ds-vector-a-guidance\" role=\"status\">Range −3 to 3</p></fieldset><fieldset><legend>Vector B</legend><label><span>X</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-b-guidance\" value=\"-0.8\"></label><label><span>Y</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-b-guidance\" value=\"1.7\"></label><label><span>Z</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"true\" aria-describedby=\"ds-vector-b-guidance\" value=\"\"></label><p class=\"ds-vector-error\" id=\"ds-vector-b-guidance\" role=\"status\">Complete every value from −3 to 3</p></fieldset></div><dl class=\"ds-vector-results\"><div><dt>A · B</dt><dd>—</dd></div><div><dt>A × B</dt><dd>—</dd></div><div><dt>Area</dt><dd>—</dd></div></dl></div></div>",
+      "css": ".ds-vector { display: grid; width: min(48rem, 100%); min-height: 24rem; grid-template-columns: minmax(0, 1.3fr) minmax(17rem, 0.7fr); overflow: hidden; color: var(--carbon); background: var(--ivory); } .ds-vector-stage { position: relative; min-height: 20rem; overflow: hidden; border-right: 1px solid var(--rule-dark); cursor: grab; background-color: #f0eddb; background-image: linear-gradient(28deg, transparent 49.5%, rgba(16, 16, 14, 0.16) 50%, transparent 50.5%), linear-gradient(152deg, transparent 49.5%, rgba(16, 16, 14, 0.16) 50%, transparent 50.5%); background-size: 3rem 3rem; } .ds-vector-stage > span { position: absolute; bottom: 0.65rem; left: 0.7rem; padding: 0.35rem 0.45rem; color: var(--ivory); background: var(--carbon); font-family: var(--font-data), monospace; font-size: 0.55rem; text-transform: uppercase; } .ds-vector-a, .ds-vector-b { position: absolute; bottom: 48%; left: 50%; width: 32%; height: 3px; transform-origin: left; } .ds-vector-a { background: #1424f5; transform: rotate(-28deg); } .ds-vector-b { width: 26%; background: #df3d26; transform: rotate(-138deg); } .ds-vector-panel { min-width: 0; overflow: auto; } .ds-vector-panel header, .ds-vector-inputs, .ds-vector-results { padding: 0.8rem; border-bottom: 1px solid var(--rule-dark); } .ds-vector-panel header span, .ds-vector-inputs legend, .ds-vector-inputs label span, .ds-vector-results dt { font-family: var(--font-data), monospace; font-size: 0.56rem; text-transform: uppercase; } .ds-vector-panel header span { color: #5f5f58; } .ds-vector-panel h2 { margin: 0.2rem 0 0; font-family: var(--font-display), sans-serif; font-size: 1.8rem; font-weight: 560; letter-spacing: -0.04em; } .ds-vector-inputs { display: grid; gap: 0.75rem; } .ds-vector-inputs fieldset { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem; margin: 0; padding: 0; border: 0; } .ds-vector-inputs legend { width: 100%; margin-bottom: 0.35rem; color: #55554e; } .ds-vector-inputs label { display: grid; grid-template-columns: auto 1fr; align-items: center; border: 1px solid var(--rule-dark); } .ds-vector-inputs label span { padding-left: 0.35rem; } .ds-vector-inputs input { width: 100%; min-width: 0; padding: 0.38rem 0.25rem; color: var(--carbon); background: transparent; border: 0; outline: 0; font-family: var(--font-data), monospace; text-align: right; } .ds-vector-inputs input[aria-invalid=\"true\"] { color: #9f2415; background: rgba(223, 61, 38, 0.1); } .ds-vector-inputs label:focus-within { box-shadow: inset 0 0 0 1px var(--cobalt); } .ds-vector-error { grid-column: 1 / -1; margin: 0; color: #9f2415; font-family: var(--font-data), monospace; font-size: 0.52rem; text-transform: uppercase; } .ds-vector-error.is-valid { color: #66665f; } .ds-vector-results { display: grid; gap: 0.45rem; margin: 0; border-bottom: 0; } .ds-vector-results div { display: grid; grid-template-columns: 4rem 1fr; gap: 0.5rem; align-items: baseline; } .ds-vector-results dt, .ds-vector-results dd { margin: 0; } .ds-vector-results dd { min-width: 0; overflow-wrap: anywhere; font-family: var(--font-data), monospace; font-size: 0.66rem; text-align: right; } @media (max-width: 700px) { .ds-vector { grid-template-columns: 1fr; grid-template-rows: minmax(15rem, 1fr) auto; } .ds-vector-stage { min-height: 15rem; border-right: 0; border-bottom: 1px solid var(--rule-dark); } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Quiet Junction",
+    "overview": "Quiet Junction is a senior, authored operating environment disguised as a sparse public front door. Carbon grain, monumental ivory type, cobalt route light, tiny operational readouts, and square rules create a private-feeling place where restraint carries more authority than a gallery of claims.\n\nThe public layer stays quiet and exacting; the Workbench reveals the machinery behind the person. Its windows, command surfaces, local tools, and two original interactive labs make software itself the personality. The tactility comes from direct manipulation, responsive state, and material contrast—not nostalgic interface cosplay.",
+    "keyCharacteristics": [
+      "Monumental Archivo Black statements paired with Azeret Mono operational telemetry.",
+      "Carbon and ivory fields routed by cobalt, with signal green reserved for live, focus, and immediate action.",
+      "Square geometry, one-pixel rules, and grain establish material without nostalgic interface cosplay.",
+      "Flat public composition gives way only to structurally elevated Workbench windows and palette.",
+      "Working software reveals personality through optional, usable experiments rather than decorative demos."
+    ],
+    "rules": [
+      {
+        "name": "The Cobalt Is Route Rule",
+        "body": "Use cobalt to show where the visitor is, what is selected, or where an interaction leads; do not spread it as ambient decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Signal Is Evidence Rule",
+        "body": "Signal green means live, focused, or actionable. Its rarity is what makes it trustworthy.",
+        "section": "colors"
+      },
+      {
+        "name": "The Monument and Telemetry Rule",
+        "body": "Use display type for a decisive idea and mono type for the system around it; never let both voices compete at the same scale.",
+        "section": "typography"
+      },
+      {
+        "name": "The Collapse by Mode Rule",
+        "body": "Desktop supports spatial composition and direct window management; small screens support one clear active task with the same content and state.",
+        "section": "layout"
+      },
+      {
+        "name": "The Structural Lift Rule",
+        "body": "If a surface cannot be dragged, opened, or treated as a temporary layer, it does not earn a shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Square Instrument Rule",
+        "body": "Controls should read as instruments set into a system, never as soft app-store cards or pills.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Working Software as Personality Rule",
+        "body": "Use an interactive experiment when it demonstrates real judgment or capability and remains optional; not every screen needs to be gamified.",
+        "section": "components"
+      },
+      {
+        "name": "The Native Control Rule",
+        "body": "Direct manipulation must keep a legible keyboard or native-input path, visible focus, and truthful local-state language.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do pair one monumental message with quiet operational metadata.",
+      "Do use cobalt for route, selection, and current state; use signal green only for live, focus, or immediate action.",
+      "Do let optional working software reveal personality when it remains useful, truthful, and self-contained.",
+      "Do use square fields, one-pixel rules, and restrained grain before adding depth.",
+      "Do preserve keyboard, native-input, reduced-motion, and local-only state conventions wherever interaction is direct.",
+      "Do pause hidden animation work in compact single-window layouts without discarding the visitor's in-progress state."
+    ],
+    "donts": [
+      "Don't turn the portfolio into a project-card résumé or a wall of interchangeable case-study tiles.",
+      "Don't drift into a generic SaaS component dashboard or rounded-card shell.",
+      "Don't clone retro-Mac chrome, icons, or window decoration; the Workbench is an original typographic operating system.",
+      "Don't use shadows on static content fields or treat cobalt and signal green as decoration.",
+      "Don't start continuous lab motion before the visitor initiates it or hide the same task behind pointer-only interaction."
+    ]
+  }
+}

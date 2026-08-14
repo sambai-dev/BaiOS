@@ -1,80 +1,73 @@
 import "@/app/styles/global.css";
+import "@/app/styles/workbench-os.css";
 import type { Metadata, Viewport } from "next";
-import { Raleway } from "next/font/google";
-import { ThemeProvider } from "./components/ThemeProvider";
-import SmoothScroll from "./components/SmoothScroll";
+import { Archivo, Archivo_Black, Azeret_Mono } from "next/font/google";
 
-// Raleway font - clean, modern look for portfolios
-const raleway = Raleway({ subsets: ["latin"] });
+const archivo = Archivo({
+  subsets: ["latin"],
+  variable: "--font-body",
+});
 
-// SEO metadata - update with your information
+const archivoBlack = Archivo_Black({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-display",
+});
+
+const azeretMono = Azeret_Mono({
+  subsets: ["latin"],
+  variable: "--font-data",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.sambai.dev"),
-  alternates: {
-    canonical: "/",
-  },
-  title: {
-    template: "Sam Bai - %s",
-    default:
-      "Sam Bai | Full-Stack Developer | Next.js, TypeScript, React | Hamilton, NZ",
-  },
+  alternates: { canonical: "/" },
+  title: "Sam Bai — Founder, Solynth Labs",
   description:
-    "Graduate full-stack developer seeking junior roles at NZ startups. Built 3 production SaaS apps with Next.js, TypeScript, and Supabase. View my portfolio.",
+    "Sam Bai is the founder of Solynth Labs, a New Zealand software consultation and production company.",
   keywords: [
-    "Full Stack Developer New Zealand",
-    "Junior Developer Hamilton NZ",
-    "React Developer New Zealand",
-    "Next.js Developer for hire",
-    "TypeScript Developer portfolio",
-    "Graduate Developer NZ startups",
-    "Full Stack Developer Supabase",
-    "Web Developer Hamilton Waikato",
-    "NZ startup developer",
-    "Junior Full Stack role New Zealand",
+    "Sam Bai",
+    "Solynth Labs",
+    "software consultation New Zealand",
+    "design engineering",
+    "software production",
+    "AI workflows",
   ],
   authors: [{ name: "Sam Bai" }],
   openGraph: {
     type: "website",
     url: "https://www.sambai.dev",
-    title: "Sam Bai | Full-Stack Developer",
+    title: "Sam Bai — Founder, Solynth Labs",
     description:
-      "Graduate full-stack developer seeking junior roles at NZ startups. Built 3 production SaaS apps with Next.js, TypeScript, and Supabase.",
-    siteName: "Sam Bai Portfolio",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Sam Bai - Full-Stack Developer Portfolio",
-      },
-    ],
+      "Software consultation, design engineering, and production from New Zealand.",
+    siteName: "Sam Bai",
     locale: "en_NZ",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sam Bai — Founder, Solynth Labs",
+    description:
+      "Software consultation, design engineering, and production from New Zealand.",
   },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#11110f",
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Sam Bai",
-  jobTitle: "Full-Stack Developer",
+  jobTitle: "Founder and Software Consultant",
   url: "https://www.sambai.dev",
   email: "sambai.codes@gmail.com",
-  knowsAbout: [
-    "React",
-    "Next.js",
-    "TypeScript",
-    "Node.js",
-    "PostgreSQL",
-    "Supabase",
-  ],
-  alumniOf: {
-    "@type": "CollegeOrUniversity",
-    name: "Wintec",
+  worksFor: {
+    "@type": "Organization",
+    name: "Solynth Labs Limited",
+    url: "https://solynthlabs.com",
   },
   sameAs: [
     "https://github.com/sambai-dev",
@@ -83,41 +76,33 @@ const jsonLd = {
   address: {
     "@type": "PostalAddress",
     addressLocality: "Hamilton",
-    addressRegion: "Waikato",
     addressCountry: "New Zealand",
   },
-  hasCredential: [
-    {
-      "@type": "EducationalOccupationalCredential",
-      name: "Google AI Essentials",
-    },
-    {
-      "@type": "EducationalOccupationalCredential",
-      name: "IBM Full Stack Software Developer Professional Certificate",
-    },
-  ],
 };
+
+const designContract = `<!--
+THESIS: A precise public front door says what Sam is building and refuses the project-card résumé.
+OWN-WORLD: Carbon grain, ivory condensed type, cobalt operational light, square rules, and a live Workbench console.
+STORY: Meet Sam, understand Solynth, visit the company, enter the Workbench, or make contact.
+FIRST VIEWPORT: Identity sits top-left, a live aperture top-right, the statement owns the field, and useful links anchor the bottom.
+FORM: Quiet Junction, grounded direction 3, seed 18eae09c.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->`;
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
-        className={`${raleway.className} antialiased bg-dark-100 text-stone-200`}
+        className={`${archivo.variable} ${archivoBlack.variable} ${azeretMono.variable}`}
       >
+        <template dangerouslySetInnerHTML={{ __html: designContract }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
-          <SmoothScroll>{children}</SmoothScroll>
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   );
