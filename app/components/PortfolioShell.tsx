@@ -121,6 +121,13 @@ export default function PortfolioShell() {
           <p className="identity-name">Sam Bai</p>
           <p>Founder, Solynth Labs</p>
           <p>Hamilton, New Zealand</p>
+          <p className="identity-time">
+            <time
+              dateTime={newZealandTime === "--:--" ? undefined : newZealandTime}
+            >
+              NZT · {newZealandTime}
+            </time>
+          </p>
         </header>
 
         <button
@@ -161,31 +168,10 @@ export default function PortfolioShell() {
             aria-label="Sam designs and builds software."
           >
             <span>
-              Sam{" "}
-              <button
-                className="hero-route hero-route--workbench"
-                type="button"
-                onClick={openWorkbench}
-                onFocus={() => void loadWorkbenchOS()}
-                onMouseEnter={() => void loadWorkbenchOS()}
-                aria-label="Open Workbench"
-              >
-                designs
-              </button>{" "}
-              and
+              Sam designs and
             </span>
             <span>
-              builds{" "}
-              <a
-                className="hero-route hero-route--solynth"
-                href="https://solynthlabs.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Visit Solynth Labs"
-              >
-                software
-              </a>
-              .
+              builds software.
             </span>
           </h1>
         </div>

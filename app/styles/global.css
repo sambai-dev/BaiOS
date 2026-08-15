@@ -141,6 +141,12 @@ template {
   font-weight: 650;
 }
 
+.identity-block .identity-time {
+  margin-top: 0.45rem;
+  color: var(--ivory-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .hero-cluster {
   align-self: center;
   max-width: min(80vw, 96rem);
@@ -165,50 +171,6 @@ template {
 
 .hero-statement > span + span {
   margin-top: clamp(2.5rem, 4.5vw, 5.5rem);
-}
-
-.hero-route {
-  display: inline;
-  margin: 0;
-  padding: 0;
-  color: inherit;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  font: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  text-decoration-line: underline;
-  text-decoration-thickness: 0.055em;
-  text-underline-offset: 0.1em;
-  transition:
-    color 220ms ease,
-    text-decoration-color 220ms ease,
-    text-underline-offset 220ms var(--ease-out-expo);
-}
-
-.hero-route--workbench {
-  text-decoration-color: var(--cobalt);
-}
-
-.hero-route--solynth {
-  text-decoration-color: var(--signal);
-}
-
-.hero-route--workbench:hover,
-.hero-route--workbench:focus-visible,
-.hero-route--workbench:active {
-  color: white;
-  text-decoration-color: var(--signal);
-  text-underline-offset: 0.14em;
-}
-
-.hero-route--solynth:hover,
-.hero-route--solynth:focus-visible,
-.hero-route--solynth:active {
-  color: white;
-  text-decoration-color: var(--cobalt);
-  text-underline-offset: 0.14em;
 }
 
 .workbench-aperture {

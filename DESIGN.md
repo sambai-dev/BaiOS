@@ -120,7 +120,7 @@ The palette behaves like an operating signal system. Warm near-black and paper n
 
 ### Base Theme: Cobalt
 
-- **Cobalt Operational Light** (`colors.cobalt`): The default route color for the desktop field, active modules, selected rows, and public route underline.
+- **Cobalt Operational Light** (`colors.cobalt`): The default route color for the desktop field, active modules, selected rows, and the public Workbench aperture.
 - **Deep Cobalt** (`colors.cobalt-deep`): Quieter route metadata and secondary blue emphasis on ivory.
 - **Signal Green** (`colors.signal`): Live indicators, keyboard focus, active-window outlines, and immediate action.
 
@@ -236,7 +236,7 @@ The aperture is a small live instrument, not a promotional card. On desktop it r
 
 ### Public Front Door
 
-The public surface is a single quiet composition: identity and the Workbench aperture share the top edge, the six-word statement “Sam designs and builds software.” holds the center, and one availability line plus two compact link groups anchor the bottom. Desktop uses a responsive `clamp(4rem, 10vw, 12rem)` horizontal inset and a reference-scale `clamp(4.75rem, 10vw, 11rem)` statement. Its two lines are intentionally separated by `clamp(2.5rem, 4.5vw, 5.5rem)` so the declaration reads as two calm beats rather than a compressed lockup. “Designs” is a cobalt-underlined Workbench control that shifts to signal green on hover, focus, or press; “software” links to Solynth Labs and moves in the opposite direction, from signal green to cobalt. Compact widths collapse the gutter, type, and line gap without changing the underlying hierarchy. The front door does not carry an explanatory deck, route labels, project taxonomy, or Workbench telemetry outside the aperture—those details belong one level deeper.
+The public surface is a single quiet composition: identity and the Workbench aperture share the top edge, the six-word statement “Sam designs and builds software.” holds the center, and one availability line plus two compact link groups anchor the bottom. Desktop uses a responsive `clamp(4rem, 10vw, 12rem)` horizontal inset and a reference-scale `clamp(4.75rem, 10vw, 11rem)` statement. Its two lines are intentionally separated by `clamp(2.5rem, 4.5vw, 5.5rem)` so the declaration reads as two calm beats rather than a compressed lockup. The statement is uninterrupted display text with no embedded controls; Workbench and Solynth Labs remain explicit destinations in the surrounding interface. Compact widths collapse the gutter, type, and line gap without changing the underlying hierarchy. The front door does not carry an explanatory deck, route labels, project taxonomy, or Workbench telemetry outside the aperture—those details belong one level deeper.
 
 ### Workbench Menu Bar
 
