@@ -14,7 +14,7 @@ The primary audience is prospective B2B software clients and collaborators evalu
 
 This personal portfolio helps people understand who Sam is, see how he thinks across product direction, design engineering, and production, and choose a clear next step: discuss a project, visit Solynth Labs, or explore his personal Workbench.
 
-Success means the public surface communicates identity and current focus within one viewport, Solynth Labs and Trekky provide direct proof surfaces, and the optional Workbench rewards deeper exploration without obstructing the direct path. The Workbench is evidence in itself: a functioning local environment whose windowing, files, tools, experiments, and recovery controls reveal how Sam thinks about software.
+Success means the public surface communicates identity and current focus within one viewport through one personal statement, one availability signal, and direct routes to contact, Solynth Labs, and the optional Workbench. Trekky remains a deeper proof surface inside the Workbench rather than another competing message at arrival. The Workbench is evidence in itself: a functioning local environment whose windowing, files, tools, experiments, and recovery controls reveal how Sam thinks about software.
 
 ## Positioning
 

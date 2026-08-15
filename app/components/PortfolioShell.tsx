@@ -7,12 +7,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 const loadWorkbenchOS = () => import("@/app/components/WorkbenchOS");
 const WorkbenchOS = dynamic(loadWorkbenchOS, { ssr: false });
 
-const externalLinks = [
-  { label: "GitHub", href: "https://github.com/sambai-dev" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/sam-bai-dev/" },
-  { label: "Résumé", href: "/resume/SamBai_Resume.pdf" },
-];
-
 export default function PortfolioShell() {
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState(false);
   const [newZealandTime, setNewZealandTime] = useState("--:--");
@@ -123,33 +117,17 @@ export default function PortfolioShell() {
 
         <div className="hero-cluster">
           <h1 className="hero-statement">
-            <span>Sam builds software</span>
-            <span>for businesses in motion.</span>
+            <span>Sam designs and</span>
+            <span>builds software.</span>
           </h1>
-          <p className="hero-deck">
-            Founder of{" "}
-            <a
-              href="https://solynthlabs.com"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Solynth Labs
-            </a>
-            . Product direction, design engineering, and production from New
-            Zealand.
-          </p>
         </div>
 
         <div className="public-index" id="primary-links">
           <div className="index-intro">
-            <p>Open for select B2B consulting engagements.</p>
-            <p className="index-status">
-              Hamilton {newZealandTime} · Workbench local
-            </p>
+            <p>Open for select B2B software projects.</p>
           </div>
 
           <nav className="index-group" aria-label="Primary links">
-            <p className="index-label">Routes</p>
             <a className="index-link" href="mailto:sambai.codes@gmail.com">
               Discuss a project
             </a>
@@ -159,7 +137,7 @@ export default function PortfolioShell() {
               target="_blank"
               rel="noreferrer"
             >
-              Visit Solynth Labs
+              Solynth Labs
             </a>
             <button
               className="index-link"
@@ -168,43 +146,35 @@ export default function PortfolioShell() {
               onFocus={() => void loadWorkbenchOS()}
               onMouseEnter={() => void loadWorkbenchOS()}
             >
-              Explore Workbench
+              Open Workbench
             </button>
           </nav>
 
-          <div className="index-group">
-            <p className="index-label">Operating</p>
+          <nav className="index-group" aria-label="Social and résumé links">
             <a
               className="index-link"
-              href="https://solynthlabs.com"
+              href="https://github.com/sambai-dev"
               target="_blank"
               rel="noreferrer"
             >
-              Solynth / Operating
+              GitHub
             </a>
             <a
               className="index-link"
-              href="https://trekky.app"
+              href="https://www.linkedin.com/in/sam-bai-dev/"
               target="_blank"
               rel="noreferrer"
             >
-              Trekky / Building
+              LinkedIn
             </a>
-          </div>
-
-          <nav className="index-group" aria-label="Social and contact links">
-            <p className="index-label">Connect</p>
-            {externalLinks.map((link) => (
-              <a
-                className="index-link"
-                href={link.href}
-                key={link.label}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {link.label}
-              </a>
-            ))}
+            <a
+              className="index-link"
+              href="/resume/SamBai_Resume.pdf"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Résumé
+            </a>
           </nav>
         </div>
       </section>

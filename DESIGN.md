@@ -20,7 +20,7 @@ colors:
 typography:
   display:
     fontFamily: "Archivo, sans-serif"
-    fontSize: "clamp(3.9rem, 7.2vw, 6rem)"
+    fontSize: "clamp(3.9rem, 6.6vw, 6rem)"
     fontWeight: 650
     lineHeight: 0.9
     letterSpacing: "-0.04em"
@@ -233,6 +233,10 @@ The form language is square and mechanical. Panels, windows, controls, text fiel
 ### Workbench Aperture
 
 The aperture is a small live instrument, not a promotional card. On desktop it rests at a compact 11.4rem width with its detail rows collapsed, then expands to `clamp(18rem, 22vw, 21rem)` on hover or focus to reveal its operational body and action. It uses carbon, a one-pixel cobalt border, a cobalt title strip, and a signal live dot; the width and border carry the invitation with no scale transform. Opening it expands a circular reveal from the top-right over 720ms using the shared exponential ease; reduced motion receives a 150ms opacity fade.
+
+### Public Front Door
+
+The public surface is a single quiet composition: identity and the Workbench aperture share the top edge, the six-word statement “Sam designs and builds software.” holds the center, and one availability line plus two compact link groups anchor the bottom. Desktop uses a responsive `clamp(3.5rem, 8vw, 10rem)` horizontal inset; compact widths collapse that gutter without shrinking the underlying hierarchy. The front door does not carry an explanatory deck, route labels, project taxonomy, or Workbench telemetry outside the aperture—those details belong one level deeper.
 
 ### Workbench Menu Bar
 
