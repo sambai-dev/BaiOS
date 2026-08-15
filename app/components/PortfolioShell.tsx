@@ -10,9 +10,11 @@ const WorkbenchOS = dynamic(loadWorkbenchOS, { ssr: false });
 export default function PortfolioShell() {
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState(false);
   const [newZealandTime, setNewZealandTime] = useState("--:--");
+  const [workbenchOrigin, setWorkbenchOrigin] = useState({ x: 72, y: 72 });
   const prefersReducedMotion = useReducedMotion();
   const openerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const workbenchInvokerRef = useRef<HTMLElement | null>(null);
 
   const timeFormatter = useMemo(
     () =>
@@ -27,12 +29,34 @@ export default function PortfolioShell() {
 
   const openWorkbench = useCallback(() => {
     void loadWorkbenchOS();
+    const activeElement = document.activeElement;
+    workbenchInvokerRef.current =
+      activeElement instanceof HTMLElement && activeElement !== document.body
+        ? activeElement
+        : openerRef.current;
+
+    const apertureBounds = openerRef.current?.getBoundingClientRect();
+    if (apertureBounds) {
+      setWorkbenchOrigin({
+        x: apertureBounds.left + apertureBounds.width / 2,
+        y: apertureBounds.top + apertureBounds.height / 2,
+      });
+    }
     setIsWorkbenchOpen(true);
   }, []);
 
   const closeWorkbench = useCallback(() => {
     setIsWorkbenchOpen(false);
-    window.setTimeout(() => openerRef.current?.focus(), 80);
+  }, []);
+
+  const restoreWorkbenchFocus = useCallback(() => {
+    const invoker = workbenchInvokerRef.current;
+    if (invoker?.isConnected) {
+      invoker.focus();
+    } else {
+      openerRef.current?.focus();
+    }
+    workbenchInvokerRef.current = null;
   }, []);
 
   useEffect(() => {
@@ -51,6 +75,22 @@ export default function PortfolioShell() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
+  }, [isWorkbenchOpen]);
+
+  useEffect(() => {
+    if (!isWorkbenchOpen) return;
+
+    const syncWorkbenchOrigin = () => {
+      const apertureBounds = openerRef.current?.getBoundingClientRect();
+      if (!apertureBounds) return;
+      setWorkbenchOrigin({
+        x: apertureBounds.left + apertureBounds.width / 2,
+        y: apertureBounds.top + apertureBounds.height / 2,
+      });
+    };
+
+    window.addEventListener("resize", syncWorkbenchOrigin);
+    return () => window.removeEventListener("resize", syncWorkbenchOrigin);
   }, [isWorkbenchOpen]);
 
   useEffect(() => {
@@ -116,9 +156,37 @@ export default function PortfolioShell() {
         </button>
 
         <div className="hero-cluster">
-          <h1 className="hero-statement">
-            <span>Sam designs and</span>
-            <span>builds software.</span>
+          <h1
+            className="hero-statement"
+            aria-label="Sam designs and builds software."
+          >
+            <span>
+              Sam{" "}
+              <button
+                className="hero-route hero-route--workbench"
+                type="button"
+                onClick={openWorkbench}
+                onFocus={() => void loadWorkbenchOS()}
+                onMouseEnter={() => void loadWorkbenchOS()}
+                aria-label="Open Workbench"
+              >
+                designs
+              </button>{" "}
+              and
+            </span>
+            <span>
+              builds{" "}
+              <a
+                className="hero-route hero-route--solynth"
+                href="https://solynthlabs.com"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Visit Solynth Labs"
+              >
+                software
+              </a>
+              .
+            </span>
           </h1>
         </div>
 
@@ -179,12 +247,13 @@ export default function PortfolioShell() {
         </div>
       </section>
 
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={restoreWorkbenchFocus}>
         {isWorkbenchOpen && (
           <WorkbenchOS
             closeButtonRef={closeRef}
             onClose={closeWorkbench}
             prefersReducedMotion={Boolean(prefersReducedMotion)}
+            revealOrigin={workbenchOrigin}
             time={newZealandTime}
           />
         )}

@@ -87,7 +87,7 @@ template {
 }
 
 .public-surface {
-  --public-gutter: clamp(3.5rem, 8vw, 10rem);
+  --public-gutter: clamp(4rem, 10vw, 12rem);
 
   position: relative;
   isolation: isolate;
@@ -143,7 +143,7 @@ template {
 
 .hero-cluster {
   align-self: center;
-  max-width: min(84vw, 96rem);
+  max-width: min(80vw, 96rem);
   margin: clamp(3rem, 6vh, 5rem) 0 clamp(2rem, 4vh, 3.5rem);
 }
 
@@ -161,6 +161,54 @@ template {
 .hero-statement span {
   display: block;
   white-space: nowrap;
+}
+
+.hero-statement > span + span {
+  margin-top: clamp(2.5rem, 4.5vw, 5.5rem);
+}
+
+.hero-route {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.055em;
+  text-underline-offset: 0.1em;
+  transition:
+    color 220ms ease,
+    text-decoration-color 220ms ease,
+    text-underline-offset 220ms var(--ease-out-expo);
+}
+
+.hero-route--workbench {
+  text-decoration-color: var(--cobalt);
+}
+
+.hero-route--solynth {
+  text-decoration-color: var(--signal);
+}
+
+.hero-route--workbench:hover,
+.hero-route--workbench:focus-visible,
+.hero-route--workbench:active {
+  color: white;
+  text-decoration-color: var(--signal);
+  text-underline-offset: 0.14em;
+}
+
+.hero-route--solynth:hover,
+.hero-route--solynth:focus-visible,
+.hero-route--solynth:active {
+  color: white;
+  text-decoration-color: var(--cobalt);
+  text-underline-offset: 0.14em;
 }
 
 .workbench-aperture {
@@ -651,6 +699,10 @@ template {
     line-height: 0.9;
   }
 
+  .hero-statement > span + span {
+    margin-top: clamp(1rem, 3vw, 2rem);
+  }
+
   .hero-statement span {
     white-space: normal;
   }
@@ -773,6 +825,10 @@ template {
     max-width: 100%;
     font-size: clamp(3.2rem, 13.8vw, 4.6rem);
     line-height: 0.9;
+  }
+
+  .hero-statement > span + span {
+    margin-top: 0.18em;
   }
 
   .public-index {

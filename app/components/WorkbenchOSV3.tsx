@@ -92,6 +92,7 @@ type WorkbenchOSProps = {
   closeButtonRef: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
   prefersReducedMotion: boolean;
+  revealOrigin: Readonly<{ x: number; y: number }>;
   time: string;
 };
 
@@ -244,6 +245,7 @@ export default function WorkbenchOSV3({
   closeButtonRef,
   onClose,
   prefersReducedMotion,
+  revealOrigin,
   time,
 }: WorkbenchOSProps) {
   const defaultSession = useMemo(() => createDefaultWorkbenchSession(), []);
@@ -2171,6 +2173,9 @@ export default function WorkbenchOSV3({
     (windowState) =>
       windowState.workspaceId === activeWorkspaceId && !windowState.minimized,
   );
+  const revealClipOrigin = `${Math.round(revealOrigin.x)}px ${Math.round(
+    revealOrigin.y,
+  )}px`;
 
   return (
     <motion.section
@@ -2184,17 +2189,17 @@ export default function WorkbenchOSV3({
       initial={
         prefersReducedMotion
           ? { opacity: 0 }
-          : { clipPath: "circle(0vmax at calc(100% - 72px) 72px)" }
+          : { clipPath: `circle(0vmax at ${revealClipOrigin})` }
       }
       animate={
         prefersReducedMotion
           ? { opacity: 1 }
-          : { clipPath: "circle(160vmax at calc(100% - 72px) 72px)" }
+          : { clipPath: `circle(160vmax at ${revealClipOrigin})` }
       }
       exit={
         prefersReducedMotion
           ? { opacity: 0 }
-          : { clipPath: "circle(0vmax at calc(100% - 72px) 72px)" }
+          : { clipPath: `circle(0vmax at ${revealClipOrigin})` }
       }
       transition={{
         duration: prefersReducedMotion ? 0.15 : 0.72,
