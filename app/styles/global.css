@@ -352,6 +352,11 @@ template {
   line-height: 1.45;
 }
 
+.index-link--email {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .index-link::after,
 .workbench-footer a::after {
   position: absolute;

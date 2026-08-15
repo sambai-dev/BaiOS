@@ -182,8 +182,14 @@ export default function PortfolioShell() {
           </div>
 
           <nav className="index-group" aria-label="Primary links">
-            <a className="index-link" href="mailto:sambai.codes@gmail.com">
-              Discuss a project
+            <a
+              className="index-link index-link--email"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=sambai.codes%40gmail.com&su=Project%20enquiry"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Email sambai.codes@gmail.com about a project in Gmail"
+            >
+              sambai.codes@gmail.com
             </a>
             <a
               className="index-link"
