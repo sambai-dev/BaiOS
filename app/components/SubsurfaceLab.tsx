@@ -7,7 +7,6 @@ import {
   useEffect,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react";
 
 type GameStatus = "idle" | "playing" | "crashed";
@@ -31,21 +30,6 @@ type SubsurfaceLabProps = {
 };
 
 const BEST_SCORE_KEY = "sam-workbench-subsurface-best-v1";
-const COMPACT_LAYOUT_QUERY = "(max-width: 980px)";
-
-function subscribeToCompactLayout(callback: () => void) {
-  const media = window.matchMedia(COMPACT_LAYOUT_QUERY);
-  media.addEventListener("change", callback);
-  return () => media.removeEventListener("change", callback);
-}
-
-function getCompactLayoutSnapshot() {
-  return window.matchMedia(COMPACT_LAYOUT_QUERY).matches;
-}
-
-function getServerCompactLayoutSnapshot() {
-  return false;
-}
 
 function initialModel(): GameModel {
   return {
@@ -161,12 +145,8 @@ function drawScene(
 
 export default function SubsurfaceLab({ isActive, prefersReducedMotion }: SubsurfaceLabProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gameSurfaceRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<GameModel>(initialModel());
-  const isCompactLayout = useSyncExternalStore(
-    subscribeToCompactLayout,
-    getCompactLayoutSnapshot,
-    getServerCompactLayoutSnapshot,
-  );
   const [status, setStatus] = useState<GameStatus>("idle");
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
@@ -195,7 +175,7 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion }: Subsur
   }, [prefersReducedMotion, status]);
 
   useEffect(() => {
-    if (status !== "playing" || (isCompactLayout && !isActive)) return;
+    if (status !== "playing" || !isActive) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -257,12 +237,15 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion }: Subsur
 
     animationFrame = window.requestAnimationFrame(loop);
     return () => window.cancelAnimationFrame(animationFrame);
-  }, [isActive, isCompactLayout, prefersReducedMotion, status]);
+  }, [isActive, prefersReducedMotion, status]);
 
   const startRun = useCallback(() => {
     gameRef.current = initialModel();
     setScore(0);
     setStatus("playing");
+    window.requestAnimationFrame(() => {
+      gameSurfaceRef.current?.focus({ preventScroll: true });
+    });
   }, []);
 
   const pulse = useCallback(() => {
@@ -288,6 +271,13 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion }: Subsur
     pulse();
   };
 
+  const accessibleStatus =
+    status === "playing"
+      ? "Dive in progress."
+      : status === "crashed"
+        ? "Signal lost."
+        : "Channel ready.";
+
   return (
     <div className="os-lab">
       <header className="os-lab-heading">
@@ -299,11 +289,15 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion }: Subsur
       </header>
 
       <div
+        ref={gameSurfaceRef}
         className={`subsurface-game is-${status}`}
+        role="group"
+        aria-roledescription="game"
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onPointerDown={handlePointerDown}
-        aria-label="Subsurface depth game. Press Space, Enter, Arrow Up, or tap to rise."
+        aria-keyshortcuts="Space Enter ArrowUp"
+        aria-label={`Subsurface depth game. ${accessibleStatus} Press Space, Enter, Arrow Up, or tap to rise.`}
       >
         <canvas ref={canvasRef} aria-hidden="true" />
         <div className="subsurface-hud" aria-live="polite">

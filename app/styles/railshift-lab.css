@@ -1,0 +1,362 @@
+.os-app-railshift {
+  overflow: hidden;
+}
+
+.railshift {
+  position: relative;
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  color: var(--ivory);
+  background: var(--carbon);
+  container-type: size;
+}
+
+.railshift button {
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-data), monospace;
+  text-transform: uppercase;
+}
+
+.railshift__header {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.7fr) minmax(12rem, 1.3fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: 4.4rem;
+  padding: 0.7rem 0.85rem;
+  color: var(--ivory);
+  background: var(--carbon);
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.railshift__identity {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.railshift__identity h2,
+.railshift__header p,
+.railshift__overlay p,
+.railshift__overlay strong,
+.railshift__announcement {
+  margin: 0;
+}
+
+.railshift__identity h2 {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.railshift__identity span,
+.railshift__header p,
+.railshift__header-actions button,
+.railshift__footer,
+.railshift__hud small {
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.railshift__identity span,
+.railshift__header p,
+.railshift__footer {
+  color: var(--ivory-muted);
+}
+
+.railshift__header p {
+  max-width: 34ch;
+  line-height: 1.4;
+}
+
+.railshift__header-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.railshift__header-actions button {
+  min-height: 2.2rem;
+  padding: 0 0.65rem;
+  color: var(--ivory);
+  background: transparent;
+  border: 1px solid var(--rule-light);
+  cursor: pointer;
+  transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.railshift__header-actions button:hover,
+.railshift__header-actions button:focus-visible,
+.railshift__header-actions button[aria-pressed="true"] {
+  color: var(--carbon);
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.railshift__header-actions button:disabled {
+  color: var(--ivory-muted);
+  background: transparent;
+  border-color: var(--rule-light);
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.railshift__surface {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  outline: none;
+  touch-action: none;
+  user-select: none;
+  contain: strict;
+}
+
+.railshift__surface:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--signal);
+}
+
+.railshift__surface canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.railshift__hud {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  color: var(--ivory);
+  background: color-mix(in srgb, var(--carbon) 84%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ivory) 16%, transparent);
+  pointer-events: none;
+}
+
+.railshift__hud > span {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+  padding: 0.48rem 0.62rem 0.42rem;
+  border-right: 1px solid color-mix(in srgb, var(--ivory) 16%, transparent);
+  font-family: var(--font-data), monospace;
+  font-size: 0.72rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.railshift__hud > span:last-child {
+  border-right: 0;
+}
+
+.railshift__hud small {
+  overflow: hidden;
+  color: var(--ivory-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.railshift__combo {
+  color: var(--signal);
+}
+
+.railshift__overlay {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: min(23rem, calc(100% - 2rem));
+  gap: 0.75rem;
+  padding: 1.1rem;
+  color: var(--carbon);
+  background: var(--signal);
+  box-shadow: 0 22px 62px rgba(10, 10, 9, 0.4);
+  transform: translate(-50%, -50%);
+}
+
+.railshift__overlay strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.7rem, 5cqi, 2.7rem);
+  font-weight: 620;
+  letter-spacing: -0.03em;
+}
+
+.railshift__overlay p {
+  max-width: 44ch;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.railshift__overlay button {
+  min-height: 2.65rem;
+  padding: 0 1rem;
+  color: var(--ivory);
+  background: var(--carbon);
+  cursor: pointer;
+  font-size: 0.62rem;
+  transition: color 140ms ease, background 140ms ease;
+}
+
+.railshift__overlay button:hover,
+.railshift__overlay button:focus-visible {
+  color: white;
+  background: var(--cobalt);
+}
+
+.railshift__touch-controls {
+  position: absolute;
+  z-index: 3;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  display: none;
+  grid-template-columns: repeat(4, 2.9rem);
+  gap: 0.35rem;
+}
+
+.railshift__touch-controls button {
+  position: relative;
+  display: grid;
+  width: 2.9rem;
+  height: 2.9rem;
+  place-items: center;
+  color: var(--ivory);
+  background: var(--carbon);
+  border: 1px solid color-mix(in srgb, var(--ivory) 40%, transparent);
+  cursor: pointer;
+}
+
+.railshift__touch-controls button:hover,
+.railshift__touch-controls button:focus-visible,
+.railshift__touch-controls button:active {
+  color: var(--carbon);
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.railshift__touch-controls svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-width: 1.8;
+}
+
+.railshift__footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.25rem;
+  padding: 0.58rem 0.85rem;
+  background: var(--carbon);
+  border-top: 1px solid var(--rule-light);
+}
+
+.railshift__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@container (max-width: 600px) {
+  .railshift__header {
+    grid-template-columns: 1fr auto;
+    gap: 0.45rem 0.75rem;
+    min-height: 4.9rem;
+  }
+
+  .railshift__header p {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: none;
+  }
+
+  .railshift__identity span {
+    display: none;
+  }
+
+  .railshift__header-actions button {
+    min-height: 2.35rem;
+    padding: 0 0.5rem;
+  }
+
+  .railshift__hud {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .railshift__hud > span {
+    padding-inline: 0.42rem;
+  }
+
+  .railshift__hud > span:last-child {
+    display: none;
+  }
+
+  .railshift__touch-controls {
+    display: grid;
+  }
+
+  .railshift__footer span:first-child {
+    display: none;
+  }
+
+  .railshift__footer {
+    justify-content: flex-end;
+  }
+}
+
+@container (max-height: 390px) {
+  .railshift__header {
+    min-height: 3.65rem;
+    padding-block: 0.48rem;
+  }
+
+  .railshift__header p,
+  .railshift__identity span {
+    display: none;
+  }
+
+  .railshift__header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .railshift__footer {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .railshift__touch-controls {
+    display: grid;
+  }
+
+  .railshift__header-actions button,
+  .railshift__overlay button {
+    min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .railshift__header-actions button,
+  .railshift__overlay button {
+    transition-duration: 0.01ms !important;
+  }
+}

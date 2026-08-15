@@ -81,6 +81,7 @@ export default function PortfolioShell() {
         className="public-surface"
         aria-label="Sam Bai portfolio"
         aria-hidden={isWorkbenchOpen || undefined}
+        inert={isWorkbenchOpen ? true : undefined}
       >
         <header className="identity-block">
           <p className="identity-name">Sam Bai</p>
@@ -100,47 +101,58 @@ export default function PortfolioShell() {
           aria-expanded={isWorkbenchOpen}
         >
           <span className="aperture-bar">
-            <span>Workbench [W]</span>
+            <span>S/B · Workbench [W]</span>
             <span className="live-state">
               <span className="live-dot" aria-hidden="true" /> Live
             </span>
           </span>
           <span className="aperture-body" aria-hidden="true">
             <span className="aperture-column">
-              <span>NOW</span>
-              <span>METHOD</span>
-              <span>TOOLKIT</span>
+              <span>BUILD / 03</span>
+              <span>FIELD / 02</span>
+              <span>NOTES / 02</span>
             </span>
             <span className="aperture-signal">
-              <span>SOLYNTH / OPERATING</span>
-              <span>TREKKY / CURRENT</span>
-              <span>Hamilton / {newZealandTime}</span>
+              <span>ATLAS / READY</span>
+              <span>ARCHIVE / LOCAL</span>
+              <span>11 APPS / {newZealandTime}</span>
             </span>
           </span>
-          <span className="aperture-action">Open the personal layer</span>
+          <span className="aperture-action">Enter the local system</span>
         </button>
 
-        <h1 className="hero-statement">
-          <span>Sam is building</span>
-          <a
-            href="https://solynthlabs.com"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Solynth Labs.
-          </a>
-        </h1>
+        <div className="hero-cluster">
+          <h1 className="hero-statement">
+            <span>Sam builds software</span>
+            <span>for businesses in motion.</span>
+          </h1>
+          <p className="hero-deck">
+            Founder of{" "}
+            <a
+              href="https://solynthlabs.com"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Solynth Labs
+            </a>
+            . Product direction, design engineering, and production from New
+            Zealand.
+          </p>
+        </div>
 
         <div className="public-index" id="primary-links">
           <div className="index-intro">
-            <p>Software consultation and production.</p>
+            <p>Open for select B2B consulting engagements.</p>
             <p className="index-status">
-              Hamilton {newZealandTime} · Workbench online
+              Hamilton {newZealandTime} · Workbench local
             </p>
           </div>
 
           <nav className="index-group" aria-label="Primary links">
-            <p className="index-label">Go</p>
+            <p className="index-label">Routes</p>
+            <a className="index-link" href="mailto:sambai.codes@gmail.com">
+              Discuss a project
+            </a>
             <a
               className="index-link"
               href="https://solynthlabs.com"
@@ -161,14 +173,14 @@ export default function PortfolioShell() {
           </nav>
 
           <div className="index-group">
-            <p className="index-label">Current</p>
+            <p className="index-label">Operating</p>
             <a
               className="index-link"
               href="https://solynthlabs.com"
               target="_blank"
               rel="noreferrer"
             >
-              Solynth Labs
+              Solynth / Operating
             </a>
             <a
               className="index-link"
@@ -176,15 +188,12 @@ export default function PortfolioShell() {
               target="_blank"
               rel="noreferrer"
             >
-              Trekky.app
+              Trekky / Building
             </a>
           </div>
 
           <nav className="index-group" aria-label="Social and contact links">
             <p className="index-label">Connect</p>
-            <a className="index-link" href="mailto:sambai.codes@gmail.com">
-              Email
-            </a>
             {externalLinks.map((link) => (
               <a
                 className="index-link"

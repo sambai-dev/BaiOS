@@ -138,37 +138,56 @@ template {
   font-weight: 650;
 }
 
-.hero-statement {
+.hero-cluster {
   align-self: center;
-  max-width: min(84vw, 86rem);
-  margin: clamp(8rem, 14vh, 12rem) 0 clamp(4rem, 8vh, 7rem);
+  max-width: min(96vw, 92rem);
+  margin: clamp(3.5rem, 7vh, 6rem) 0 clamp(2rem, 4vh, 3.5rem);
+}
+
+.hero-statement {
+  max-width: none;
+  margin: 0;
   color: var(--ivory);
-  font-family: var(--font-display), sans-serif;
-  font-size: clamp(4.4rem, 9.7vw, 9.8rem);
-  font-weight: 400;
-  line-height: 0.86;
-  letter-spacing: -0.038em;
-  text-wrap: balance;
+  font-family: var(--font-body), sans-serif;
+  font-size: clamp(3.9rem, 7.2vw, 6rem);
+  font-weight: 650;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
 }
 
-.hero-statement span,
-.hero-statement a {
+.hero-statement span {
   display: block;
+  white-space: nowrap;
 }
 
-.hero-statement a {
-  width: fit-content;
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--cobalt);
-  text-decoration-thickness: 0.055em;
-  text-underline-offset: 0.08em;
-  transition: color 220ms ease, text-decoration-color 220ms ease;
+.hero-deck {
+  max-width: 62ch;
+  margin: clamp(1.1rem, 1.8vw, 1.8rem) 0 0;
+  color: var(--ivory-muted);
+  font-family: var(--font-data), monospace;
+  font-size: clamp(0.72rem, 0.82vw, 0.84rem);
+  line-height: 1.65;
 }
 
-.hero-statement a:hover {
-  color: white;
-  text-decoration-color: var(--signal);
+.hero-deck a {
+  position: relative;
+  color: var(--ivory);
+}
+
+.hero-deck a::after {
+  position: absolute;
+  right: 0;
+  bottom: -0.12rem;
+  left: 0;
+  height: 1px;
+  background: var(--cobalt);
+  content: "";
+  transition: background 180ms ease;
+}
+
+.hero-deck a:hover::after,
+.hero-deck a:focus-visible::after {
+  background: var(--signal);
 }
 
 .workbench-aperture {
@@ -177,9 +196,9 @@ template {
   right: 2rem;
   z-index: 4;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  width: clamp(15rem, 20vw, 20rem);
-  min-height: 10.75rem;
+  grid-template-rows: auto auto auto;
+  width: 11.4rem;
+  min-height: 0;
   padding: 0;
   overflow: hidden;
   color: var(--ivory);
@@ -191,15 +210,18 @@ template {
   text-align: left;
   transform-origin: top right;
   transition:
+    width 420ms var(--ease-out-expo),
     transform 420ms var(--ease-out-expo),
     box-shadow 420ms var(--ease-out-expo),
     border-color 220ms ease;
 }
 
-.workbench-aperture:hover {
+.workbench-aperture:hover,
+.workbench-aperture:focus-visible {
+  width: clamp(18rem, 22vw, 21rem);
   border-color: var(--signal);
   box-shadow: 0 20px 52px rgba(0, 0, 0, 0.42);
-  transform: scale(1.025);
+  transform: translate3d(0, 0, 0);
 }
 
 .aperture-bar,
@@ -214,8 +236,13 @@ template {
 }
 
 .aperture-bar {
+  min-height: 2.75rem;
   color: white;
   background: var(--cobalt);
+}
+
+.aperture-bar > span:first-child {
+  white-space: nowrap;
 }
 
 .live-state {
@@ -238,11 +265,26 @@ template {
   display: grid;
   grid-template-columns: 0.82fr 1.55fr;
   gap: 0.75rem;
-  padding: 0.8rem 0.7rem;
+  max-height: 0;
+  padding: 0 0.7rem;
+  overflow: hidden;
   color: var(--ivory-muted);
   font-family: var(--font-data), monospace;
   font-size: 0.52rem;
   line-height: 1.8;
+  opacity: 0;
+  transition:
+    max-height 420ms var(--ease-out-expo),
+    padding 420ms var(--ease-out-expo),
+    opacity 160ms ease;
+}
+
+.workbench-aperture:hover .aperture-body,
+.workbench-aperture:focus-visible .aperture-body {
+  max-height: 7rem;
+  padding: 0.8rem 0.7rem;
+  opacity: 1;
+  transition-delay: 0ms, 0ms, 80ms;
 }
 
 .aperture-column,
@@ -261,7 +303,26 @@ template {
 }
 
 .aperture-action {
-  border-top: 1px solid var(--rule-light);
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  border-top: 0 solid var(--rule-light);
+  opacity: 0;
+  transition:
+    max-height 420ms var(--ease-out-expo),
+    padding 420ms var(--ease-out-expo),
+    border-width 160ms ease,
+    opacity 160ms ease;
+}
+
+.workbench-aperture:hover .aperture-action,
+.workbench-aperture:focus-visible .aperture-action {
+  max-height: 3.4rem;
+  padding: 0.6rem 0.7rem;
+  border-top-width: 1px;
+  opacity: 1;
+  transition-delay: 0ms, 0ms, 80ms, 80ms;
 }
 
 .aperture-action::after {
@@ -275,7 +336,7 @@ template {
   grid-template-columns: minmax(15rem, 2.2fr) repeat(3, minmax(8rem, 1fr));
   gap: clamp(1.5rem, 4vw, 5rem);
   align-items: end;
-  padding-top: 1.5rem;
+  padding-top: 1.15rem;
   border-top: 1px solid var(--rule-light);
 }
 
@@ -622,13 +683,21 @@ template {
   .workbench-aperture {
     top: 1.5rem;
     right: 1.5rem;
-    width: 14rem;
+    width: 10.6rem;
+  }
+
+  .hero-cluster {
+    max-width: 100%;
+    margin: 7.5rem 0 3rem;
   }
 
   .hero-statement {
-    max-width: 95%;
-    margin-top: 13rem;
-    font-size: clamp(4rem, 12vw, 7.5rem);
+    max-width: 100%;
+    font-size: clamp(3.6rem, 9.2vw, 5.8rem);
+  }
+
+  .hero-statement span {
+    white-space: normal;
   }
 
   .public-index {
@@ -698,23 +767,24 @@ template {
 
   .identity-block {
     max-width: 48vw;
-    font-size: 0.58rem;
+    font-size: 0.66rem;
   }
 
   .workbench-aperture {
     top: 1.1rem;
     right: 1.1rem;
-    width: 8.1rem;
+    width: 9.4rem;
     min-height: 5.8rem;
+  }
+
+  .workbench-aperture:hover,
+  .workbench-aperture:focus-visible {
+    width: 9.4rem;
   }
 
   .aperture-bar {
     padding: 0.48rem 0.5rem;
-    font-size: 0.48rem;
-  }
-
-  .aperture-bar > span:first-child {
-    max-width: 4.8rem;
+    font-size: 0.52rem;
   }
 
   .aperture-body {
@@ -723,8 +793,11 @@ template {
 
   .aperture-action {
     min-height: 3rem;
+    max-height: 3rem;
     padding: 0.6rem 0.5rem;
-    font-size: 0.5rem;
+    border-top-width: 1px;
+    font-size: 0.64rem;
+    opacity: 1;
   }
 
   .live-state {
@@ -736,11 +809,20 @@ template {
     height: 0.3rem;
   }
 
+  .hero-cluster {
+    margin: 8.5rem 0 2.5rem;
+  }
+
   .hero-statement {
     max-width: 100%;
-    margin: 10.5rem 0 4rem;
-    font-size: clamp(3.5rem, 15.6vw, 5.2rem);
+    font-size: clamp(3.2rem, 13.8vw, 4.6rem);
     line-height: 0.9;
+  }
+
+  .hero-deck {
+    margin-top: 1rem;
+    font-size: 0.66rem;
+    line-height: 1.55;
   }
 
   .public-index {
@@ -758,9 +840,12 @@ template {
   }
 
   .index-status,
-  .index-label,
+  .index-label {
+    font-size: 0.64rem;
+  }
+
   .index-link {
-    font-size: 0.58rem;
+    font-size: 0.75rem;
   }
 
   .workbench-bar {
@@ -834,6 +919,18 @@ template {
   .workbench-footer span {
     width: 100%;
     margin-left: 0;
+  }
+}
+
+@media (pointer: coarse) {
+  .index-link {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+
+  .index-group {
+    gap: 0;
   }
 }
 

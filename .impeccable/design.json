@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-14T23:31:20.6951903+12:00",
+  "generatedAt": "2026-08-15T12:54:22.5397324+12:00",
   "title": "Design System: Quiet Junction / Sam Bai Portfolio",
   "extensions": {
     "colorMeta": {
@@ -8,55 +8,226 @@
         "role": "neutral",
         "displayName": "Carbon Grain",
         "canonical": "#11110f",
-        "tonalRamp": ["oklch(15% 0.006 100)", "oklch(26% 0.006 100)", "oklch(38% 0.006 100)", "oklch(50% 0.006 100)", "oklch(62% 0.006 100)", "oklch(74% 0.006 100)", "oklch(86% 0.006 100)", "oklch(95% 0.006 100)"]
+        "tonalRamp": [
+          "oklch(15% 0.006 100)",
+          "oklch(26% 0.006 100)",
+          "oklch(38% 0.006 100)",
+          "oklch(50% 0.006 100)",
+          "oklch(62% 0.006 100)",
+          "oklch(74% 0.006 100)",
+          "oklch(86% 0.006 100)",
+          "oklch(95% 0.006 100)"
+        ]
       },
       "carbon-soft": {
         "role": "neutral",
         "displayName": "Soft Carbon",
         "canonical": "#1b1b18",
-        "tonalRamp": ["oklch(15% 0.008 100)", "oklch(26% 0.008 100)", "oklch(38% 0.008 100)", "oklch(50% 0.008 100)", "oklch(62% 0.008 100)", "oklch(74% 0.008 100)", "oklch(86% 0.008 100)", "oklch(95% 0.008 100)"]
+        "tonalRamp": [
+          "oklch(15% 0.008 100)",
+          "oklch(26% 0.008 100)",
+          "oklch(38% 0.008 100)",
+          "oklch(50% 0.008 100)",
+          "oklch(62% 0.008 100)",
+          "oklch(74% 0.008 100)",
+          "oklch(86% 0.008 100)",
+          "oklch(95% 0.008 100)"
+        ]
       },
       "ivory": {
         "role": "neutral",
         "displayName": "Ivory Paper",
         "canonical": "#f0efe8",
-        "tonalRamp": ["oklch(15% 0.012 95)", "oklch(26% 0.012 95)", "oklch(38% 0.012 95)", "oklch(50% 0.012 95)", "oklch(62% 0.012 95)", "oklch(74% 0.012 95)", "oklch(86% 0.012 95)", "oklch(95% 0.012 95)"]
+        "tonalRamp": [
+          "oklch(15% 0.012 95)",
+          "oklch(26% 0.012 95)",
+          "oklch(38% 0.012 95)",
+          "oklch(50% 0.012 95)",
+          "oklch(62% 0.012 95)",
+          "oklch(74% 0.012 95)",
+          "oklch(86% 0.012 95)",
+          "oklch(95% 0.012 95)"
+        ]
       },
       "ivory-muted": {
         "role": "neutral",
         "displayName": "Muted Ivory",
         "canonical": "#bbb9b0",
-        "tonalRamp": ["oklch(15% 0.012 90)", "oklch(26% 0.012 90)", "oklch(38% 0.012 90)", "oklch(50% 0.012 90)", "oklch(62% 0.012 90)", "oklch(74% 0.012 90)", "oklch(86% 0.012 90)", "oklch(95% 0.012 90)"]
+        "tonalRamp": [
+          "oklch(15% 0.012 90)",
+          "oklch(26% 0.012 90)",
+          "oklch(38% 0.012 90)",
+          "oklch(50% 0.012 90)",
+          "oklch(62% 0.012 90)",
+          "oklch(74% 0.012 90)",
+          "oklch(86% 0.012 90)",
+          "oklch(95% 0.012 90)"
+        ]
       },
       "cobalt": {
         "role": "primary",
         "displayName": "Cobalt Operational Light",
         "canonical": "#4c5ce5",
-        "tonalRamp": ["oklch(15% 0.19 272)", "oklch(26% 0.19 272)", "oklch(38% 0.19 272)", "oklch(50% 0.19 272)", "oklch(62% 0.19 272)", "oklch(74% 0.19 272)", "oklch(86% 0.19 272)", "oklch(95% 0.19 272)"]
+        "tonalRamp": [
+          "oklch(15% 0.19 272)",
+          "oklch(26% 0.19 272)",
+          "oklch(38% 0.19 272)",
+          "oklch(50% 0.19 272)",
+          "oklch(62% 0.19 272)",
+          "oklch(74% 0.19 272)",
+          "oklch(86% 0.19 272)",
+          "oklch(95% 0.19 272)"
+        ]
       },
       "cobalt-deep": {
         "role": "primary",
         "displayName": "Deep Cobalt",
         "canonical": "#3543bd",
-        "tonalRamp": ["oklch(15% 0.18 272)", "oklch(26% 0.18 272)", "oklch(38% 0.18 272)", "oklch(50% 0.18 272)", "oklch(62% 0.18 272)", "oklch(74% 0.18 272)", "oklch(86% 0.18 272)", "oklch(95% 0.18 272)"]
+        "tonalRamp": [
+          "oklch(15% 0.18 272)",
+          "oklch(26% 0.18 272)",
+          "oklch(38% 0.18 272)",
+          "oklch(50% 0.18 272)",
+          "oklch(62% 0.18 272)",
+          "oklch(74% 0.18 272)",
+          "oklch(86% 0.18 272)",
+          "oklch(95% 0.18 272)"
+        ]
       },
       "signal": {
         "role": "secondary",
         "displayName": "Signal Green",
         "canonical": "#59df79",
-        "tonalRamp": ["oklch(15% 0.18 148)", "oklch(26% 0.18 148)", "oklch(38% 0.18 148)", "oklch(50% 0.18 148)", "oklch(62% 0.18 148)", "oklch(74% 0.18 148)", "oklch(86% 0.18 148)", "oklch(95% 0.18 148)"]
+        "tonalRamp": [
+          "oklch(15% 0.18 148)",
+          "oklch(26% 0.18 148)",
+          "oklch(38% 0.18 148)",
+          "oklch(50% 0.18 148)",
+          "oklch(62% 0.18 148)",
+          "oklch(74% 0.18 148)",
+          "oklch(86% 0.18 148)",
+          "oklch(95% 0.18 148)"
+        ]
       },
       "rule-dark": {
         "role": "neutral",
         "displayName": "Dark Rule",
         "canonical": "rgba(17, 17, 15, 0.26)",
-        "tonalRamp": ["oklch(15% 0.006 100)", "oklch(26% 0.006 100)", "oklch(38% 0.006 100)", "oklch(50% 0.006 100)", "oklch(62% 0.006 100)", "oklch(74% 0.006 100)", "oklch(86% 0.006 100)", "oklch(95% 0.006 100)"]
+        "tonalRamp": [
+          "oklch(15% 0.006 100)",
+          "oklch(26% 0.006 100)",
+          "oklch(38% 0.006 100)",
+          "oklch(50% 0.006 100)",
+          "oklch(62% 0.006 100)",
+          "oklch(74% 0.006 100)",
+          "oklch(86% 0.006 100)",
+          "oklch(95% 0.006 100)"
+        ]
       },
       "rule-light": {
         "role": "neutral",
         "displayName": "Light Rule",
         "canonical": "rgba(240, 239, 232, 0.24)",
-        "tonalRamp": ["oklch(15% 0.012 95)", "oklch(26% 0.012 95)", "oklch(38% 0.012 95)", "oklch(50% 0.012 95)", "oklch(62% 0.012 95)", "oklch(74% 0.012 95)", "oklch(86% 0.012 95)", "oklch(95% 0.012 95)"]
+        "tonalRamp": [
+          "oklch(15% 0.012 95)",
+          "oklch(26% 0.012 95)",
+          "oklch(38% 0.012 95)",
+          "oklch(50% 0.012 95)",
+          "oklch(62% 0.012 95)",
+          "oklch(74% 0.012 95)",
+          "oklch(86% 0.012 95)",
+          "oklch(95% 0.012 95)"
+        ]
+      },
+      "oxide": {
+        "role": "primary",
+        "displayName": "Oxide Route",
+        "canonical": "#ba5b3f",
+        "tonalRamp": [
+          "oklch(15% 0.14 35)",
+          "oklch(26% 0.14 35)",
+          "oklch(38% 0.14 35)",
+          "oklch(50% 0.14 35)",
+          "oklch(62% 0.14 35)",
+          "oklch(74% 0.14 35)",
+          "oklch(86% 0.14 35)",
+          "oklch(95% 0.14 35)"
+        ]
+      },
+      "oxide-deep": {
+        "role": "primary",
+        "displayName": "Deep Oxide",
+        "canonical": "#8f3e29",
+        "tonalRamp": [
+          "oklch(15% 0.13 35)",
+          "oklch(26% 0.13 35)",
+          "oklch(38% 0.13 35)",
+          "oklch(50% 0.13 35)",
+          "oklch(62% 0.13 35)",
+          "oklch(74% 0.13 35)",
+          "oklch(86% 0.13 35)",
+          "oklch(95% 0.13 35)"
+        ]
+      },
+      "oxide-signal": {
+        "role": "secondary",
+        "displayName": "Oxide Signal",
+        "canonical": "#f0c95d",
+        "tonalRamp": [
+          "oklch(15% 0.15 92)",
+          "oklch(26% 0.15 92)",
+          "oklch(38% 0.15 92)",
+          "oklch(50% 0.15 92)",
+          "oklch(62% 0.15 92)",
+          "oklch(74% 0.15 92)",
+          "oklch(86% 0.15 92)",
+          "oklch(95% 0.15 92)"
+        ]
+      },
+      "graphite": {
+        "role": "primary",
+        "displayName": "Graphite Route",
+        "canonical": "#515963",
+        "tonalRamp": [
+          "oklch(15% 0.025 255)",
+          "oklch(26% 0.025 255)",
+          "oklch(38% 0.025 255)",
+          "oklch(50% 0.025 255)",
+          "oklch(62% 0.025 255)",
+          "oklch(74% 0.025 255)",
+          "oklch(86% 0.025 255)",
+          "oklch(95% 0.025 255)"
+        ]
+      },
+      "graphite-deep": {
+        "role": "primary",
+        "displayName": "Deep Graphite",
+        "canonical": "#353b43",
+        "tonalRamp": [
+          "oklch(15% 0.025 255)",
+          "oklch(26% 0.025 255)",
+          "oklch(38% 0.025 255)",
+          "oklch(50% 0.025 255)",
+          "oklch(62% 0.025 255)",
+          "oklch(74% 0.025 255)",
+          "oklch(86% 0.025 255)",
+          "oklch(95% 0.025 255)"
+        ]
+      },
+      "graphite-signal": {
+        "role": "secondary",
+        "displayName": "Graphite Signal",
+        "canonical": "#b8d9ff",
+        "tonalRamp": [
+          "oklch(15% 0.08 245)",
+          "oklch(26% 0.08 245)",
+          "oklch(38% 0.08 245)",
+          "oklch(50% 0.08 245)",
+          "oklch(62% 0.08 245)",
+          "oklch(74% 0.08 245)",
+          "oklch(86% 0.08 245)",
+          "oklch(95% 0.08 245)"
+        ]
       }
     },
     "typographyMeta": {
@@ -78,7 +249,7 @@
       },
       "label": {
         "displayName": "Operational Label",
-        "purpose": "State, shortcuts, coordinates, legends, and navigation metadata."
+        "purpose": "Menus, state, shortcuts, coordinates, files, and telemetry."
       }
     },
     "shadows": [
@@ -95,7 +266,7 @@
       {
         "name": "window-rest",
         "value": "0 22px 58px rgba(10, 10, 9, 0.32)",
-        "purpose": "Separates a movable ivory window from the cobalt desktop."
+        "purpose": "Separates a movable ivory window from the route-color desktop."
       },
       {
         "name": "window-active",
@@ -103,21 +274,41 @@
         "purpose": "Raises the focused Workbench window."
       },
       {
-        "name": "palette",
-        "value": "0 30px 90px rgba(10, 10, 9, 0.5)",
-        "purpose": "Reserves the strongest lift for the modal command surface."
+        "name": "window-snapped",
+        "value": "0 18px 48px rgba(10, 10, 9, 0.4)",
+        "purpose": "Holds a snapped window below the freely focused state."
       },
       {
-        "name": "lab-overlay",
+        "name": "menu-popup",
+        "value": "0 24px 70px rgba(17, 17, 15, 0.36)",
+        "purpose": "Separates an app-aware menu from the window field."
+      },
+      {
+        "name": "context-menu",
+        "value": "0 20px 52px rgba(10, 10, 9, 0.42)",
+        "purpose": "Lifts temporary desktop-local actions."
+      },
+      {
+        "name": "system-search",
+        "value": "0 30px 90px rgba(10, 10, 9, 0.5)",
+        "purpose": "Reserves the strongest routine lift for system search."
+      },
+      {
+        "name": "atlas-surface",
+        "value": "0 36px 96px rgba(0, 0, 0, 0.52)",
+        "purpose": "Holds the workspace map above every working surface."
+      },
+      {
+        "name": "lab-notice",
         "value": "0 18px 50px rgba(10, 10, 9, 0.34)",
-        "purpose": "Lifts the Subsurface start and restart prompt."
+        "purpose": "Lifts a start, restart, save, or recovery notice."
       }
     ],
     "motion": [
       {
         "name": "ease-out-expo",
         "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Shared spatial easing for route underlines, the aperture, Workbench reveal, and windows."
+        "purpose": "Shared spatial easing for route underlines, Workbench reveal, and Atlas."
       },
       {
         "name": "workbench-reveal",
@@ -125,131 +316,171 @@
         "purpose": "Expands the Workbench from the top-right aperture."
       },
       {
-        "name": "window-enter",
-        "value": "240ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Reveals an opened Workbench window with scale, opacity, and clipping."
+        "name": "atlas-reveal",
+        "value": "460ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Raises and scales the cross-workspace map into view."
       },
       {
         "name": "control-state",
-        "value": "150ms–220ms ease",
-        "purpose": "Keeps hover, focus, and active inversions immediate."
+        "value": "150ms–180ms ease",
+        "purpose": "Keeps menu, dock, window, and field state changes immediate."
+      },
+      {
+        "name": "atlas-preview",
+        "value": "220ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Adds a restrained three-pixel lift to an available preview."
       },
       {
         "name": "reduced-motion",
-        "value": "10ms transitions; 150ms Workbench opacity fade",
-        "purpose": "Removes spatial movement while preserving legible state change."
+        "value": "0.01ms interaction transitions; 150ms Workbench opacity fade",
+        "purpose": "Removes nonessential spatial movement while preserving legible state change."
       }
     ],
     "breakpoints": [
       {
-        "name": "workbench-single-window",
+        "name": "dock-scroll",
+        "value": "1120px"
+      },
+      {
+        "name": "menu-condensed",
+        "value": "1080px"
+      },
+      {
+        "name": "workbench-single-active",
         "value": "980px"
       },
       {
-        "name": "public-two-column",
+        "name": "archive-three-region-reflow",
+        "value": "840px"
+      },
+      {
+        "name": "menu-compact",
+        "value": "760px"
+      },
+      {
+        "name": "atlas-public-compact",
         "value": "620px"
       },
       {
-        "name": "workbench-compact-data",
+        "name": "archive-compact",
+        "value": "580px"
+      },
+      {
+        "name": "workbench-ultra-compact",
         "value": "520px"
+      },
+      {
+        "name": "atlas-single-preview",
+        "value": "380px"
       }
     ]
   },
   "components": [
     {
-      "name": "Public Index Link",
-      "kind": "nav",
-      "refersTo": "public-index-link",
-      "description": "A quiet mono route whose underline draws only on hover or keyboard focus.",
-      "html": "<a class=\"ds-index-link\" href=\"#\">Visit Solynth Labs</a>",
-      "css": ".ds-index-link { position: relative; display: inline-block; width: fit-content; padding: 0; color: var(--ivory); background: transparent; font-family: var(--font-data), monospace; font-size: 0.68rem; line-height: 1.45; text-decoration: none; } .ds-index-link::after { position: absolute; right: 0; bottom: -0.12rem; left: 0; height: 1px; background: currentColor; content: ''; transform: scaleX(0); transform-origin: right; transition: transform 280ms var(--ease-out-expo); } .ds-index-link:hover::after, .ds-index-link:focus-visible::after { transform: scaleX(1); transform-origin: left; } .ds-index-link:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }"
-    },
-    {
-      "name": "Workbench Instrument Button",
-      "kind": "button",
-      "refersTo": "workbench-control",
-      "description": "A square, outlined toolbar action that inverts to signal green for hover and focus.",
-      "html": "<button class=\"ds-workbench-control\" type=\"button\">Command [/]</button>",
-      "css": ".ds-workbench-control { min-height: 2rem; padding: 0 0.65rem; color: var(--ivory); background: transparent; border: 1px solid var(--rule-light); border-radius: 0; cursor: pointer; font-family: var(--font-data), monospace; font-size: 0.65rem; text-transform: uppercase; transition: color 160ms ease, background 160ms ease, border-color 160ms ease; } .ds-workbench-control:hover, .ds-workbench-control:focus-visible { color: var(--carbon); background: var(--signal); border-color: var(--signal); } .ds-workbench-control:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }"
-    },
-    {
       "name": "Workbench Aperture",
-      "kind": "custom",
-      "description": "The live, top-level entry instrument into the personal Workbench layer.",
+      "kind": "button",
+      "description": "The compact live public entry instrument: 11.4rem at rest, expanding to an 18–21rem operational view on hover or focus without scaling.",
       "html": "<button class=\"ds-aperture\" type=\"button\"><span class=\"ds-aperture-bar\"><span>Workbench [W]</span><span class=\"ds-aperture-live\"><i></i>Live</span></span><span class=\"ds-aperture-body\"><span>NOW<br>METHOD<br>TOOLKIT</span><strong>SOLYNTH / OPERATING<br>TREKKY / CURRENT<br>HAMILTON / 23:13</strong></span><span class=\"ds-aperture-action\">Open the personal layer <b>Open</b></span></button>",
-      "css": ".ds-aperture { display: grid; grid-template-rows: auto 1fr auto; width: min(20rem, 100%); min-height: 10.75rem; padding: 0; overflow: hidden; color: var(--ivory); background: rgba(17, 17, 15, 0.96); border: 1px solid var(--cobalt); border-radius: 0; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28); cursor: pointer; text-align: left; transition: transform 420ms var(--ease-out-expo), box-shadow 420ms var(--ease-out-expo), border-color 220ms ease; } .ds-aperture:hover { border-color: var(--signal); box-shadow: 0 20px 52px rgba(0, 0, 0, 0.42); transform: scale(1.025); } .ds-aperture:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; } .ds-aperture-bar, .ds-aperture-action { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.7rem; font-family: var(--font-data), monospace; font-size: 0.62rem; } .ds-aperture-bar { color: white; background: var(--cobalt); } .ds-aperture-live { display: inline-flex; gap: 0.35rem; align-items: center; color: #baffc9; text-transform: uppercase; } .ds-aperture-live i { width: 0.4rem; height: 0.4rem; background: var(--signal); border-radius: 50%; box-shadow: 0 0 0 3px rgba(89, 223, 121, 0.12); } .ds-aperture-body { display: grid; grid-template-columns: 0.82fr 1.55fr; gap: 0.75rem; padding: 0.8rem 0.7rem; color: var(--ivory-muted); font-family: var(--font-data), monospace; font-size: 0.52rem; line-height: 1.8; } .ds-aperture-body > span { padding-right: 0.7rem; border-right: 1px solid var(--rule-light); font-weight: 400; } .ds-aperture-body strong { color: var(--ivory); font-weight: 400; } .ds-aperture-action { border-top: 1px solid var(--rule-light); } .ds-aperture-action b { color: var(--signal); font-weight: 400; text-transform: uppercase; }"
+      "css": ".ds-aperture { display:grid; grid-template-rows:auto auto auto; width:11.4rem; min-height:0; padding:0; overflow:hidden; color:var(--ivory); background:rgba(17,17,15,.96); border:1px solid var(--cobalt); border-radius:0; box-shadow:0 14px 36px rgba(0,0,0,.28); cursor:pointer; text-align:left; transform-origin:top right; transition:width 420ms var(--ease-out-expo),box-shadow 420ms var(--ease-out-expo),border-color 220ms ease; } .ds-aperture:hover,.ds-aperture:focus-visible { width:clamp(18rem,22vw,21rem); border-color:var(--signal); box-shadow:0 20px 52px rgba(0,0,0,.42); } .ds-aperture:focus-visible { outline:2px solid var(--signal); outline-offset:4px; } .ds-aperture-bar,.ds-aperture-action { display:flex; align-items:center; justify-content:space-between; padding:.6rem .7rem; font-family:var(--font-data),monospace; font-size:.62rem; } .ds-aperture-bar { min-height:2.75rem; color:white; background:var(--cobalt); } .ds-aperture-live { display:inline-flex; gap:.35rem; align-items:center; color:#baffc9; text-transform:uppercase; } .ds-aperture-live i { width:.4rem; height:.4rem; background:var(--signal); border-radius:50%; box-shadow:0 0 0 3px rgba(89,223,121,.12); } .ds-aperture-body { display:grid; grid-template-columns:.82fr 1.55fr; gap:.75rem; max-height:0; padding:0 .7rem; overflow:hidden; color:var(--ivory-muted); opacity:0; font-family:var(--font-data),monospace; font-size:.52rem; line-height:1.8; transition:max-height 420ms var(--ease-out-expo),padding 420ms var(--ease-out-expo),opacity 160ms ease; } .ds-aperture:hover .ds-aperture-body,.ds-aperture:focus-visible .ds-aperture-body { max-height:7rem; padding:.8rem .7rem; opacity:1; } .ds-aperture-body > span { padding-right:.7rem; border-right:1px solid var(--rule-light); } .ds-aperture-body strong { color:var(--ivory); font-weight:400; } .ds-aperture-action { max-height:0; padding-top:0; padding-bottom:0; overflow:hidden; border-top:0 solid var(--rule-light); opacity:0; transition:max-height 420ms var(--ease-out-expo),padding 420ms var(--ease-out-expo),border-width 160ms ease,opacity 160ms ease; } .ds-aperture:hover .ds-aperture-action,.ds-aperture:focus-visible .ds-aperture-action { max-height:3.4rem; padding:.6rem .7rem; border-top-width:1px; opacity:1; } .ds-aperture-action b { color:var(--signal); font-weight:400; text-transform:uppercase; }"
+    },
+    {
+      "name": "Workbench Menu Bar",
+      "kind": "nav",
+      "refersTo": "workbench-menu-trigger",
+      "description": "Original app-aware chrome for Workbench, File, View, Window, Go, Atlas, system search, and portfolio exit.",
+      "html": "<nav class=\"ds-menu\" aria-label=\"Workbench menu bar\"><span class=\"ds-menu-mark\">S/B</span><span class=\"ds-menu-context\">Build / Archive</span><div class=\"ds-menu-strip\" role=\"menubar\"><button class=\"ds-menu-trigger\" role=\"menuitem\" aria-haspopup=\"menu\">Workbench</button><button class=\"ds-menu-trigger is-open\" role=\"menuitem\" aria-haspopup=\"menu\" aria-expanded=\"true\">File</button><button class=\"ds-menu-trigger\" role=\"menuitem\" aria-haspopup=\"menu\">View</button><button class=\"ds-menu-trigger\" role=\"menuitem\" aria-haspopup=\"menu\">Window</button><button class=\"ds-menu-trigger\" role=\"menuitem\" aria-haspopup=\"menu\">Go</button><div class=\"ds-menu-popup\" role=\"menu\"><button class=\"is-selected\" role=\"menuitem\">New Archive window <span>Shift+9</span></button><button role=\"menuitem\">Export session <span>JSON</span></button><button class=\"is-disabled\" role=\"menuitem\" aria-disabled=\"true\">Save file <span>—</span></button></div></div><button class=\"ds-menu-system\" type=\"button\">Atlas [F3]</button></nav>",
+      "css": ".ds-menu { position:relative; display:grid; height:3.75rem; grid-template-columns:auto auto minmax(0,1fr) auto; color:var(--ivory); background:var(--carbon); border-bottom:1px solid var(--rule-light); font: .62rem/1 var(--font-data),monospace; text-transform:uppercase; } .ds-menu-mark { display:grid; width:3.75rem; place-items:center; background:var(--cobalt); font-weight:700; } .ds-menu-context { display:grid; min-width:8.6rem; place-items:center; padding:0 .9rem; color:var(--ivory-muted); border-right:1px solid var(--rule-light); } .ds-menu-strip { position:relative; display:flex; } .ds-menu-trigger,.ds-menu-system { height:100%; padding:0 .78rem; color:var(--ivory-muted); background:transparent; border:0; border-right:1px solid var(--rule-light); font:inherit; text-transform:inherit; } .ds-menu-trigger:hover,.ds-menu-trigger:focus-visible,.ds-menu-trigger.is-open,.ds-menu-system:hover,.ds-menu-system:focus-visible { color:var(--carbon); background:var(--signal); outline:2px solid var(--signal); outline-offset:-2px; } .ds-menu-popup { position:absolute; z-index:2; top:100%; left:0; display:grid; width:19rem; color:var(--carbon); background:var(--ivory); border:1px solid var(--carbon); box-shadow:0 24px 70px rgba(17,17,15,.36); } .ds-menu-popup button { display:flex; min-height:2.35rem; align-items:center; justify-content:space-between; padding:0 .75rem; background:transparent; border:0; border-bottom:1px solid var(--rule-dark); } .ds-menu-popup button.is-selected { color:white; background:var(--cobalt); } .ds-menu-popup button.is-disabled { color:#85837a; }"
     },
     {
       "name": "Workbench Window",
       "kind": "custom",
-      "description": "A draggable, focusable ivory workspace with carbon chrome and an explicit resize grip.",
-      "html": "<section class=\"ds-window\" tabindex=\"-1\" aria-label=\"Stack window\"><div class=\"ds-window-bar\"><span>Stack</span><span class=\"ds-window-state\">Active</span><span class=\"ds-window-controls\"><button>Minimize</button><button>Maximize</button><button>Close</button></span></div><div class=\"ds-window-content\"><h2>One shipping surface.</h2><p>Web, mobile, data, infrastructure, and product loops.</p></div><button class=\"ds-window-resize\" aria-label=\"Resize Stack window\"></button></section>",
+      "description": "A square window with active elevation, snap/maximize state, semantic controls, and an explicit keyboard resize grip; capable apps can have multiple instances.",
+      "html": "<section class=\"ds-window\" tabindex=\"-1\" aria-label=\"Archive window\"><div class=\"ds-window-bar\"><span>Archive 2</span><span class=\"ds-window-state\">Build / Active</span><span class=\"ds-window-controls\"><button type=\"button\">Minimize</button><button type=\"button\">Maximize</button><button type=\"button\">Close</button></span></div><div class=\"ds-window-content\"><h2>Working state, kept close.</h2><p>Closing removes this surface from Atlas and the running count while preserving serialized instance data for reopen.</p></div><button class=\"ds-window-resize\" type=\"button\" aria-label=\"Resize Archive 2 window\"></button></section>",
       "css": ".ds-window { position: relative; display: flex; width: min(38rem, 100%); min-height: 18rem; flex-direction: column; overflow: hidden; color: var(--carbon); background: var(--ivory); box-shadow: 0 28px 78px rgba(10, 10, 9, 0.46); outline: 1px solid var(--signal); } .ds-window-bar { display: flex; min-height: 2.4rem; align-items: center; gap: 0.7rem; padding-left: 0.8rem; color: var(--ivory); background: var(--carbon); border-bottom: 1px solid var(--rule-light); cursor: grab; font-family: var(--font-data), monospace; font-size: 0.6rem; text-transform: uppercase; } .ds-window-state { color: var(--ivory-muted); } .ds-window-controls { display: flex; align-self: stretch; margin-left: auto; } .ds-window-controls button { min-width: 3.9rem; padding: 0 0.55rem; color: var(--ivory-muted); background: transparent; border: 0; border-left: 1px solid var(--rule-light); font: inherit; text-transform: uppercase; } .ds-window-controls button:hover, .ds-window-controls button:focus-visible { color: var(--carbon); background: var(--signal); } .ds-window-content { flex: 1; padding: 1.2rem; } .ds-window-content h2 { max-width: 13ch; margin: 0; font-family: var(--font-display), sans-serif; font-size: clamp(1.8rem, 3vw, 3.45rem); font-weight: 400; line-height: 0.92; letter-spacing: -0.03em; } .ds-window-content p { max-width: 48ch; font-family: var(--font-body), sans-serif; font-size: 0.9rem; line-height: 1.48; } .ds-window-resize { position: absolute; right: 0; bottom: 0; width: 1.25rem; height: 1.25rem; padding: 0; background: linear-gradient(135deg, transparent 46%, var(--carbon) 47%, var(--carbon) 52%, transparent 53%), linear-gradient(135deg, transparent 64%, var(--carbon) 65%, var(--carbon) 70%, transparent 71%); border: 0; cursor: nwse-resize; } .ds-window-resize:hover, .ds-window-resize:focus-visible { background-color: var(--signal); outline: 1px solid var(--carbon); outline-offset: -1px; }"
     },
     {
-      "name": "Workbench Dock App",
+      "name": "Workbench Dock",
       "kind": "nav",
       "refersTo": "dock-app-active",
-      "description": "A compact app switcher that exposes shortcut and open-state metadata.",
-      "html": "<nav class=\"ds-dock\" aria-label=\"Workbench applications\"><button class=\"ds-dock-app is-active\" type=\"button\" aria-pressed=\"true\"><span>Vector</span><span>[8]</span><small>Open</small></button><button class=\"ds-dock-app\" type=\"button\" aria-pressed=\"false\"><span>Subsurface</span><span>[7]</span><small>Closed</small></button></nav>",
-      "css": ".ds-dock { display: flex; min-height: 4.6rem; overflow-x: auto; color: var(--ivory); background: var(--carbon); border-top: 1px solid var(--rule-light); } .ds-dock-app { display: grid; min-width: 7rem; grid-template-columns: 1fr auto; grid-template-rows: 1fr auto; gap: 0.35rem; padding: 0.6rem 0.75rem; color: var(--ivory); background: transparent; border: 0; border-right: 1px solid var(--rule-light); cursor: pointer; font-family: var(--font-data), monospace; font-size: 0.58rem; text-align: left; text-transform: uppercase; transition: color 160ms ease, background 160ms ease; } .ds-dock-app small { grid-column: 1 / -1; color: var(--ivory-muted); font: inherit; font-size: 0.5rem; } .ds-dock-app:hover, .ds-dock-app:focus-visible, .ds-dock-app.is-active { color: white; background: var(--cobalt); } .ds-dock-app:focus-visible { outline: 2px solid var(--signal); outline-offset: -3px; } .ds-dock-app.is-active small { color: #dfe2ff; }"
+      "description": "The horizontally resilient eleven-app switcher with exact Closed, Suspended, Active, and Running state language.",
+      "html": "<nav class=\"ds-dock\" aria-label=\"Workbench applications\"><button class=\"ds-dock-app is-active\" type=\"button\" aria-pressed=\"true\"><span>Railshift</span><span>[R]</span><small>Active</small></button><button class=\"ds-dock-app\" type=\"button\" aria-pressed=\"false\"><span>Archive</span><span>[9]</span><small>Running · 2 open</small></button><button class=\"ds-dock-app\" type=\"button\" aria-pressed=\"false\"><span>Vector</span><span>[8]</span><small>Running</small></button><button class=\"ds-dock-app\" type=\"button\" aria-pressed=\"false\"><span>Subsurface</span><span>[7]</span><small>Suspended</small></button><button class=\"ds-dock-app\" type=\"button\" aria-pressed=\"false\"><span>Control</span><span>[0]</span><small>Closed</small></button></nav>",
+      "css": ".ds-dock { display:flex; min-height:4.6rem; overflow-x:auto; color:var(--ivory); background:var(--carbon); border-top:1px solid var(--rule-light); } .ds-dock-app { display:grid; min-width:7rem; grid-template-columns:1fr auto; grid-template-rows:1fr auto; gap:.35rem; padding:.6rem .75rem; color:var(--ivory); background:transparent; border:0; border-right:1px solid var(--rule-light); cursor:pointer; font-family:var(--font-data),monospace; font-size:.58rem; text-align:left; text-transform:uppercase; transition:color 160ms ease,background 160ms ease; } .ds-dock-app small { grid-column:1/-1; color:var(--ivory-muted); font:inherit; font-size:.5rem; } .ds-dock-app:hover,.ds-dock-app:focus-visible,.ds-dock-app.is-active { color:white; background:var(--cobalt); } .ds-dock-app:focus-visible { outline:2px solid var(--signal); outline-offset:-3px; } .ds-dock-app.is-active small { color:#dfe2ff; }"
     },
     {
-      "name": "Command Palette",
-      "kind": "custom",
-      "description": "A modal command surface with a native combobox and visibly active results.",
-      "html": "<section class=\"ds-palette\" role=\"dialog\" aria-modal=\"true\" aria-label=\"Workbench command palette\"><div class=\"ds-palette-search\"><label for=\"ds-command\">Run a command</label><span>Esc to close</span><input id=\"ds-command\" role=\"combobox\" aria-expanded=\"true\" value=\"Open\" readonly></div><div class=\"ds-palette-results\" role=\"listbox\"><button class=\"is-selected\" role=\"option\" aria-selected=\"true\"><span>Open Vector</span><span>App · 8</span></button><button role=\"option\" aria-selected=\"false\"><span>Open Subsurface</span><span>App · 7</span></button></div></section>",
-      "css": ".ds-palette { width: min(39rem, 100%); max-height: 38rem; overflow: hidden; color: var(--carbon); background: var(--ivory); box-shadow: 0 30px 90px rgba(10, 10, 9, 0.5); } .ds-palette-search { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem 1rem; padding: 1rem; border-bottom: 1px solid var(--rule-dark); } .ds-palette-search label, .ds-palette-search span { font-family: var(--font-data), monospace; font-size: 0.58rem; text-transform: uppercase; } .ds-palette-search span { color: #585851; } .ds-palette-search input { grid-column: 1 / -1; width: 100%; padding: 0.4rem 0; color: var(--carbon); background: transparent; border: 0; outline: 0; font-family: var(--font-display), sans-serif; font-size: clamp(1.65rem, 3.4vw, 2.8rem); line-height: 1; letter-spacing: -0.025em; } .ds-palette-results button { display: flex; width: 100%; min-height: 3.35rem; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; color: var(--carbon); background: transparent; border: 0; border-bottom: 1px solid var(--rule-dark); cursor: pointer; text-align: left; } .ds-palette-results button span:last-child { color: #56564f; font-family: var(--font-data), monospace; font-size: 0.58rem; text-transform: uppercase; } .ds-palette-results button:hover, .ds-palette-results button:focus-visible, .ds-palette-results button.is-selected { color: white; background: var(--cobalt); } .ds-palette-results button:hover span:last-child, .ds-palette-results button:focus-visible span:last-child, .ds-palette-results button.is-selected span:last-child { color: #dfe2ff; }"
-    },
-    {
-      "name": "Scratchpad Field",
+      "name": "System Search",
       "kind": "input",
-      "refersTo": "scratchpad-field",
-      "description": "A square, locally persisted writing field with explicit browser-only language.",
-      "html": "<div class=\"ds-scratch\"><label for=\"ds-scratchpad\">Scratchpad</label><textarea id=\"ds-scratchpad\" placeholder=\"Capture a thought, a question, or the next thing to build.\"></textarea><p>Saved only in this browser.</p></div>",
-      "css": ".ds-scratch { display: grid; gap: 0.65rem; color: var(--carbon); background: var(--ivory); padding: 1.2rem; } .ds-scratch label, .ds-scratch p { font-family: var(--font-data), monospace; font-size: 0.62rem; text-transform: uppercase; } .ds-scratch textarea { min-height: 9rem; padding: 0.9rem; color: var(--carbon); background: transparent; border: 1px solid var(--rule-dark); border-radius: 0; outline: none; resize: none; font-family: var(--font-body), sans-serif; font-size: 1rem; line-height: 1.5; } .ds-scratch textarea:focus { border-color: var(--cobalt); box-shadow: inset 0 0 0 1px var(--cobalt); } .ds-scratch textarea::placeholder { color: #66665e; } .ds-scratch p { margin: 0; color: #56564f; font-size: 0.58rem; text-transform: none; }"
+      "refersTo": "system-search-field",
+      "description": "An editable modal combobox/listbox spanning apps, open windows, workspaces, non-trash Archive entries, and local commands.",
+      "html": "<section class=\"ds-search\" role=\"dialog\" aria-modal=\"true\" aria-label=\"System search\"><div class=\"ds-search-field\"><label for=\"ds-system-query\">System search</label><span>Esc to close</span><input id=\"ds-system-query\" type=\"search\" role=\"combobox\" aria-autocomplete=\"list\" aria-controls=\"ds-system-results\" aria-expanded=\"true\" aria-activedescendant=\"ds-result-1\" value=\"archive\"></div><div class=\"ds-search-results\" id=\"ds-system-results\" role=\"listbox\"><button class=\"is-selected\" id=\"ds-result-1\" role=\"option\" aria-selected=\"true\"><span>Open Archive</span><small>App · 9</small></button><button role=\"option\" aria-selected=\"false\"><span>Workspace / Notes</span><small>Go · Alt+3</small></button></div></section>",
+      "css": ".ds-search { width:min(39rem,100%); overflow:hidden; color:var(--carbon); background:var(--ivory); box-shadow:0 30px 90px rgba(10,10,9,.5); } .ds-search-field { display:grid; grid-template-columns:1fr auto; gap:.5rem 1rem; padding:1rem; border-bottom:1px solid var(--rule-dark); } .ds-search-field label,.ds-search-field span { font-family:var(--font-data),monospace; font-size:.58rem; text-transform:uppercase; } .ds-search-field input { grid-column:1/-1; width:100%; padding:.4rem 0; color:var(--carbon); background:transparent; border:0; font-family:var(--font-display),sans-serif; font-size:clamp(1.65rem,3.4vw,2.8rem); } .ds-search-results button { display:flex; width:100%; min-height:3.35rem; align-items:center; justify-content:space-between; padding:.8rem 1rem; color:var(--carbon); background:transparent; border:0; border-bottom:1px solid var(--rule-dark); text-align:left; } .ds-search-results small { color:#56564f; font-family:var(--font-data),monospace; font-size:.58rem; text-transform:uppercase; } .ds-search-results button:hover,.ds-search-results button:focus-visible,.ds-search-results button.is-selected { color:white; background:var(--cobalt); } .ds-search-results button:hover small,.ds-search-results button:focus-visible small,.ds-search-results button.is-selected small { color:#dfe2ff; }"
     },
     {
-      "name": "Method Tabs",
+      "name": "Atlas",
       "kind": "custom",
-      "description": "A rule-separated operational tablist with a cobalt selected state and real tab semantics.",
-      "html": "<div class=\"ds-method\"><div class=\"ds-method-tabs\" role=\"tablist\" aria-label=\"Product method\"><button role=\"tab\" aria-selected=\"true\">Clarify</button><button role=\"tab\" aria-selected=\"false\">Shape</button><button role=\"tab\" aria-selected=\"false\">Ship</button><button role=\"tab\" aria-selected=\"false\">Learn</button></div><section class=\"ds-method-panel\" role=\"tabpanel\"><h2>Clarify</h2><p>Find the actual decision hiding underneath the requested feature.</p></section></div>",
-      "css": ".ds-method { display: grid; grid-template-columns: minmax(7rem, 0.62fr) minmax(12rem, 1.38fr); gap: 1.2rem; padding: 1.2rem; color: var(--carbon); background: var(--ivory); } .ds-method-tabs { display: flex; flex-direction: column; border-top: 1px solid var(--rule-dark); } .ds-method-tabs button { min-height: 2.75rem; padding: 0.65rem; color: var(--carbon); background: transparent; border: 0; border-bottom: 1px solid var(--rule-dark); cursor: pointer; font-family: var(--font-data), monospace; font-size: 0.64rem; text-align: left; text-transform: uppercase; } .ds-method-tabs button:hover, .ds-method-tabs button:focus-visible, .ds-method-tabs button[aria-selected='true'] { color: white; background: var(--cobalt); } .ds-method-tabs button:focus-visible { outline: 2px solid var(--signal); outline-offset: -3px; } .ds-method-panel { align-self: center; } .ds-method-panel h2 { margin: 0; font-family: var(--font-display), sans-serif; font-size: clamp(1.8rem, 3vw, 3.45rem); font-weight: 400; line-height: 0.92; letter-spacing: -0.03em; } .ds-method-panel p { max-width: 48ch; margin: 1rem 0 0; font-family: var(--font-body), sans-serif; font-size: 0.9rem; line-height: 1.48; }"
+      "description": "The original modal map of open working surfaces across Build, Field, and Notes.",
+      "html": "<section class=\"ds-atlas\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"ds-atlas-title\"><header class=\"ds-atlas-head\"><span>Atlas / F3</span><h2 id=\"ds-atlas-title\">All working surfaces.</h2><p>Restore a surface or inspect what is still running locally.</p></header><div class=\"ds-atlas-tabs\" role=\"tablist\" aria-label=\"Workspaces\"><button role=\"tab\" aria-selected=\"true\">Build <small>03 open</small></button><button role=\"tab\" aria-selected=\"false\">Field <small>02 open</small></button><button role=\"tab\" aria-selected=\"false\">Notes <small>02 open</small></button></div><div class=\"ds-atlas-grid\" role=\"tabpanel\"><button class=\"ds-atlas-preview is-selected\" type=\"button\"><span>Archive 2</span><small>Active</small><i></i></button><button class=\"ds-atlas-preview is-suspended\" type=\"button\"><span>Console</span><small>Suspended</small><i></i></button></div></section>",
+      "css": ".ds-atlas { width:min(68rem,100%); color:var(--carbon); background:var(--ivory); box-shadow:0 36px 96px rgba(0,0,0,.52); } .ds-atlas-head { padding:1.3rem; border-bottom:1px solid var(--rule-dark); } .ds-atlas-head span,.ds-atlas-head p,.ds-atlas-tabs,.ds-atlas-preview { font-family:var(--font-data),monospace; font-size:.58rem; text-transform:uppercase; } .ds-atlas-head h2 { max-width:12ch; margin:.45rem 0; font:400 clamp(2.1rem,4vw,4.4rem)/.86 var(--font-display),sans-serif; letter-spacing:-.04em; } .ds-atlas-tabs { display:flex; border-bottom:1px solid var(--rule-dark); } .ds-atlas-tabs button { flex:1; min-height:3rem; padding:.6rem; background:transparent; border:0; border-right:1px solid var(--rule-dark); text-align:left; } .ds-atlas-tabs button[aria-selected='true'] { color:white; background:var(--cobalt); } .ds-atlas-tabs small { display:block; margin-top:.25rem; } .ds-atlas-grid { display:grid; grid-template-columns:repeat(2,minmax(10.5rem,1fr)); gap:1rem; padding:1.2rem; background:linear-gradient(var(--rule-dark) 1px,transparent 1px),linear-gradient(90deg,var(--rule-dark) 1px,transparent 1px); background-size:2rem 2rem; } .ds-atlas-preview { display:grid; grid-template-columns:1fr auto; gap:.55rem; padding:.8rem; color:var(--carbon); background:var(--ivory); border:1px solid var(--carbon); box-shadow:0 14px 34px rgba(17,17,15,.14); text-align:left; } .ds-atlas-preview i { grid-column:1/-1; height:6rem; background:var(--cobalt); box-shadow:6px 6px 0 rgba(17,17,15,.22); } .ds-atlas-preview.is-selected { outline:2px solid var(--signal); outline-offset:2px; transform:translateY(-3px); } .ds-atlas-preview.is-suspended { border-style:dashed; }"
+    },
+    {
+      "name": "Archive",
+      "kind": "custom",
+      "description": "A bounded writable browser-local file environment with search, notes, folders, trash, restore, and explicit no-upload language.",
+      "html": "<section class=\"ds-archive\" aria-label=\"Archive\"><header class=\"ds-archive-head\"><div><span>Local volume / writable</span><h2>Archive</h2></div><label class=\"ds-archive-search\"><span>Find</span><input type=\"search\" value=\"field\" aria-label=\"Search Archive\"></label></header><aside class=\"ds-archive-locations\" aria-label=\"Locations\"><button class=\"is-selected\">Archive <small>12</small></button><button>Notes <small>04</small></button><button>Trash <small>01</small></button></aside><main class=\"ds-archive-browser\"><div class=\"ds-archive-tools\"><button>New note</button><button>New folder</button></div><div class=\"ds-archive-list\" role=\"listbox\" aria-label=\"Archive entries\"><button class=\"is-selected\" role=\"option\" aria-selected=\"true\"><i></i><span>Field notes</span><small>Note · today</small></button><button role=\"option\" aria-selected=\"false\"><i></i><span>Experiments</span><small>Folder · 03</small></button></div></main><aside class=\"ds-archive-preview\"><span>Note / local only</span><textarea aria-label=\"Field notes\">Working record. Nothing is uploaded.</textarea><button>Save note</button></aside><footer class=\"ds-archive-foot\">This archive lives only in this browser. Nothing is uploaded.</footer></section>",
+      "css": ".ds-archive { display:grid; grid-template-columns:9rem minmax(15rem,1fr) minmax(13rem,.7fr); grid-template-areas:'head head head' 'locations browser preview' 'foot foot foot'; color:var(--carbon); background:var(--ivory); border:1px solid var(--carbon); } .ds-archive button,.ds-archive input,.ds-archive textarea { border-radius:0; } .ds-archive-head { grid-area:head; display:flex; justify-content:space-between; padding:.9rem; color:var(--ivory); background:var(--cobalt); } .ds-archive-head span,.ds-archive-locations,.ds-archive-tools,.ds-archive-list small,.ds-archive-preview,.ds-archive-foot { font:.54rem/1.4 var(--font-data),monospace; text-transform:uppercase; } .ds-archive-head h2 { margin:.3rem 0 0; font:560 1.55rem/1 var(--font-display),sans-serif; } .ds-archive-search { align-self:end; padding:.4rem .65rem; color:var(--carbon); background:var(--ivory); border:1px solid var(--carbon); } .ds-archive-search input { margin-left:.6rem; background:transparent; border:0; } .ds-archive-search:focus-within { box-shadow:inset 0 0 0 2px var(--signal); } .ds-archive-locations { grid-area:locations; display:grid; align-content:start; border-right:1px solid var(--rule-dark); } .ds-archive-locations button,.ds-archive-list button { display:flex; justify-content:space-between; padding:.7rem; background:transparent; border:0; border-bottom:1px solid var(--rule-dark); } .ds-archive-locations button.is-selected,.ds-archive-list button.is-selected { color:white; background:var(--cobalt); } .ds-archive-browser { grid-area:browser; border-right:1px solid var(--rule-dark); } .ds-archive-tools { display:flex; } .ds-archive-tools button { padding:.6rem; background:transparent; border:0; border-right:1px solid var(--rule-dark); } .ds-archive-preview { grid-area:preview; display:grid; gap:.6rem; padding:.8rem; } .ds-archive-preview textarea { min-height:8rem; padding:.6rem; background:#e5e3da; border:1px solid var(--rule-dark); } .ds-archive-foot { grid-area:foot; padding:.65rem .8rem; color:var(--ivory-muted); background:var(--carbon); }"
+    },
+    {
+      "name": "Control",
+      "kind": "custom",
+      "description": "The local palette, workspace, save-status, backup/import, and current-workspace layout recovery instrument.",
+      "html": "<section class=\"ds-control\"><header class=\"ds-control-head\"><div><span>System / local</span><h2>Control center</h2></div><output aria-live=\"polite\"><i></i>Saved locally</output></header><fieldset class=\"ds-control-themes\"><legend>Palette memory</legend><label class=\"is-selected\"><input type=\"radio\" name=\"ds-theme\" checked><i class=\"ds-cobalt\"></i><span>Cobalt</span></label><label><input type=\"radio\" name=\"ds-theme\"><i class=\"ds-oxide\"></i><span>Oxide</span></label><label><input type=\"radio\" name=\"ds-theme\"><i class=\"ds-graphite\"></i><span>Graphite</span></label></fieldset><div class=\"ds-control-workspaces\"><span>Workspaces</span><button class=\"is-active\">Build</button><button>Field</button><button>Notes</button></div><div class=\"ds-control-actions\"><span>Session memory / browser only</span><button>Export JSON</button><button>Import JSON</button><button>Restore layout</button></div></section>",
+      "css": ".ds-control { color:var(--carbon); background:var(--ivory); border:1px solid var(--carbon); } .ds-control-head { display:flex; justify-content:space-between; align-items:end; padding:1rem; color:var(--ivory); background:var(--carbon); } .ds-control-head span,.ds-control-head output,.ds-control-themes,.ds-control-workspaces,.ds-control-actions { font: .58rem/1.4 var(--font-data),monospace; text-transform:uppercase; } .ds-control-head h2 { margin:.35rem 0 0; font:400 clamp(1.8rem,3vw,3.45rem)/.92 var(--font-display),sans-serif; } .ds-control-head output { display:flex; gap:.4rem; align-items:center; color:var(--ivory-muted); } .ds-control-head output i { width:.55rem; height:.55rem; background:var(--signal); border-radius:50%; } .ds-control-themes { display:grid; grid-template-columns:repeat(3,1fr); padding:0; border:0; border-bottom:1px solid var(--rule-dark); } .ds-control-themes legend { width:100%; padding:.7rem 1rem; border-bottom:1px solid var(--rule-dark); } .ds-control-themes label { position:relative; display:flex; gap:.6rem; align-items:center; padding:.8rem 1rem; border-right:1px solid var(--rule-dark); } .ds-control-themes input { position:absolute; opacity:0; } .ds-control-themes label:focus-within,.ds-control-themes label.is-selected { box-shadow:inset 0 0 0 2px var(--signal); } .ds-control-themes i { width:1.4rem; height:1.4rem; border:1px solid var(--carbon); } .ds-cobalt { background:var(--cobalt); } .ds-oxide { background:var(--oxide); } .ds-graphite { background:var(--graphite); } .ds-control-workspaces,.ds-control-actions { display:flex; border-bottom:1px solid var(--rule-dark); } .ds-control-workspaces span,.ds-control-actions span,.ds-control-workspaces button,.ds-control-actions button { padding:.8rem; border:0; border-right:1px solid var(--rule-dark); } .ds-control-workspaces button,.ds-control-actions button { color:var(--carbon); background:transparent; font:inherit; text-transform:inherit; } .ds-control-workspaces button.is-active { color:white; background:var(--cobalt); }"
     },
     {
       "name": "Subsurface Lab",
       "kind": "custom",
-      "description": "An optional, user-started depth-control game rendered as a cobalt sonar instrument.",
-      "html": "<div class=\"ds-lab\"><header class=\"ds-lab-heading\"><span>Experiment 01</span><strong>Subsurface</strong><p>Hold depth through a live sonar channel.</p></header><div class=\"ds-subsurface\" tabindex=\"0\" aria-label=\"Subsurface depth game. Press Space, Enter, Arrow Up, or tap to rise.\"><div class=\"ds-subsurface-hud\"><span>Depth control / manual</span><span>Score 00</span><span>Best 06</span></div><i class=\"ds-gate ds-gate-a\"></i><i class=\"ds-gate ds-gate-b\"></i><i class=\"ds-sub\"></i><div class=\"ds-subsurface-overlay\"><strong>Channel ready.</strong><button type=\"button\">Start dive</button></div></div><footer class=\"ds-lab-controls\"><span>Tap · Space · ↑ to pulse</span><span>Best score stays in this browser</span></footer></div>",
+      "description": "An original user-initiated depth instrument whose frame loop pauses while inactive, minimized, or workspace-hidden and resumes its mounted model.",
+      "html": "<div class=\"ds-lab\"><header class=\"ds-lab-heading\"><span>Experiment 01</span><strong>Subsurface</strong><p>Hold depth through a live sonar channel.</p></header><div class=\"ds-subsurface\" tabindex=\"0\" aria-label=\"Subsurface depth game. Press Space, Enter, Arrow Up, or tap to rise.\"><div class=\"ds-subsurface-hud\"><span>Depth control / manual</span><span>Score 00</span><span>Best 06</span></div><i class=\"ds-gate ds-gate-a\"></i><i class=\"ds-gate ds-gate-b\"></i><i class=\"ds-sub\"></i><div class=\"ds-subsurface-overlay\"><strong>Channel ready.</strong><button type=\"button\">Start dive</button></div></div><footer class=\"ds-lab-controls\"><span>Tap · Space · ↑ · Enter to pulse</span><span>Best score stays in this browser</span></footer></div>",
       "css": ".ds-lab { display: grid; width: min(42rem, 100%); min-height: 25rem; grid-template-rows: auto 1fr auto; overflow: hidden; color: var(--ivory); background: var(--carbon); } .ds-lab-heading { display: grid; grid-template-columns: auto auto 1fr; gap: 0.75rem; align-items: baseline; padding: 0.8rem 0.9rem; border-bottom: 1px solid var(--rule-light); } .ds-lab-heading span, .ds-lab-heading p, .ds-lab-controls, .ds-subsurface-hud { font-family: var(--font-data), monospace; font-size: 0.58rem; letter-spacing: 0.02em; text-transform: uppercase; } .ds-lab-heading span, .ds-lab-heading p { color: var(--ivory-muted); } .ds-lab-heading strong { font-family: var(--font-display), sans-serif; font-size: 1.45rem; font-weight: 560; letter-spacing: -0.03em; } .ds-lab-heading p { justify-self: end; margin: 0; } .ds-subsurface { position: relative; min-height: 18rem; overflow: hidden; cursor: crosshair; background-color: #1424f5; background-image: repeating-linear-gradient(to right, transparent 0, transparent 38px, rgba(244, 241, 225, 0.16) 39px), repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(244, 241, 225, 0.16) 32px); outline: none; } .ds-subsurface:focus-visible { box-shadow: inset 0 0 0 2px var(--signal); } .ds-subsurface-hud { position: absolute; z-index: 4; top: 0; right: 0; left: 0; display: flex; justify-content: space-between; gap: 0.8rem; padding: 0.55rem 0.7rem; } .ds-gate { position: absolute; top: 0; bottom: 0; width: 2.4rem; background: linear-gradient(to bottom, #10100e 0 31%, #f0eddb 31% 31.6%, transparent 31.6% 66%, #f0eddb 66% 66.6%, #10100e 66.6% 100%); } .ds-gate-a { left: 62%; } .ds-gate-b { left: 88%; transform: translateY(12%); } .ds-sub { position: absolute; top: 52%; left: 18%; width: 3.2rem; height: 1.15rem; background: #f0eddb; border-radius: 50%; transform: rotate(-6deg); } .ds-sub::after { position: absolute; top: 0.36rem; right: 0.55rem; width: 0.38rem; height: 0.38rem; background: #1424f5; border-radius: 50%; content: ''; } .ds-subsurface-overlay { position: absolute; z-index: 5; top: 50%; left: 50%; display: grid; min-width: 12rem; gap: 0.7rem; padding: 1rem; color: var(--carbon); background: var(--signal); box-shadow: 0 18px 50px rgba(10, 10, 9, 0.34); transform: translate(-50%, -50%); text-align: center; } .ds-subsurface-overlay strong { font-family: var(--font-display), sans-serif; font-size: 1.25rem; } .ds-subsurface-overlay button { min-height: 2.25rem; padding: 0 0.85rem; color: var(--ivory); background: var(--carbon); border: 0; cursor: pointer; font-family: var(--font-data), monospace; font-size: 0.6rem; text-transform: uppercase; } .ds-subsurface-overlay button:hover, .ds-subsurface-overlay button:focus-visible { color: white; background: var(--cobalt); } .ds-lab-controls { display: flex; justify-content: space-between; gap: 1rem; padding: 0.6rem 0.9rem; color: var(--ivory-muted); border-top: 1px solid var(--rule-light); }"
     },
     {
       "name": "Vector Lab",
       "kind": "custom",
-      "description": "A spatial calculator coupling direct canvas manipulation with editable decimal drafts, accessible validation, and conditional live results.",
+      "description": "A spatial calculator with editable decimal drafts, accessible validity guidance, valid-only live results, and drag-to-orbit projection; mounted drafts survive inactive and hidden states.",
       "html": "<div class=\"ds-vector\"><div class=\"ds-vector-stage\" role=\"img\" aria-label=\"Interactive vector plot. Complete both vectors with values from minus three to three.\"><i class=\"ds-vector-a\"></i><span>Drag to orbit</span></div><div class=\"ds-vector-panel\"><header><span>Spatial calculator</span><h2>Vector field</h2></header><div class=\"ds-vector-inputs\"><fieldset><legend>Vector A</legend><label><span>X</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-a-guidance\" value=\"1.8\"></label><label><span>Y</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-a-guidance\" value=\"1.2\"></label><label><span>Z</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-a-guidance\" value=\"0.6\"></label><p class=\"ds-vector-error is-valid\" id=\"ds-vector-a-guidance\" role=\"status\">Range −3 to 3</p></fieldset><fieldset><legend>Vector B</legend><label><span>X</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-b-guidance\" value=\"-0.8\"></label><label><span>Y</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"false\" aria-describedby=\"ds-vector-b-guidance\" value=\"1.7\"></label><label><span>Z</span><input type=\"text\" inputmode=\"decimal\" autocomplete=\"off\" aria-invalid=\"true\" aria-describedby=\"ds-vector-b-guidance\" value=\"\"></label><p class=\"ds-vector-error\" id=\"ds-vector-b-guidance\" role=\"status\">Complete every value from −3 to 3</p></fieldset></div><dl class=\"ds-vector-results\"><div><dt>A · B</dt><dd>—</dd></div><div><dt>A × B</dt><dd>—</dd></div><div><dt>Area</dt><dd>—</dd></div></dl></div></div>",
       "css": ".ds-vector { display: grid; width: min(48rem, 100%); min-height: 24rem; grid-template-columns: minmax(0, 1.3fr) minmax(17rem, 0.7fr); overflow: hidden; color: var(--carbon); background: var(--ivory); } .ds-vector-stage { position: relative; min-height: 20rem; overflow: hidden; border-right: 1px solid var(--rule-dark); cursor: grab; background-color: #f0eddb; background-image: linear-gradient(28deg, transparent 49.5%, rgba(16, 16, 14, 0.16) 50%, transparent 50.5%), linear-gradient(152deg, transparent 49.5%, rgba(16, 16, 14, 0.16) 50%, transparent 50.5%); background-size: 3rem 3rem; } .ds-vector-stage > span { position: absolute; bottom: 0.65rem; left: 0.7rem; padding: 0.35rem 0.45rem; color: var(--ivory); background: var(--carbon); font-family: var(--font-data), monospace; font-size: 0.55rem; text-transform: uppercase; } .ds-vector-a, .ds-vector-b { position: absolute; bottom: 48%; left: 50%; width: 32%; height: 3px; transform-origin: left; } .ds-vector-a { background: #1424f5; transform: rotate(-28deg); } .ds-vector-b { width: 26%; background: #df3d26; transform: rotate(-138deg); } .ds-vector-panel { min-width: 0; overflow: auto; } .ds-vector-panel header, .ds-vector-inputs, .ds-vector-results { padding: 0.8rem; border-bottom: 1px solid var(--rule-dark); } .ds-vector-panel header span, .ds-vector-inputs legend, .ds-vector-inputs label span, .ds-vector-results dt { font-family: var(--font-data), monospace; font-size: 0.56rem; text-transform: uppercase; } .ds-vector-panel header span { color: #5f5f58; } .ds-vector-panel h2 { margin: 0.2rem 0 0; font-family: var(--font-display), sans-serif; font-size: 1.8rem; font-weight: 560; letter-spacing: -0.04em; } .ds-vector-inputs { display: grid; gap: 0.75rem; } .ds-vector-inputs fieldset { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem; margin: 0; padding: 0; border: 0; } .ds-vector-inputs legend { width: 100%; margin-bottom: 0.35rem; color: #55554e; } .ds-vector-inputs label { display: grid; grid-template-columns: auto 1fr; align-items: center; border: 1px solid var(--rule-dark); } .ds-vector-inputs label span { padding-left: 0.35rem; } .ds-vector-inputs input { width: 100%; min-width: 0; padding: 0.38rem 0.25rem; color: var(--carbon); background: transparent; border: 0; outline: 0; font-family: var(--font-data), monospace; text-align: right; } .ds-vector-inputs input[aria-invalid=\"true\"] { color: #9f2415; background: rgba(223, 61, 38, 0.1); } .ds-vector-inputs label:focus-within { box-shadow: inset 0 0 0 1px var(--cobalt); } .ds-vector-error { grid-column: 1 / -1; margin: 0; color: #9f2415; font-family: var(--font-data), monospace; font-size: 0.52rem; text-transform: uppercase; } .ds-vector-error.is-valid { color: #66665f; } .ds-vector-results { display: grid; gap: 0.45rem; margin: 0; border-bottom: 0; } .ds-vector-results div { display: grid; grid-template-columns: 4rem 1fr; gap: 0.5rem; align-items: baseline; } .ds-vector-results dt, .ds-vector-results dd { margin: 0; } .ds-vector-results dd { min-width: 0; overflow-wrap: anywhere; font-family: var(--font-data), monospace; font-size: 0.66rem; text-align: right; } @media (max-width: 700px) { .ds-vector { grid-template-columns: 1fr; grid-template-rows: minmax(15rem, 1fr) auto; } .ds-vector-stage { min-height: 15rem; border-right: 0; border-bottom: 1px solid var(--rule-dark); } }"
+    },
+    {
+      "name": "Railshift Lab",
+      "kind": "custom",
+      "description": "An original three-lane signal runner with pooled canvas rendering, fixed-step simulation, keyboard and touch controls, opt-in sound, and local-only best score.",
+      "html": "<section class=\"ds-railshift\"><header><strong>Railshift</strong><span>Signal runner / local</span><button type=\"button\">Sound off</button></header><div class=\"ds-railshift-hud\"><span>Score 856</span><span>Route 199m</span><span>Flow ×2</span><span>Guard open</span></div><div class=\"ds-railshift-track\" role=\"img\" aria-label=\"Three-lane signal corridor\"><i class=\"ds-runner\"></i><i class=\"ds-rail ds-rail-a\"></i><i class=\"ds-rail ds-rail-b\"></i><div class=\"ds-railshift-overlay\"><strong>Line is clear.</strong><p>Jump barriers, duck gantries, and switch away from blocks.</p><button type=\"button\">Start shift</button></div></div><footer>Left / right lane · Up jump · Down duck · P pause</footer></section>",
+      "css": ".ds-railshift { display:grid; width:min(46rem,100%); min-height:27rem; grid-template-rows:auto auto 1fr auto; overflow:hidden; color:var(--ivory); background:var(--carbon); } .ds-railshift header,.ds-railshift-hud,.ds-railshift footer { display:flex; align-items:center; gap:.75rem; padding:.7rem .85rem; border-bottom:1px solid var(--rule-light); font:.56rem/1.3 var(--font-data),monospace; text-transform:uppercase; } .ds-railshift header strong { font:600 1.55rem/1 var(--font-display),sans-serif; letter-spacing:-.03em; } .ds-railshift header span { color:var(--ivory-muted); } .ds-railshift header button { margin-left:auto; padding:.55rem .7rem; color:var(--ivory); background:transparent; border:1px solid var(--rule-light); } .ds-railshift-hud { justify-content:space-between; } .ds-railshift-track { position:relative; min-height:18rem; overflow:hidden; background:linear-gradient(to bottom,var(--carbon),var(--cobalt) 58%,var(--carbon)); clip-path:polygon(44% 0,56% 0,96% 100%,4% 100%); } .ds-rail { position:absolute; top:0; bottom:0; width:1px; background:rgba(240,237,224,.55); transform-origin:top; } .ds-rail-a { left:47%; transform:rotate(14deg); } .ds-rail-b { right:47%; transform:rotate(-14deg); } .ds-runner { position:absolute; bottom:1.8rem; left:calc(50% - .8rem); width:1.6rem; height:3.2rem; background:var(--ivory); border-bottom:6px solid var(--signal); } .ds-railshift-overlay { position:absolute; top:50%; left:50%; display:grid; width:min(22rem,80%); gap:.65rem; padding:1rem; color:var(--carbon); background:var(--signal); box-shadow:0 18px 50px rgba(10,10,9,.34); transform:translate(-50%,-50%); } .ds-railshift-overlay strong { font:620 2rem/1 var(--font-display),sans-serif; letter-spacing:-.03em; } .ds-railshift-overlay p { margin:0; } .ds-railshift-overlay button { min-height:2.5rem; color:var(--ivory); background:var(--carbon); border:0; font:.58rem var(--font-data),monospace; text-transform:uppercase; } .ds-railshift footer { justify-content:space-between; color:var(--ivory-muted); border-top:1px solid var(--rule-light); border-bottom:0; }"
     }
   ],
   "narrative": {
     "northStar": "Quiet Junction",
-    "overview": "Quiet Junction is a senior, authored operating environment disguised as a sparse public front door. Carbon grain, monumental ivory type, cobalt route light, tiny operational readouts, and square rules create a private-feeling place where restraint carries more authority than a gallery of claims.\n\nThe public layer stays quiet and exacting; the Workbench reveals the machinery behind the person. Its windows, command surfaces, local tools, and two original interactive labs make software itself the personality. The tactility comes from direct manipulation, responsive state, and material contrast—not nostalgic interface cosplay.",
+    "overview": "Quiet Junction is a senior, authored operating environment disguised as a sparse public front door. Carbon grain, monumental ivory type, themeable route light, tiny operational readouts, and square rules create a private-feeling place where restraint carries more authority than a gallery of claims.\n\nThe public layer stays quiet and exacting; the Workbench reveals the machinery behind the person. Workbench, Atlas, Archive, Control, the menu system, and the workspace language form an original clean-room visual and interaction vocabulary. Their windows, local tools, recoverable state, and three interactive labs make working software itself the personality without importing another product's names, icons, or trade dress.\n\nThe Workbench is explicitly local-only: there is no account, login, remote sync, filesystem service, or backend. Browser storage and visitor-initiated JSON export/import are the only persistence paths, and every state message must preserve that truth.",
     "keyCharacteristics": [
-      "Monumental Archivo Black statements paired with Azeret Mono operational telemetry.",
-      "Carbon and ivory fields routed by cobalt, with signal green reserved for live, focus, and immediate action.",
-      "Square geometry, one-pixel rules, and grain establish material without nostalgic interface cosplay.",
-      "Flat public composition gives way only to structurally elevated Workbench windows and palette.",
-      "Working software reveals personality through optional, usable experiments rather than decorative demos."
+      "Monumental Archivo statements paired with Azeret Mono operational telemetry.",
+      "Carbon and ivory structure routed by cobalt, oxide, or graphite accents with a coordinated signal color.",
+      "Square geometry, one-pixel rules, and restrained grain establish material without nostalgia cosplay.",
+      "Flat public composition gives way only to structurally elevated Workbench windows, menus, Atlas, and system search.",
+      "Working software reveals personality through optional, usable instruments rather than decorative demos."
     ],
     "rules": [
       {
-        "name": "The Cobalt Is Route Rule",
-        "body": "Use cobalt to show where the visitor is, what is selected, or where an interaction leads; do not spread it as ambient decoration.",
+        "name": "The Route Is State Rule",
+        "body": "Use the active route color to show where the visitor is, what is selected, or where an interaction leads; do not spread it as ambient decoration.",
         "section": "colors"
       },
       {
         "name": "The Signal Is Evidence Rule",
-        "body": "Signal green means live, focused, or actionable. Its rarity is what makes it trustworthy.",
+        "body": "The active theme's signal means live, focused, or immediately actionable. Its rarity is what makes it trustworthy.",
+        "section": "colors"
+      },
+      {
+        "name": "The Palette Contract Rule",
+        "body": "Cobalt, oxide, and graphite swap route, deep, and signal values as one set; carbon, ivory, typography, rules, and square geometry do not change with the theme.",
         "section": "colors"
       },
       {
@@ -259,7 +490,7 @@
       },
       {
         "name": "The Collapse by Mode Rule",
-        "body": "Desktop supports spatial composition and direct window management; small screens support one clear active task with the same content and state.",
+        "body": "Desktop supports spatial composition and direct window management; compact screens support one clear active task while preserving open local work, focus order, and session state.",
         "section": "layout"
       },
       {
@@ -281,22 +512,31 @@
         "name": "The Native Control Rule",
         "body": "Direct manipulation must keep a legible keyboard or native-input path, visible focus, and truthful local-state language.",
         "section": "components"
+      },
+      {
+        "name": "The Local Means Local Rule",
+        "body": "Describe browser persistence, backup coverage, destructive actions, and recovery exactly; never imply an account, upload, remote sync, or backend.",
+        "section": "components"
       }
     ],
     "dos": [
       "Do pair one monumental message with quiet operational metadata.",
-      "Do use cobalt for route, selection, and current state; use signal green only for live, focus, or immediate action.",
+      "Do use the theme's route color for selection and current state; reserve its signal for live, focus, or immediate action.",
+      "Do use the original Workbench, Atlas, Archive, and Control vocabulary consistently.",
       "Do let optional working software reveal personality when it remains useful, truthful, and self-contained.",
       "Do use square fields, one-pixel rules, and restrained grain before adding depth.",
-      "Do preserve keyboard, native-input, reduced-motion, and local-only state conventions wherever interaction is direct.",
-      "Do pause hidden animation work in compact single-window layouts without discarding the visitor's in-progress state."
+      "Do preserve semantic menus, tabs, listboxes, dialogs, keyboard routes, focus movement, reduced motion, and local-only state conventions.",
+      "Do pause hidden animation work without discarding an open visitor task, and distinguish mounted component state from serialized session data.",
+      "Do disclose export/import scope and the consequences of delete, trash, close, reset, and restore actions."
     ],
     "donts": [
       "Don't turn the portfolio into a project-card résumé or a wall of interchangeable case-study tiles.",
       "Don't drift into a generic SaaS component dashboard or rounded-card shell.",
-      "Don't clone retro-Mac chrome, icons, or window decoration; the Workbench is an original typographic operating system.",
-      "Don't use shadows on static content fields or treat cobalt and signal green as decoration.",
-      "Don't start continuous lab motion before the visitor initiates it or hide the same task behind pointer-only interaction."
+      "Don't import third-party operating-system names, icons, window decoration, or trade dress; this is a clean-room original system.",
+      "Don't imply an account, upload, cloud sync, collaboration layer, remote filesystem, or backend.",
+      "Don't use shadows on static content fields or treat route and signal colors as decoration.",
+      "Don't claim every state is exported: Subsurface and Railshift scores plus transient component state have deliberately narrower lifecycles.",
+      "Don't start continuous lab motion before the visitor initiates it or hide the core calculator behind pointer-only interaction."
     ]
   }
 }

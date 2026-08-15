@@ -1,0 +1,667 @@
+.control-center-app {
+  --control-center-carbon: var(--carbon, #11110f);
+  --control-center-carbon-soft: var(--carbon-soft, #1b1b18);
+  --control-center-ivory: var(--ivory, #f0efe8);
+  --control-center-ivory-muted: var(--ivory-muted, #bbb9b0);
+  --control-center-cobalt: var(--cobalt, #4c5ce5);
+  --control-center-cobalt-deep: var(--cobalt-deep, #3543bd);
+  --control-center-signal: var(--signal, #59df79);
+  --control-center-rule-dark: var(--rule-dark, rgba(17, 17, 15, 0.26));
+  --control-center-rule-light: var(--rule-light, rgba(240, 239, 232, 0.24));
+  --control-center-body-size: 0.9rem;
+  --control-center-label-size: 0.58rem;
+  container-name: control-center;
+  container-type: inline-size;
+  min-height: 100%;
+  overflow: auto;
+  color: var(--control-center-carbon);
+  background: var(--control-center-ivory);
+  font-family: var(--font-body), sans-serif;
+}
+
+.control-center-app button,
+.control-center-app input {
+  font: inherit;
+}
+
+.control-center-header {
+  display: flex;
+  min-height: 7.4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.2rem;
+  color: var(--control-center-ivory);
+  background: var(--control-center-carbon);
+  border-bottom: 1px solid var(--control-center-rule-light);
+}
+
+.control-center-identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+.control-center-mark {
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  color: white;
+  background: var(--control-center-cobalt);
+  font-family: var(--font-data), monospace;
+  font-size: var(--control-center-label-size);
+  letter-spacing: 0.04em;
+}
+
+.control-center-header h2,
+.control-center-section-heading h3,
+.control-center-session-panel h3,
+.control-center-confirmation h4 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.control-center-header h2 {
+  font-size: clamp(1.8rem, 3vw, 3.45rem);
+  line-height: 0.92;
+}
+
+.control-center-header p {
+  max-width: 43ch;
+  margin: 0.55rem 0 0;
+  color: var(--control-center-ivory-muted);
+  font-size: var(--control-center-body-size);
+  line-height: 1.42;
+}
+
+.control-center-live-status {
+  display: flex;
+  min-width: 10rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  text-align: right;
+}
+
+.control-center-live-status > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.control-center-live-status strong,
+.control-center-live-status small,
+.control-center-option-state,
+.control-center-workspace-index,
+.control-center-theme-fieldset legend,
+.control-center-session-data dt,
+.control-center-session-data dd,
+.control-center-action > span:last-child,
+.control-center-saving-note {
+  font-family: var(--font-data), monospace;
+  text-transform: uppercase;
+}
+
+.control-center-live-status strong {
+  color: var(--control-center-ivory);
+  font-size: var(--control-center-label-size);
+  font-weight: 500;
+}
+
+.control-center-live-status small {
+  color: var(--control-center-ivory-muted);
+  font-size: var(--control-center-label-size);
+}
+
+.control-center-status-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: 0 0 auto;
+  background: var(--control-center-signal);
+  border-radius: 50%;
+}
+
+.control-center-live-status[data-status="fresh"] .control-center-status-dot {
+  background: var(--control-center-ivory-muted);
+}
+
+.control-center-live-status[data-status="saving"] .control-center-status-dot {
+  animation: control-center-saving-pulse 900ms steps(2, end) infinite;
+}
+
+.control-center-grid {
+  display: grid;
+  min-height: calc(100% - 7.4rem);
+  grid-template-columns: minmax(23rem, 1.25fr) minmax(19rem, 0.75fr);
+}
+
+.control-center-primary-column {
+  min-width: 0;
+  border-right: 1px solid var(--control-center-rule-dark);
+}
+
+.control-center-section {
+  padding: 1.25rem;
+}
+
+.control-center-theme-section {
+  border-bottom: 1px solid var(--control-center-rule-dark);
+}
+
+.control-center-section-heading {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.85fr) minmax(13rem, 1.15fr);
+  gap: 1.5rem;
+  align-items: end;
+  margin-bottom: 1.1rem;
+}
+
+.control-center-section-heading h3,
+.control-center-session-panel h3 {
+  font-size: 1.8rem;
+  line-height: 0.95;
+}
+
+.control-center-section-heading p,
+.control-center-session-panel header p {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--control-center-carbon-soft);
+  font-size: var(--control-center-body-size);
+  line-height: 1.45;
+}
+
+.control-center-theme-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.control-center-theme-fieldset legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.control-center-theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  background: var(--control-center-rule-dark);
+  border: 1px solid var(--control-center-rule-dark);
+}
+
+.control-center-theme-option {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 6.3rem;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.8rem;
+  color: var(--control-center-carbon);
+  background: var(--control-center-ivory);
+  cursor: pointer;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.control-center-theme-option:hover,
+.control-center-theme-option:focus-within,
+.control-center-theme-option[data-active="true"] {
+  color: white;
+  background: var(--control-center-cobalt);
+}
+
+.control-center-theme-option:focus-within {
+  outline: 2px solid var(--control-center-signal);
+  outline-offset: -3px;
+}
+
+.control-center-theme-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.control-center-swatch {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  overflow: hidden;
+  background: var(--control-center-theme-swatch);
+  outline: 1px solid var(--control-center-rule-dark);
+}
+
+.control-center-swatch > span:first-child {
+  grid-row: 1 / -1;
+  background: var(--control-center-theme-swatch);
+}
+
+.control-center-swatch > span:nth-child(2) {
+  grid-row: 1;
+  background: var(--control-center-carbon);
+}
+
+.control-center-theme-option[data-active="true"] .control-center-swatch,
+.control-center-theme-option:hover .control-center-swatch,
+.control-center-theme-option:focus-within .control-center-swatch {
+  outline-color: var(--control-center-ivory);
+}
+
+.control-center-option-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.control-center-option-copy strong {
+  overflow: hidden;
+  font-size: 0.9rem;
+  font-weight: 620;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.control-center-option-copy small {
+  color: var(--control-center-carbon-soft);
+  font-size: var(--control-center-label-size);
+  line-height: 1.38;
+}
+
+.control-center-theme-option[data-active="true"] .control-center-option-copy small,
+.control-center-theme-option:hover .control-center-option-copy small,
+.control-center-theme-option:focus-within .control-center-option-copy small,
+.control-center-workspace-option[data-active="true"] .control-center-option-copy small,
+.control-center-workspace-option:hover .control-center-option-copy small,
+.control-center-workspace-option:focus-visible .control-center-option-copy small {
+  color: var(--control-center-ivory);
+}
+
+.control-center-option-state {
+  align-self: start;
+  color: var(--control-center-carbon-soft);
+  font-size: var(--control-center-label-size);
+  line-height: 1;
+}
+
+.control-center-theme-option[data-active="true"] .control-center-option-state,
+.control-center-theme-option:hover .control-center-option-state,
+.control-center-theme-option:focus-within .control-center-option-state,
+.control-center-workspace-option[data-active="true"] .control-center-option-state,
+.control-center-workspace-option:hover .control-center-option-state,
+.control-center-workspace-option:focus-visible .control-center-option-state {
+  color: white;
+}
+
+.control-center-workspace-options {
+  border-top: 1px solid var(--control-center-rule-dark);
+}
+
+.control-center-workspace-option {
+  display: grid;
+  width: 100%;
+  min-height: 4.6rem;
+  grid-template-columns: 2.2rem minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.75rem;
+  color: var(--control-center-carbon);
+  background: transparent;
+  border-bottom: 1px solid var(--control-center-rule-dark);
+  cursor: pointer;
+  text-align: left;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.control-center-workspace-option:hover,
+.control-center-workspace-option:focus-visible,
+.control-center-workspace-option[data-active="true"] {
+  color: white;
+  background: var(--control-center-cobalt);
+}
+
+.control-center-workspace-option:focus-visible {
+  outline-offset: -3px;
+}
+
+.control-center-workspace-index {
+  color: var(--control-center-cobalt-deep);
+  font-size: var(--control-center-label-size);
+}
+
+.control-center-workspace-option[data-active="true"] .control-center-workspace-index,
+.control-center-workspace-option:hover .control-center-workspace-index,
+.control-center-workspace-option:focus-visible .control-center-workspace-index {
+  color: var(--control-center-signal);
+}
+
+.control-center-secondary-column {
+  min-width: 0;
+}
+
+.control-center-session-panel {
+  padding: 1.25rem;
+  color: var(--control-center-ivory);
+  background: var(--control-center-carbon-soft);
+  border-bottom: 1px solid var(--control-center-rule-light);
+}
+
+.control-center-session-panel header p {
+  margin-top: 0.7rem;
+  color: var(--control-center-ivory-muted);
+}
+
+.control-center-memory-track {
+  display: grid;
+  height: 0.75rem;
+  grid-template-columns: 1.4fr 0.8fr 0.4fr;
+  gap: 2px;
+  margin: 1.5rem 0;
+}
+
+.control-center-memory-track span {
+  background: var(--control-center-cobalt);
+}
+
+.control-center-memory-track span:nth-child(2) {
+  background: var(--control-center-signal);
+}
+
+.control-center-memory-track span:nth-child(3) {
+  background: var(--control-center-ivory-muted);
+}
+
+.control-center-memory-track span[data-saving="true"] {
+  background: var(--control-center-signal);
+  animation: control-center-saving-pulse 900ms steps(2, end) infinite;
+}
+
+.control-center-session-data {
+  margin: 0;
+  border-top: 1px solid var(--control-center-rule-light);
+}
+
+.control-center-session-data > div {
+  display: grid;
+  grid-template-columns: minmax(5rem, 0.8fr) minmax(8rem, 1.2fr);
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--control-center-rule-light);
+}
+
+.control-center-session-data dt,
+.control-center-session-data dd {
+  margin: 0;
+  font-size: var(--control-center-label-size);
+  line-height: 1.35;
+}
+
+.control-center-session-data dt {
+  color: var(--control-center-ivory-muted);
+}
+
+.control-center-session-data dd {
+  color: var(--control-center-ivory);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.control-center-operations .control-center-section-heading {
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+}
+
+.control-center-action-list {
+  border-top: 1px solid var(--control-center-rule-dark);
+}
+
+.control-center-action {
+  display: flex;
+  width: 100%;
+  min-height: 4.65rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  color: var(--control-center-carbon);
+  background: transparent;
+  border-bottom: 1px solid var(--control-center-rule-dark);
+  cursor: pointer;
+  text-align: left;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.control-center-action:hover:not(:disabled),
+.control-center-action:focus-visible:not(:disabled) {
+  color: white;
+  background: var(--control-center-cobalt);
+}
+
+.control-center-action-primary {
+  color: white;
+  background: var(--control-center-cobalt);
+}
+
+.control-center-action > span:first-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.control-center-action strong {
+  font-size: var(--control-center-body-size);
+  font-weight: 620;
+}
+
+.control-center-action small {
+  color: var(--control-center-carbon-soft);
+  font-size: var(--control-center-label-size);
+  line-height: 1.35;
+}
+
+.control-center-action-primary small,
+.control-center-action:hover:not(:disabled) small,
+.control-center-action:focus-visible:not(:disabled) small {
+  color: var(--control-center-ivory);
+}
+
+.control-center-action > span:last-child {
+  flex: 0 0 auto;
+  color: var(--control-center-cobalt-deep);
+  font-size: var(--control-center-label-size);
+}
+
+.control-center-action-primary > span:last-child,
+.control-center-action:hover:not(:disabled) > span:last-child,
+.control-center-action:focus-visible:not(:disabled) > span:last-child {
+  color: var(--control-center-signal);
+}
+
+.control-center-action:disabled {
+  cursor: wait;
+  opacity: 0.48;
+}
+
+.control-center-confirmation {
+  margin: 1rem -1.25rem -1.25rem;
+  padding: 1.25rem;
+  color: var(--control-center-ivory);
+  background: var(--control-center-carbon);
+  border-top: 1px solid var(--control-center-rule-light);
+}
+
+.control-center-confirmation h4 {
+  max-width: 16ch;
+  font-size: 1.8rem;
+  line-height: 0.98;
+}
+
+.control-center-confirmation p {
+  max-width: 56ch;
+  margin: 0.75rem 0 0;
+  color: var(--control-center-ivory-muted);
+  font-size: var(--control-center-body-size);
+  line-height: 1.45;
+}
+
+.control-center-confirmation-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin-top: 1rem;
+  background: var(--control-center-rule-light);
+  border: 1px solid var(--control-center-rule-light);
+}
+
+.control-center-confirmation-actions button {
+  min-height: 2.7rem;
+  padding: 0.6rem 0.8rem;
+  color: var(--control-center-ivory);
+  background: var(--control-center-carbon);
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: var(--control-center-label-size);
+  text-transform: uppercase;
+}
+
+.control-center-confirmation-actions button:last-child,
+.control-center-confirmation-actions button:hover,
+.control-center-confirmation-actions button:focus-visible {
+  color: var(--control-center-carbon);
+  background: var(--control-center-signal);
+}
+
+.control-center-empty-state {
+  margin: 0;
+  padding: 1rem;
+  color: var(--control-center-carbon-soft);
+  border: 1px solid var(--control-center-rule-dark);
+  font-size: var(--control-center-body-size);
+}
+
+.control-center-saving-note {
+  margin: 0.75rem 0 0;
+  color: var(--control-center-carbon-soft);
+  font-size: var(--control-center-label-size);
+  line-height: 1.45;
+}
+
+@keyframes control-center-saving-pulse {
+  50% {
+    opacity: 0.32;
+  }
+}
+
+@container control-center (max-width: 43rem) {
+  .control-center-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-center-primary-column {
+    border-right: 0;
+  }
+
+  .control-center-workspace-section,
+  .control-center-session-panel {
+    border-bottom: 1px solid var(--control-center-rule-dark);
+  }
+
+  .control-center-session-panel {
+    border-bottom-color: var(--control-center-rule-light);
+  }
+}
+
+@container control-center (max-width: 31rem) {
+  .control-center-header {
+    min-height: auto;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .control-center-live-status {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .control-center-section-heading,
+  .control-center-theme-options {
+    grid-template-columns: 1fr;
+  }
+
+  .control-center-section-heading {
+    gap: 0.6rem;
+  }
+
+  .control-center-theme-option {
+    min-height: 5.5rem;
+  }
+
+  .control-center-session-data > div {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .control-center-session-data dd {
+    text-align: left;
+  }
+}
+
+@media (max-width: 520px) {
+  .control-center-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-center-primary-column {
+    border-right: 0;
+  }
+
+  .control-center-section,
+  .control-center-session-panel,
+  .control-center-header {
+    padding: 1rem;
+  }
+
+  .control-center-confirmation {
+    margin: 1rem -1rem -1rem;
+    padding: 1rem;
+  }
+}
+
+@media (pointer: coarse) {
+  .control-center-confirmation-actions button {
+    min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .control-center-theme-option,
+  .control-center-workspace-option,
+  .control-center-action {
+    transition-duration: 0.01ms !important;
+  }
+
+  .control-center-live-status[data-status="saving"] .control-center-status-dot,
+  .control-center-memory-track span[data-saving="true"] {
+    animation: none;
+  }
+}

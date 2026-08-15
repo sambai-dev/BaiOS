@@ -4,6 +4,7 @@ import {
   type ChangeEvent,
   type PointerEvent,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -22,6 +23,10 @@ type DragState = {
   x: number;
   y: number;
 } | null;
+
+export type VectorLabProps = {
+  idPrefix?: string;
+};
 
 const AXIS_LABELS = ["X", "Y", "Z"] as const;
 
@@ -169,7 +174,13 @@ function format(value: number) {
   return Number.isFinite(value) ? value.toFixed(2) : "0.00";
 }
 
-export default function VectorLab() {
+function safeDomId(value: string) {
+  return value.replace(/[^a-zA-Z0-9_-]/g, "-");
+}
+
+export default function VectorLab({ idPrefix }: VectorLabProps = {}) {
+  const generatedId = useId();
+  const domIdPrefix = `${safeDomId(idPrefix?.trim() || "vector-lab")}-${safeDomId(generatedId)}`;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef<DragState>(null);
   const [vectorADraft, setVectorADraft] = useState<VectorDraft>(["1.8", "1.2", "0.6"]);
@@ -263,6 +274,7 @@ export default function VectorLab() {
           {(["a", "b"] as const).map((target) => {
             const draft = target === "a" ? vectorADraft : vectorBDraft;
             const validation = target === "a" ? parsedA : parsedB;
+            const guidanceId = `${domIdPrefix}-${target}-vector-guidance`;
             return (
               <fieldset key={target}>
                 <legend>Vector {target.toUpperCase()}</legend>
@@ -275,7 +287,7 @@ export default function VectorLab() {
                       autoComplete="off"
                       spellCheck="false"
                       aria-invalid={validation.invalid[index]}
-                      aria-describedby={`${target}-vector-guidance`}
+                      aria-describedby={guidanceId}
                       value={value}
                       onChange={(event) => updateVectorDraft(target, index, event)}
                     />
@@ -283,7 +295,7 @@ export default function VectorLab() {
                 ))}
                 <p
                   className={`os-vector-error${validation.vector ? " is-valid" : ""}`}
-                  id={`${target}-vector-guidance`}
+                  id={guidanceId}
                   role="status"
                 >
                   {validation.vector ? "Range −3 to 3" : "Complete every value from −3 to 3"}
