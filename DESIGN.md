@@ -20,9 +20,9 @@ colors:
 typography:
   display:
     fontFamily: "Archivo, sans-serif"
-    fontSize: "clamp(3.9rem, 6.6vw, 6rem)"
+    fontSize: "clamp(4.75rem, 10vw, 11rem)"
     fontWeight: 650
-    lineHeight: 0.9
+    lineHeight: 0.88
     letterSpacing: "-0.04em"
   headline:
     fontFamily: "Archivo Black, sans-serif"
@@ -158,7 +158,7 @@ The palette behaves like an operating signal system. Warm near-black and paper n
 
 ### Hierarchy
 
-- **Display** (650, `typography.display`, 0.9): Monumental public statements; keep lines short enough for the compressed rhythm to remain legible.
+- **Display** (650, `typography.display`, 0.88): Monumental public statements; keep lines short enough for the compressed rhythm to remain legible.
 - **Headline** (400, `typography.headline`, 0.92): Workbench app propositions and major window content headings.
 - **Title** (560, `typography.title`, 1): Compact lab and calculator titles where hierarchy must hold inside a window.
 - **Body** (400, `typography.body`, 1.48): Explanations and working copy; practical measures typically stop between 48ch and 62ch.
@@ -236,7 +236,7 @@ The aperture is a small live instrument, not a promotional card. On desktop it r
 
 ### Public Front Door
 
-The public surface is a single quiet composition: identity and the Workbench aperture share the top edge, the six-word statement “Sam designs and builds software.” holds the center, and one availability line plus two compact link groups anchor the bottom. Desktop uses a responsive `clamp(3.5rem, 8vw, 10rem)` horizontal inset; compact widths collapse that gutter without shrinking the underlying hierarchy. The front door does not carry an explanatory deck, route labels, project taxonomy, or Workbench telemetry outside the aperture—those details belong one level deeper.
+The public surface is a single quiet composition: identity and the Workbench aperture share the top edge, the six-word statement “Sam designs and builds software.” holds the center, and one availability line plus two compact link groups anchor the bottom. Desktop uses a responsive `clamp(3.5rem, 8vw, 10rem)` horizontal inset and a reference-scale `clamp(4.75rem, 10vw, 11rem)` statement; compact widths collapse both dimensions without shrinking the underlying hierarchy. The front door does not carry an explanatory deck, route labels, project taxonomy, or Workbench telemetry outside the aperture—those details belong one level deeper.
 
 ### Workbench Menu Bar
 

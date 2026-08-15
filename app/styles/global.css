@@ -143,7 +143,7 @@ template {
 
 .hero-cluster {
   align-self: center;
-  max-width: min(84vw, 75rem);
+  max-width: min(84vw, 96rem);
   margin: clamp(3rem, 6vh, 5rem) 0 clamp(2rem, 4vh, 3.5rem);
 }
 
@@ -152,9 +152,9 @@ template {
   margin: 0;
   color: var(--ivory);
   font-family: var(--font-body), sans-serif;
-  font-size: clamp(3.9rem, 6.6vw, 6rem);
+  font-size: clamp(4.75rem, 10vw, 11rem);
   font-weight: 650;
-  line-height: 0.9;
+  line-height: 0.88;
   letter-spacing: -0.04em;
 }
 
@@ -648,6 +648,7 @@ template {
   .hero-statement {
     max-width: 100%;
     font-size: clamp(3.6rem, 9.2vw, 5.8rem);
+    line-height: 0.9;
   }
 
   .hero-statement span {
