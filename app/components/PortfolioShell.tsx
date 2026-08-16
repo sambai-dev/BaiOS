@@ -229,7 +229,7 @@ export default function PortfolioShell() {
             </a>
             <a
               className="index-link"
-              href="/resume/SamBai_Resume_2026-08-16.pdf"
+              href="/resume/SamBai_Resume.pdf?v=ba5b8288"
               target="_blank"
               rel="noreferrer"
             >
@@ -253,3 +253,4 @@ export default function PortfolioShell() {
     </main>
   );
 }
+
