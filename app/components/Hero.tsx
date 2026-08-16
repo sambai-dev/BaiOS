@@ -104,7 +104,7 @@ export default function Hero() {
 
         {/* Download CV - text link style with icon */}
         <a
-          href="/resume/SamBai_Resume.pdf"
+          href="/resume/SamBai_Resume_2026-08-16.pdf"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Download my CV (PDF)"

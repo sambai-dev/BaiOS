@@ -82,7 +82,7 @@ The Workbench is entirely local to the current browser. It has no account, login
 
 - Public portfolio and Workbench implementation in `app/`.
 - Workbench registry, session, window-manager, Archive, and backup behavior in `app/lib/`.
-- Résumé at `public/resume/SamBai_Resume.pdf`.
+- Résumé at `public/resume/SamBai_Resume_2026-08-16.pdf`.
 - Solynth Labs positioning and company facts: https://solynthlabs.com/#services.
 - Approved visual composition at `.impeccable/mocks/quiet-junction.png`.
 - Public-surface composition brief at `.impeccable/surfaces/app-page-tsx.md`.
