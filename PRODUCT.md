@@ -82,7 +82,7 @@ The Workbench is entirely local to the current browser. It has no account, login
 
 - Public portfolio and Workbench implementation in `app/`.
 - Workbench registry, session, window-manager, Archive, and backup behavior in `app/lib/`.
-- Résumé at `public/resume/SamBai_Resume_2026-08-16.pdf`.
+- Résumé at `public/resume/SamBai_Resume.pdf`.
 - Solynth Labs positioning and company facts: https://solynthlabs.com/#services.
 - Approved visual composition at `.impeccable/mocks/quiet-junction.png`.
 - Public-surface composition brief at `.impeccable/surfaces/app-page-tsx.md`.
@@ -96,3 +96,4 @@ The Workbench is entirely local to the current browser. It has no account, login
 5. Keep every claim and artifact truthful, and let specificity—not decoration—create personality.
 6. Treat local data honestly: disclose its scope, provide backup and recovery, and never imply an account or remote service.
 7. Preserve each task across responsive modes; change the interaction model instead of shrinking desktop chrome until it fails.
+
