@@ -88,6 +88,28 @@ const VectorLab = dynamic(() => import("./VectorLab"), {
   loading: () => <div className="os-app-loading">Loading Vector…</div>,
 });
 
+const MarketPulseApp = dynamic(() => import("./MarketPulseApp"), {
+  ssr: false,
+  loading: () => <div className="os-app-loading">Loading Pulse…</div>,
+});
+
+const BookConsultApp = dynamic(() => import("./BookConsultApp"), {
+  ssr: false,
+  loading: () => <div className="os-app-loading">Loading Scope & Book…</div>,
+});
+
+const CaseStudySandboxApp = dynamic(() => import("./CaseStudySandboxApp"), {
+  ssr: false,
+  loading: () => <div className="os-app-loading">Loading Case Sandbox…</div>,
+});
+
+const AgentWorkflowApp = dynamic(() => import("./AgentWorkflowApp"), {
+  ssr: false,
+  loading: () => <div className="os-app-loading">Loading AI Lab…</div>,
+});
+
+import { playSound } from "../lib/workbench-sound";
+
 type WorkbenchOSProps = {
   closeButtonRef: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
@@ -661,6 +683,12 @@ export default function WorkbenchOSV3({
       }
       commitWindowResult(result, current.activeWorkspaceId);
       const instanceId = result.activeInstanceId;
+      playSound("focus");
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("app", appId);
+        window.history.replaceState(null, "", url.toString());
+      }
       if (instanceId) {
         window.requestAnimationFrame(() => {
           windowRefs.current[instanceId]?.focus();
@@ -732,6 +760,7 @@ export default function WorkbenchOSV3({
         (windowState) => windowState.instanceId === instanceId,
       );
       if (!target) return;
+      playSound("snap");
       const result = closeManagedWindow(current.windows, instanceId);
       commitWindowResult(result, target.workspaceId);
       focusManagedSurface(result.activeInstanceId);
@@ -800,6 +829,12 @@ export default function WorkbenchOSV3({
 
   const switchWorkspace = useCallback((workspaceId: WorkspaceId, focusSurface = true) => {
     const current = sessionRef.current;
+    playSound("snap");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("workspace", workspaceId);
+      window.history.replaceState(null, "", url.toString());
+    }
     const active = switchWorkspaceActiveInstance(
       current.windows,
       workspaceId,
@@ -2037,6 +2072,7 @@ export default function WorkbenchOSV3({
             activeInstanceId === windowState.instanceId
           }
           prefersReducedMotion={prefersReducedMotion}
+          themeId={session.themeId}
         />
       );
     }
@@ -2055,7 +2091,28 @@ export default function WorkbenchOSV3({
     }
 
     if (windowState.appId === "vector") {
-      return <VectorLab idPrefix={windowState.instanceId} />;
+      return (
+        <VectorLab
+          idPrefix={windowState.instanceId}
+          themeId={session.themeId}
+        />
+      );
+    }
+
+    if (windowState.appId === "pulse") {
+      return <MarketPulseApp />;
+    }
+
+    if (windowState.appId === "book") {
+      return <BookConsultApp />;
+    }
+
+    if (windowState.appId === "sandbox") {
+      return <CaseStudySandboxApp />;
+    }
+
+    if (windowState.appId === "agent") {
+      return <AgentWorkflowApp />;
     }
 
     if (windowState.appId === "archive") {
@@ -2288,6 +2345,38 @@ export default function WorkbenchOSV3({
           <button
             type="button"
             className="os-desktop-object"
+            onClick={() => openWindow("pulse")}
+          >
+            <span className="os-desktop-object-mark" aria-hidden="true">PX</span>
+            <span>Pulse</span>
+          </button>
+          <button
+            type="button"
+            className="os-desktop-object"
+            onClick={() => openWindow("book")}
+          >
+            <span className="os-desktop-object-mark" aria-hidden="true">BK</span>
+            <span>Book</span>
+          </button>
+          <button
+            type="button"
+            className="os-desktop-object"
+            onClick={() => openWindow("sandbox")}
+          >
+            <span className="os-desktop-object-mark" aria-hidden="true">SB</span>
+            <span>Sandbox</span>
+          </button>
+          <button
+            type="button"
+            className="os-desktop-object"
+            onClick={() => openWindow("agent")}
+          >
+            <span className="os-desktop-object-mark" aria-hidden="true">AI</span>
+            <span>AI Lab</span>
+          </button>
+          <button
+            type="button"
+            className="os-desktop-object"
             onClick={() => openWindow("control")}
           >
             <span className="os-desktop-object-mark" aria-hidden="true">CC</span>
@@ -2467,7 +2556,7 @@ export default function WorkbenchOSV3({
         <nav className="os-dock" aria-label="Workbench applications">
           <div className="os-dock-label">
             <span>{activeWorkspace.label}</span>
-            <span>Apps · 1–0 / R</span>
+            <span>Keys 1–0 · P · B · S · A · R</span>
           </div>
           {workbenchApps.map((app) => {
             const instances = session.windows.filter(

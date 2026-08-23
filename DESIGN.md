@@ -172,7 +172,7 @@ The palette behaves like an operating signal system. Warm near-black and paper n
 
 The shared spatial grammar is field-and-rule, not card-and-gap. Content sits in broad carbon, route-color, or ivory fields; one-pixel rules establish alignment; large declarations and compact operational data create the density contrast. Public outer padding steps from 2rem to 1.5rem below 980px and 1.1rem below 620px. Within the Workbench, compact control padding clusters around 0.6–1rem while app content uses about 1–1.2rem.
 
-Workbench desktop space is divided into the menu bar, a free window field, and an eleven-app dock. Build, Field, and Notes are three local workspaces with independent active-window memory. The right-side desktop objects provide direct routes to Archive, Atlas, Subsurface, Railshift, and Control; Atlas is the cross-workspace map rather than another workspace. Scratch, Vector, and Archive can open multiple instances in a workspace; other apps recover or focus their existing instance. The total saved window registry is bounded at 60 instances.
+Workbench desktop space is divided into the menu bar, a free window field, and a fifteen-app dock. Build, Field, and Notes are three local workspaces with independent active-window memory. The right-side desktop objects provide direct routes to Archive, Atlas, Subsurface, Railshift, Pulse, Book, Sandbox, AI Lab, and Control; Atlas is the cross-workspace map rather than another workspace. Scratch, Vector, and Archive can open multiple instances in a workspace; other apps recover or focus their existing instance. The total saved window registry is bounded at 60 instances.
 
 Between 981px and 1120px, the dock becomes a horizontal strip without changing the desktop window model. At 980px, the environment changes modes: only one active window is visible while inactive or minimized open windows in visited workspaces remain mounted, hidden, inert, and `aria-hidden`. Drag, resize, desktop objects, context menus, and snap previews disappear; the dock becomes the persistent horizontal task switcher. Heavy app bodies mount only after their workspace has been visited. Archive restructures at 840px and 580px, the menu bar condenses at 1080px and 760px, Atlas simplifies at 620px, and the Workbench compacts again at 520px.
 
@@ -248,7 +248,7 @@ Windows use ivory content, carbon title bars, square clipping, structural shadow
 
 ### Workbench Dock
 
-The dock exposes all eleven registered apps—Now, Stack, Method, Scratch, Console, Links, Subsurface, Railshift, Vector, Archive, and Control—with number shortcuts plus R for Railshift and exact Closed, Suspended, Active, or Running status. Shift plus a shortcut or dock activation requests a new instance only for Scratch, Vector, and Archive. The dock shows multiple-instance count as a small signal badge and becomes horizontally scrollable before labels need to compress.
+The dock exposes all fifteen registered apps—Now, Stack, Method, Scratch, Console, Links, Pulse, Book, Sandbox, AI Lab, Subsurface, Railshift, Vector, Archive, and Control—with number shortcuts plus P for Pulse and R for Railshift and exact Closed, Suspended, Active, or Running status. Shift plus a shortcut or dock activation requests a new instance only for Scratch, Vector, and Archive. The dock shows multiple-instance count as a small signal badge and becomes horizontally scrollable before labels need to compress.
 
 ### System Search
 
@@ -269,6 +269,12 @@ Control is the local settings and recovery instrument. Its real radio inputs swi
 ### Method Tabs
 
 Method is a real tablist with Clarify, Shape, Ship, and Learn panels. Selected and hover states invert to the active route color; arrow keys, Home, and End move selection and focus. Panel changes use an eight-pixel rise with opacity, suppressed when reduced motion is requested.
+
+### Pulse Market Monitor
+
+Pulse treats live crypto data as operating telemetry rather than a conventional finance dashboard. An ivory detail stage pairs one selected asset, its signed 24-hour change, a ruled price trace, and four compact market facts with a carbon asset ledger. The active theme route color identifies the selected asset, currency mode, asset mark, and positive/default chart trace; the signal color is reserved for the chart terminal. Negative movement may use the established restrained red exception, but direction is never color-only: signed percentages and the chart's accessible label state whether movement is up or down.
+
+USD and NZD are a semantic pressed-button group, asset rows are pressed buttons, and refresh exposes loading or refreshing state; when no usable snapshot exists, failure becomes an explicit error-and-retry field. Existing data remains visible during a refresh. The footer always attributes CoinGecko and distinguishes a current response from a cached market snapshot with its source update time. At 760px the detail stage stacks above the asset ledger; at 520px the four facts become a two-column grid and the source footer stacks. Reduced motion removes the animated loading sweep while preserving its status text.
 
 ### Subsurface Lab
 

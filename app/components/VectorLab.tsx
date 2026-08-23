@@ -26,6 +26,7 @@ type DragState = {
 
 export type VectorLabProps = {
   idPrefix?: string;
+  themeId?: string;
 };
 
 const AXIS_LABELS = ["X", "Y", "Z"] as const;
@@ -95,6 +96,11 @@ function drawVectorScene(
 ) {
   const { context, width, height } = configureCanvas(canvas);
   if (!context) return;
+  const style = window.getComputedStyle(canvas);
+  const ivory = style.getPropertyValue("--ivory").trim() || "#f0efe8";
+  const route = style.getPropertyValue("--cobalt").trim() || "#4c5ce5";
+  const contrast = "#ba5b3f";
+  const dataFont = style.getPropertyValue("--font-data").trim() || "monospace";
   const scale = Math.min(width, height) / 6.6;
   const origin = { x: width * 0.5, y: height * 0.54 };
 
@@ -108,11 +114,11 @@ function drawVectorScene(
   };
 
   context.clearRect(0, 0, width, height);
-  context.fillStyle = "#f0eddb";
+  context.fillStyle = ivory;
   context.fillRect(0, 0, width, height);
 
   context.lineWidth = 1;
-  context.strokeStyle = "rgba(16, 16, 14, 0.16)";
+  context.strokeStyle = "rgba(17, 17, 15, 0.16)";
   for (let index = -3; index <= 3; index += 1) {
     const xStart = project([index, 0, -3]);
     const xEnd = project([index, 0, 3]);
@@ -133,9 +139,9 @@ function drawVectorScene(
     { point: [0, 2.8, 0], label: "Y" },
     { point: [0, 0, 2.8], label: "Z" },
   ];
-  context.strokeStyle = "rgba(16, 16, 14, 0.66)";
-  context.fillStyle = "#10100e";
-  context.font = "10px monospace";
+  context.strokeStyle = "rgba(17, 17, 15, 0.66)";
+  context.fillStyle = "#11110f";
+  context.font = `10px ${dataFont}, monospace`;
   for (const axis of axes) {
     const end = project(axis.point);
     context.beginPath();
@@ -162,12 +168,12 @@ function drawVectorScene(
     context.lineTo(end.x - 10 * Math.cos(angle + 0.45), end.y - 10 * Math.sin(angle + 0.45));
     context.closePath();
     context.fill();
-    context.font = "600 11px monospace";
+    context.font = `600 11px ${dataFont}, monospace`;
     context.fillText(label, end.x + 8, end.y + 14);
   };
 
-  if (vectorA) drawArrow(vectorA, "#1424f5", "A");
-  if (vectorB) drawArrow(vectorB, "#df3d26", "B");
+  if (vectorA) drawArrow(vectorA, route, "A");
+  if (vectorB) drawArrow(vectorB, contrast, "B");
 }
 
 function format(value: number) {
@@ -178,7 +184,7 @@ function safeDomId(value: string) {
   return value.replace(/[^a-zA-Z0-9_-]/g, "-");
 }
 
-export default function VectorLab({ idPrefix }: VectorLabProps = {}) {
+export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
   const generatedId = useId();
   const domIdPrefix = `${safeDomId(idPrefix?.trim() || "vector-lab")}-${safeDomId(generatedId)}`;
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -208,7 +214,7 @@ export default function VectorLab({ idPrefix }: VectorLabProps = {}) {
     const observer = new ResizeObserver(draw);
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [parsedA.vector, parsedB.vector, view]);
+  }, [parsedA.vector, parsedB.vector, view, themeId]);
 
   const updateVectorDraft = (
     target: "a" | "b",

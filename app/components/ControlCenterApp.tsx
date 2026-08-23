@@ -9,6 +9,11 @@ import {
   useState,
 } from "react";
 import "../styles/control-center-app.css";
+import {
+  isWorkbenchSoundEnabled,
+  setWorkbenchSoundEnabled,
+  playSound,
+} from "../lib/workbench-sound";
 
 export type ControlCenterTheme = {
   id: string;
@@ -53,7 +58,7 @@ const SESSION_COPY: Record<
   },
   restored: {
     label: "Session restored",
-    detail: "Workspace, palette, and window positions are back in place.",
+    detail: "Workspace, theme, and window positions are back in place.",
   },
   saving: {
     label: "Saving locally",
@@ -72,9 +77,9 @@ const CONFIRMATION_COPY: Record<
     action: "Restore layout",
   },
   import: {
-    heading: "Choose a session backup?",
+    heading: "Import a session backup?",
     detail:
-      "The selected backup can replace your current local workspace, palette, and window state after it passes validation.",
+      "The selected backup can replace your current local workspace, theme, and window state after it passes validation.",
     action: "Choose backup",
   },
 };
@@ -92,6 +97,7 @@ export default function ControlCenterApp({
   onImportSession,
 }: ControlCenterAppProps) {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [soundActive, setSoundActive] = useState(() => isWorkbenchSoundEnabled());
   const instanceId = useId();
   const confirmationButtonRef = useRef<HTMLButtonElement>(null);
   const restoreButtonRef = useRef<HTMLButtonElement>(null);
@@ -179,15 +185,15 @@ export default function ControlCenterApp({
             aria-labelledby={themeTitleId}
           >
             <header className="control-center-section-heading">
-              <h3 id={themeTitleId}>Palette memory</h3>
+              <h3 id={themeTitleId}>Theme memory</h3>
               <p>
-                Choose the Workbench atmosphere. The active palette is remembered
+                Choose the Workbench route light. The active theme is remembered
                 with this local session.
               </p>
             </header>
 
             <fieldset className="control-center-theme-fieldset">
-              <legend>Workbench palette</legend>
+              <legend>Workbench theme</legend>
               {themes.length > 0 ? (
                 <div className="control-center-theme-options">
                   {themes.map((theme, index) => {
@@ -288,6 +294,36 @@ export default function ControlCenterApp({
               </p>
             )}
           </section>
+
+          <section className="control-center-section">
+            <header className="control-center-section-heading">
+              <h3>Tactile Web Audio</h3>
+              <p>Subtle mechanical relays and haptic sound synthesis on window and dock actions.</p>
+            </header>
+            <div className="control-center-workspace-options">
+              <button
+                type="button"
+                className="control-center-workspace-option"
+                data-active={soundActive}
+                aria-pressed={soundActive}
+                onClick={() => {
+                  const next = !soundActive;
+                  setSoundActive(next);
+                  setWorkbenchSoundEnabled(next);
+                  if (next) playSound("snap");
+                }}
+              >
+                <span className="control-center-workspace-index">FX</span>
+                <span className="control-center-option-copy">
+                  <strong>Synthesized Audio Feedback</strong>
+                  <small>Zero-asset Web Audio API oscillator synthesis.</small>
+                </span>
+                <span className="control-center-option-state">
+                  {soundActive ? "Enabled" : "Muted"}
+                </span>
+              </button>
+            </div>
+          </section>
         </div>
 
         <aside className="control-center-secondary-column" aria-label="Session controls">
@@ -312,7 +348,7 @@ export default function ControlCenterApp({
                 <dd>{activeWorkspace?.label || "Unavailable"}</dd>
               </div>
               <div>
-                <dt>Palette</dt>
+                <dt>Theme</dt>
                 <dd>{activeTheme?.label || "Unavailable"}</dd>
               </div>
               <div>

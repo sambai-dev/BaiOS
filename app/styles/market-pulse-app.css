@@ -1,0 +1,505 @@
+.pulse-app {
+  display: grid;
+  height: 100%;
+  min-height: 100%;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  color: var(--carbon);
+  background: var(--ivory);
+}
+
+.pulse-header {
+  display: flex;
+  min-height: 6.4rem;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding: 1.05rem 1.1rem 0.95rem;
+  border-bottom: 1px solid var(--rule-dark);
+}
+
+.pulse-header h2 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2rem, 4vw, 3.75rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.035em;
+}
+
+.pulse-header p {
+  max-width: 34rem;
+  margin: 0.55rem 0 0;
+  color: #46463f;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.pulse-controls,
+.pulse-currency {
+  display: flex;
+}
+
+.pulse-controls {
+  flex: 0 0 auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.pulse-controls button,
+.pulse-error button {
+  min-height: 2.25rem;
+  padding: 0 0.7rem;
+  color: var(--carbon);
+  background: transparent;
+  border: 1px solid var(--rule-dark);
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+}
+
+.pulse-currency button + button {
+  border-left: 0;
+}
+
+.pulse-currency button[aria-pressed="true"],
+.pulse-controls button:hover,
+.pulse-controls button:focus-visible,
+.pulse-error button:hover,
+.pulse-error button:focus-visible {
+  color: white;
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+}
+
+.pulse-controls button:disabled {
+  color: #67675f;
+  background: #deddd5;
+  border-color: var(--rule-dark);
+  cursor: wait;
+}
+
+.pulse-workspace {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1.65fr) minmax(15.5rem, 0.72fr);
+}
+
+.pulse-stage {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: auto minmax(10rem, 1fr) auto auto;
+  padding: 1rem 1.1rem 0;
+  border-right: 1px solid var(--rule-dark);
+}
+
+.pulse-quote {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pulse-quote > div:first-child,
+.pulse-quote > div:first-child > span:last-child {
+  display: flex;
+}
+
+.pulse-quote > div:first-child {
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.pulse-quote > div:first-child > span:last-child {
+  flex-direction: column;
+}
+
+.pulse-asset-mark {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  place-items: center;
+  color: white;
+  background: var(--cobalt);
+  font-family: var(--font-data), monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+}
+
+.pulse-quote strong,
+.pulse-price strong {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.pulse-quote > div:first-child strong {
+  font-size: 1.15rem;
+}
+
+.pulse-quote small,
+.pulse-price span,
+.pulse-chart-axis,
+.pulse-stats,
+.pulse-market,
+.pulse-footer {
+  font-family: var(--font-data), monospace;
+}
+
+.pulse-quote small {
+  margin-top: 0.25rem;
+  color: #55554e;
+  font-size: 0.52rem;
+  text-transform: uppercase;
+}
+
+.pulse-price {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  text-align: right;
+}
+
+.pulse-price strong {
+  font-size: clamp(1.65rem, 3.2vw, 2.9rem);
+  letter-spacing: -0.025em;
+}
+
+.pulse-price span {
+  margin-top: 0.28rem;
+  font-size: 0.66rem;
+}
+
+.pulse-price span[data-direction="positive"],
+.pulse-market-price small[data-direction="positive"] {
+  color: #187c38;
+}
+
+.pulse-price span[data-direction="negative"],
+.pulse-market-price small[data-direction="negative"] {
+  color: #a33b2b;
+}
+
+.pulse-chart {
+  width: 100%;
+  height: 100%;
+  min-height: 10rem;
+  margin-top: 0.75rem;
+  overflow: visible;
+}
+
+.pulse-chart-rules line {
+  stroke: var(--rule-dark);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.pulse-chart-area {
+  fill: var(--cobalt);
+  opacity: 0.08;
+}
+
+.pulse-chart-line {
+  fill: none;
+  stroke: var(--cobalt-deep);
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-width: 2.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.pulse-chart[data-direction="negative"] .pulse-chart-area {
+  fill: #a33b2b;
+}
+
+.pulse-chart[data-direction="negative"] .pulse-chart-line {
+  stroke: #a33b2b;
+}
+
+.pulse-chart-terminal {
+  fill: var(--signal);
+  stroke: var(--carbon);
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.pulse-chart-axis {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.1rem 0 0.55rem;
+  color: #5f5f57;
+  font-size: 0.5rem;
+  text-transform: uppercase;
+}
+
+.pulse-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 -1.1rem;
+  border-top: 1px solid var(--rule-dark);
+}
+
+.pulse-stats > div {
+  min-width: 0;
+  padding: 0.7rem 0.72rem 0.8rem;
+  border-right: 1px solid var(--rule-dark);
+}
+
+.pulse-stats > div:last-child {
+  border-right: 0;
+}
+
+.pulse-stats dt,
+.pulse-stats dd {
+  margin: 0;
+}
+
+.pulse-stats dt {
+  color: #5b5b54;
+  font-size: 0.48rem;
+  text-transform: uppercase;
+}
+
+.pulse-stats dd {
+  margin-top: 0.35rem;
+  overflow-wrap: anywhere;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+.pulse-market {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background: var(--carbon);
+}
+
+.pulse-market-head {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  color: var(--ivory-muted);
+  background: var(--carbon);
+  border-bottom: 1px solid var(--rule-light);
+  font-size: 0.48rem;
+  text-transform: uppercase;
+}
+
+.pulse-market-rows button {
+  display: grid;
+  width: 100%;
+  min-height: 3.65rem;
+  grid-template-columns: 1.35rem minmax(4.3rem, 1fr) minmax(6.5rem, auto);
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.55rem 0.72rem;
+  color: var(--ivory);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule-light);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.pulse-market-rows button:hover,
+.pulse-market-rows button:focus-visible,
+.pulse-market-rows button[aria-pressed="true"] {
+  color: white;
+  background: var(--cobalt);
+}
+
+.pulse-rank {
+  color: var(--ivory-muted);
+  font-size: 0.48rem;
+}
+
+.pulse-market-name,
+.pulse-market-price {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.pulse-market-price {
+  align-items: end;
+  text-align: right;
+}
+
+.pulse-market-name strong,
+.pulse-market-price strong {
+  overflow: hidden;
+  font-size: 0.62rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pulse-market-name small,
+.pulse-market-price small {
+  margin-top: 0.2rem;
+  color: var(--ivory-muted);
+  font-size: 0.48rem;
+}
+
+.pulse-market-rows button:hover small,
+.pulse-market-rows button:focus-visible small,
+.pulse-market-rows button[aria-pressed="true"] small,
+.pulse-market-rows button:hover .pulse-rank,
+.pulse-market-rows button:focus-visible .pulse-rank,
+.pulse-market-rows button[aria-pressed="true"] .pulse-rank {
+  color: white;
+}
+
+.pulse-loading,
+.pulse-error {
+  display: grid;
+  place-content: center;
+  min-height: 16rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.pulse-loading span,
+.pulse-error strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  font-weight: 400;
+}
+
+.pulse-loading div {
+  width: min(22rem, 70vw);
+  height: 2px;
+  margin-top: 1rem;
+  overflow: hidden;
+  background: var(--rule-dark);
+}
+
+.pulse-loading div::after {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--cobalt);
+  content: "";
+  animation: pulse-load 1.1s ease-in-out infinite alternate;
+}
+
+.pulse-error p {
+  max-width: 34rem;
+  margin: 0.7rem auto 1rem;
+  color: #4e4e47;
+}
+
+.pulse-error button {
+  justify-self: center;
+}
+
+.pulse-footer {
+  display: flex;
+  min-height: 2.1rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.75rem;
+  color: #5b5b54;
+  border-top: 1px solid var(--rule-dark);
+  font-size: 0.5rem;
+  text-transform: uppercase;
+}
+
+.pulse-footer a {
+  color: var(--cobalt-deep);
+  text-decoration: none;
+}
+
+.pulse-footer a:hover,
+.pulse-footer a:focus-visible {
+  color: var(--carbon);
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+@keyframes pulse-load {
+  from { transform: translateX(-25%); }
+  to { transform: translateX(175%); }
+}
+
+@media (max-width: 760px) {
+  .pulse-header {
+    min-height: auto;
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .pulse-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pulse-workspace {
+    display: block;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .pulse-stage {
+    min-height: 27rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule-dark);
+  }
+
+  .pulse-market {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 520px) {
+  .pulse-header h2 {
+    font-size: 2.6rem;
+  }
+
+  .pulse-quote {
+    align-items: end;
+  }
+
+  .pulse-quote > div:first-child {
+    align-items: start;
+  }
+
+  .pulse-price strong {
+    font-size: 1.6rem;
+  }
+
+  .pulse-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pulse-stats > div:nth-child(2) {
+    border-right: 0;
+  }
+
+  .pulse-stats > div:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--rule-dark);
+  }
+
+  .pulse-footer {
+    align-items: start;
+    flex-direction: column;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-loading div::after {
+    animation: none;
+    transform: none;
+  }
+}

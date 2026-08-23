@@ -366,9 +366,9 @@ function configureCanvas(
 
   const style = window.getComputedStyle(host);
   const carbon = style.getPropertyValue("--carbon").trim() || "#11110f";
-  const ivory = style.getPropertyValue("--ivory").trim() || "#f0ede0";
+  const ivory = style.getPropertyValue("--ivory").trim() || "#f0efe8";
   const cobalt = style.getPropertyValue("--cobalt").trim() || "#4c5ce5";
-  const signal = style.getPropertyValue("--signal").trim() || "#b9f06a";
+  const signal = style.getPropertyValue("--signal").trim() || "#59df79";
   const background = context.createLinearGradient(0, 0, 0, height);
   background.addColorStop(0, carbon);
   background.addColorStop(0.58, cobalt);
@@ -970,7 +970,7 @@ export default function RailshiftLab({
       <header className="railshift__header">
         <div className="railshift__identity">
           <h2>Railshift</h2>
-          <span>Signal runner / local</span>
+          <span>Three-lane signal lab</span>
         </div>
         <p>Read the route. Change lanes. Keep the signal.</p>
         <div className="railshift__header-actions">
@@ -1070,7 +1070,7 @@ export default function RailshiftLab({
 
       <footer className="railshift__footer">
         <span>Left / right lane · Up jump · Down duck · P pause</span>
-        <span>Sim 60hz / {hud.fps} fps · Best {best.toLocaleString()} · saved here</span>
+        <span>Sim 60 Hz / {hud.fps} fps · Best {best.toLocaleString()} · saved here</span>
       </footer>
       <p className="railshift__announcement" aria-live="polite">
         {statusMessage}

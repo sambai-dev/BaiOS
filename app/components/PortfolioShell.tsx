@@ -47,6 +47,9 @@ export default function PortfolioShell() {
 
   const closeWorkbench = useCallback(() => {
     setIsWorkbenchOpen(false);
+    if (typeof window !== "undefined" && window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
   }, []);
 
   const restoreWorkbenchFocus = useCallback(() => {
@@ -58,6 +61,17 @@ export default function PortfolioShell() {
     }
     workbenchInvokerRef.current = null;
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("app") || params.get("workspace") || params.get("open") || params.get("workbench")) {
+      const raf = window.requestAnimationFrame(() => {
+        openWorkbench();
+      });
+      return () => window.cancelAnimationFrame(raf);
+    }
+  }, [openWorkbench]);
 
   useEffect(() => {
     const tick = () => setNewZealandTime(timeFormatter.format(new Date()));
@@ -150,13 +164,13 @@ export default function PortfolioShell() {
           <span className="aperture-body" aria-hidden="true">
             <span className="aperture-column">
               <span>BUILD / 03</span>
-              <span>FIELD / 02</span>
+              <span>FIELD / 03</span>
               <span>NOTES / 02</span>
             </span>
             <span className="aperture-signal">
               <span>ATLAS / READY</span>
               <span>ARCHIVE / LOCAL</span>
-              <span>11 APPS / {newZealandTime}</span>
+              <span>15 APPS / {newZealandTime}</span>
             </span>
           </span>
           <span className="aperture-action">Enter the local system</span>
@@ -229,7 +243,7 @@ export default function PortfolioShell() {
             </a>
             <a
               className="index-link"
-              href="/resume/SamBai_Resume.pdf"
+              href="/resume/SamBai_Resume.pdf?v=ba5b8288"
               target="_blank"
               rel="noreferrer"
             >

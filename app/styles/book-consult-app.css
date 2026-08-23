@@ -1,0 +1,402 @@
+.book-app {
+  display: grid;
+  height: 100%;
+  min-height: 100%;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  color: var(--carbon);
+  background: var(--ivory);
+}
+
+.book-header {
+  display: flex;
+  min-height: 5.4rem;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.2rem;
+  padding: 1rem 1.15rem 0.85rem;
+  border-bottom: 1px solid var(--rule-dark);
+}
+
+.book-header h2 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.8rem, 3.8vw, 3.2rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+
+.book-header p {
+  max-width: 36rem;
+  margin: 0.45rem 0 0;
+  color: #46463f;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.book-nav {
+  display: flex;
+  gap: 0;
+}
+
+.book-nav button {
+  min-height: 2.2rem;
+  padding: 0 0.85rem;
+  color: var(--carbon);
+  background: transparent;
+  border: 1px solid var(--rule-dark);
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.book-nav button + button {
+  border-left: 0;
+}
+
+.book-nav button[aria-selected="true"],
+.book-nav button:hover {
+  color: white;
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+}
+
+.book-workspace {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.75fr);
+  overflow: hidden;
+}
+
+.book-config {
+  min-width: 0;
+  min-height: 0;
+  padding: 1.1rem;
+  overflow-y: auto;
+  border-right: 1px solid var(--rule-dark);
+}
+
+.book-section {
+  margin-bottom: 1.35rem;
+}
+
+.book-section-label {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: #66665f;
+  font-family: var(--font-data), monospace;
+  font-size: 0.54rem;
+  text-transform: uppercase;
+}
+
+.book-models-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.book-model-card {
+  padding: 0.8rem 0.9rem;
+  color: var(--carbon);
+  background: rgba(17, 17, 15, 0.03);
+  border: 1px solid var(--rule-dark);
+  cursor: pointer;
+  text-align: left;
+  transition: all 160ms ease;
+}
+
+.book-model-card:hover {
+  border-color: var(--cobalt);
+  background: rgba(76, 92, 229, 0.04);
+}
+
+.book-model-card.is-selected {
+  background: white;
+  border-color: var(--cobalt);
+  box-shadow: inset 0 0 0 1px var(--cobalt);
+}
+
+.book-model-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.book-model-head strong {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.book-model-tag {
+  color: var(--cobalt-deep);
+  font-family: var(--font-data), monospace;
+  font-size: 0.5rem;
+  text-transform: uppercase;
+}
+
+.book-model-card p {
+  margin: 0.45rem 0 0;
+  color: #4a4a42;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.book-deliverables-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.book-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  color: var(--carbon);
+  background: transparent;
+  border: 1px solid var(--rule-dark);
+  cursor: pointer;
+  font-size: 0.72rem;
+  text-align: left;
+  transition: all 160ms ease;
+}
+
+.book-chip:hover {
+  border-color: var(--cobalt);
+}
+
+.book-chip.is-active {
+  color: var(--carbon);
+  background: rgba(76, 92, 229, 0.08);
+  border-color: var(--cobalt);
+}
+
+.book-chip-mark {
+  color: var(--cobalt);
+  font-family: var(--font-data), monospace;
+  font-size: 0.75rem;
+}
+
+.book-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.book-inputs-grid label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #55554e;
+  font-family: var(--font-data), monospace;
+  font-size: 0.52rem;
+  text-transform: uppercase;
+}
+
+.book-inputs-grid input,
+.book-inputs-grid textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  color: var(--carbon);
+  background: white;
+  border: 1px solid var(--rule-dark);
+  font-family: inherit;
+  font-size: 0.76rem;
+}
+
+.book-inputs-grid input:focus,
+.book-inputs-grid textarea:focus {
+  border-color: var(--cobalt);
+  outline: none;
+}
+
+.book-input-full {
+  grid-column: 1 / -1;
+}
+
+.book-summary-panel {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.15rem;
+  background: var(--carbon);
+  color: var(--ivory);
+  overflow-y: auto;
+}
+
+.book-tag {
+  display: inline-block;
+  color: var(--signal);
+  font-family: var(--font-data), monospace;
+  font-size: 0.52rem;
+  text-transform: uppercase;
+}
+
+.book-summary-head h3 {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 1.1;
+  color: white;
+}
+
+.book-summary-head p {
+  margin: 0.25rem 0 0;
+  color: var(--ivory-muted);
+  font-size: 0.76rem;
+}
+
+.book-summary-stats {
+  margin: 1.25rem 0;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--rule-light);
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.book-summary-stats div {
+  margin-bottom: 0.65rem;
+}
+
+.book-summary-stats div:last-child {
+  margin-bottom: 0;
+}
+
+.book-summary-stats dt {
+  color: var(--ivory-muted);
+  font-family: var(--font-data), monospace;
+  font-size: 0.5rem;
+  text-transform: uppercase;
+}
+
+.book-summary-stats dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: white;
+}
+
+.book-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.book-cta-primary,
+.book-cta-secondary,
+.book-cta-link {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.6rem;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 160ms ease;
+}
+
+.book-cta-primary {
+  color: white;
+  background: var(--cobalt);
+  border: 1px solid var(--cobalt);
+}
+
+.book-cta-primary:hover {
+  background: var(--cobalt-deep);
+}
+
+.book-cta-secondary {
+  color: var(--ivory);
+  background: transparent;
+  border: 1px solid var(--rule-light);
+}
+
+.book-cta-secondary:hover {
+  color: white;
+  border-color: white;
+}
+
+.book-cta-link {
+  min-height: auto;
+  padding: 0.4rem 0;
+  color: var(--signal);
+  background: transparent;
+  border: 0;
+  font-size: 0.54rem;
+}
+
+.book-cta-link:hover {
+  text-decoration: underline;
+}
+
+.book-calendar-surface {
+  display: grid;
+  place-content: center;
+  min-height: 0;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.book-calendar-card {
+  max-width: 32rem;
+  padding: 2rem;
+  background: var(--carbon);
+  color: var(--ivory);
+  border: 1px solid var(--rule-light);
+}
+
+.book-calendar-meta h3 {
+  margin: 0.45rem 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: white;
+}
+
+.book-calendar-meta p {
+  margin: 0.65rem 0 0;
+  color: var(--ivory-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.book-calendar-bullets {
+  margin: 1rem 0 1.5rem;
+  padding-left: 1.1rem;
+  color: #cfcecb;
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.book-calendar-actions {
+  display: flex;
+  gap: 0.65rem;
+}
+
+@media (max-width: 760px) {
+  .book-workspace {
+    display: block;
+    overflow-y: auto;
+  }
+  .book-config {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule-dark);
+  }
+  .book-models-grid,
+  .book-deliverables-grid,
+  .book-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+  .book-calendar-actions {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,11 @@
+.git
+.next
+.vercel
+.codex-remote-attachments
+.impeccable
+node_modules
+output
+scripts
+tmp
+*.md
+*.log

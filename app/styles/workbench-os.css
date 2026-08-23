@@ -24,71 +24,6 @@
   outline: none;
 }
 
-.os-topbar {
-  position: relative;
-  z-index: 100;
-  display: flex;
-  height: 3.75rem;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1rem;
-  color: var(--ivory);
-  background: var(--carbon);
-  border-bottom: 1px solid var(--rule-light);
-  font-family: var(--font-data), monospace;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-}
-
-.os-brand,
-.os-system-status,
-.os-system-status > span {
-  display: flex;
-  align-items: center;
-}
-
-.os-brand,
-.os-system-status {
-  gap: 0.8rem;
-}
-
-.os-mark {
-  display: grid;
-  width: 2rem;
-  height: 2rem;
-  place-items: center;
-  color: white;
-  background: var(--cobalt);
-}
-
-.os-release {
-  color: var(--ivory-muted);
-}
-
-.os-system-status > span {
-  gap: 0.45rem;
-  color: var(--ivory-muted);
-}
-
-.os-topbar button {
-  min-height: 2rem;
-  padding: 0 0.65rem;
-  color: var(--ivory);
-  background: transparent;
-  border: 1px solid var(--rule-light);
-  cursor: pointer;
-  font: inherit;
-  text-transform: uppercase;
-  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
-}
-
-.os-topbar button:hover,
-.os-topbar button:focus-visible {
-  color: var(--carbon);
-  background: var(--signal);
-  border-color: var(--signal);
-}
-
 .os-desktop {
   position: relative;
   height: calc(100dvh - 3.75rem);
@@ -1084,8 +1019,9 @@
   right: 0;
   bottom: 0;
   left: 0;
-  display: grid;
-  grid-template-columns: 8.25rem repeat(11, minmax(5.7rem, 1fr));
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
   height: 4.6rem;
   color: var(--ivory);
   background: var(--carbon);
@@ -1125,6 +1061,8 @@
 
 .os-dock-label {
   display: flex;
+  flex: 0 0 8rem;
+  min-width: 8rem;
   flex-direction: column;
   justify-content: space-between;
   color: var(--ivory-muted);
@@ -1133,6 +1071,8 @@
 .os-dock button {
   position: relative;
   display: grid;
+  flex: 0 0 auto;
+  min-width: 5.4rem;
   grid-template-columns: 1fr auto;
   grid-template-rows: 1fr auto;
   gap: 0.35rem;
@@ -1169,11 +1109,11 @@
   }
 
   .os-dock-label {
-    min-width: 8.25rem;
+    min-width: 8rem;
   }
 
   .os-dock button {
-    min-width: 5.7rem;
+    min-width: 5.35rem;
   }
 }
 
@@ -1301,31 +1241,6 @@
 }
 
 @media (max-width: 980px) {
-  .os-topbar {
-    height: 3.9rem;
-    padding: 0 0.65rem;
-  }
-
-  .os-release,
-  .os-system-status > span {
-    display: none;
-  }
-
-  .os-brand,
-  .os-system-status {
-    gap: 0.45rem;
-  }
-
-  .os-topbar button {
-    min-height: 2.15rem;
-    padding: 0 0.5rem;
-    font-size: 0.55rem;
-  }
-
-  .os-system-status button:nth-last-child(2) {
-    display: none;
-  }
-
   .os-desktop {
     height: calc(100dvh - 3.9rem);
   }
@@ -1469,14 +1384,6 @@
 }
 
 @media (max-width: 520px) {
-  .os-brand > span:nth-child(2) {
-    display: none;
-  }
-
-  .os-system-status button:first-of-type {
-    padding: 0 0.42rem;
-  }
-
   .os-window-controls button {
     min-width: 3.6rem;
     padding: 0 0.4rem;
@@ -1522,7 +1429,6 @@
   .os-window,
   .os-window-controls button,
   .os-dock button,
-  .os-topbar button,
   .os-links a,
   .os-palette-results button {
     transition-duration: 0.01ms !important;
