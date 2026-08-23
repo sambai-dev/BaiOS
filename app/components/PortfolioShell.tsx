@@ -4,6 +4,11 @@ import { AnimatePresence, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  parseWorkbenchDeepLink,
+  type WorkbenchDeepLink,
+} from "@/app/lib/workbench-deep-link";
+
 const loadWorkbenchOS = () => import("@/app/components/WorkbenchOS");
 const WorkbenchOS = dynamic(loadWorkbenchOS, { ssr: false });
 
@@ -78,6 +83,7 @@ export default function PortfolioShell() {
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState(false);
   const [newZealandTime, setNewZealandTime] = useState("--:--");
   const [workbenchOrigin, setWorkbenchOrigin] = useState({ x: 72, y: 72 });
+  const [deepLink, setDeepLink] = useState<WorkbenchDeepLink | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const openerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -114,6 +120,7 @@ export default function PortfolioShell() {
 
   const closeWorkbench = useCallback(() => {
     setIsWorkbenchOpen(false);
+    setDeepLink(null);
     if (typeof window !== "undefined" && window.location.search) {
       window.history.replaceState(null, "", window.location.pathname);
     }
@@ -131,9 +138,10 @@ export default function PortfolioShell() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("app") || params.get("workspace") || params.get("open") || params.get("workbench")) {
+    const link = parseWorkbenchDeepLink(window.location.search);
+    if (link.requested) {
       const raf = window.requestAnimationFrame(() => {
+        setDeepLink(link);
         openWorkbench();
       });
       return () => window.cancelAnimationFrame(raf);
@@ -371,6 +379,7 @@ export default function PortfolioShell() {
         {isWorkbenchOpen && (
           <WorkbenchOS
             closeButtonRef={closeRef}
+            deepLink={deepLink}
             onClose={closeWorkbench}
             prefersReducedMotion={Boolean(prefersReducedMotion)}
             revealOrigin={workbenchOrigin}

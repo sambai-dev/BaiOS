@@ -42,6 +42,7 @@ import {
   type FileNode,
   type WorkbenchFiles,
 } from "../lib/workbench-files";
+import { type WorkbenchDeepLink } from "../lib/workbench-deep-link";
 import {
   createDefaultWorkbenchSession,
   getWorkbenchApp,
@@ -112,6 +113,7 @@ import { playSound } from "../lib/workbench-sound";
 
 type WorkbenchOSProps = {
   closeButtonRef: RefObject<HTMLButtonElement | null>;
+  deepLink?: WorkbenchDeepLink | null;
   onClose: () => void;
   prefersReducedMotion: boolean;
   revealOrigin: Readonly<{ x: number; y: number }>;
@@ -265,6 +267,7 @@ function cloneSession(session: WorkbenchSession): WorkbenchSession {
 
 export default function WorkbenchOSV3({
   closeButtonRef,
+  deepLink = null,
   onClose,
   prefersReducedMotion,
   revealOrigin,
@@ -502,6 +505,36 @@ export default function WorkbenchOSV3({
       blocked = true;
     }
 
+    if (deepLink?.workspaceId || deepLink?.appId) {
+      const targetWorkspaceId =
+        deepLink.workspaceId ?? loadedSession.activeWorkspaceId;
+      let nextWindows = loadedSession.windows;
+      let nextActiveInstanceId =
+        loadedSession.activeInstances[targetWorkspaceId] ?? null;
+      if (deepLink.appId) {
+        try {
+          const opened = openAppWindow(
+            nextWindows,
+            deepLink.appId,
+            targetWorkspaceId,
+          );
+          nextWindows = opened.windows;
+          nextActiveInstanceId = opened.activeInstanceId;
+        } catch {
+          // Window capacity reached — fall back to the workspace switch alone.
+        }
+      }
+      loadedSession = {
+        ...loadedSession,
+        activeWorkspaceId: targetWorkspaceId,
+        activeInstances: {
+          ...loadedSession.activeInstances,
+          [targetWorkspaceId]: nextActiveInstanceId,
+        },
+        windows: nextWindows,
+      };
+    }
+
     replaceSession(loadedSession);
     replaceFiles(loadedFiles);
     setSessionStatus(restored ? "restored" : "fresh");
@@ -513,7 +546,7 @@ export default function WorkbenchOSV3({
       );
     }
     setHasHydrated(true);
-  }, [replaceFiles, replaceSession]);
+  }, [deepLink, replaceFiles, replaceSession]);
 
   useEffect(() => {
     if (!hasHydrated || storageBlocked || hasStorageConflict) return;

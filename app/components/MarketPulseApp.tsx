@@ -109,10 +109,10 @@ function MarketChart({ coin }: { coin: MarketCoin }) {
   );
 }
 
-function LoadingState() {
+function LoadingState({ label }: { label: string }) {
   return (
     <div className="pulse-loading" role="status" aria-live="polite">
-      <span>Connecting to CoinGecko</span>
+      <span>{label}</span>
       <div aria-hidden="true" />
     </div>
   );
@@ -126,6 +126,7 @@ export default function MarketPulseApp() {
     "loading",
   );
   const [error, setError] = useState("");
+  const [loadingLabel, setLoadingLabel] = useState("Connecting to CoinGecko");
   const [requestVersion, setRequestVersion] = useState(0);
 
   const fetchMarket = useCallback(async (signal: AbortSignal) => {
@@ -179,6 +180,8 @@ export default function MarketPulseApp() {
   const changeCurrency = (nextCurrency: Currency) => {
     if (nextCurrency === currency) return;
     setCurrency(nextCurrency);
+    setLoadingLabel(`Switching to ${currencyLabels[nextCurrency]}`);
+    setStatus("loading");
     setPayload(null);
   };
 
@@ -214,7 +217,7 @@ export default function MarketPulseApp() {
       </header>
 
       {status === "loading" && !payload ? (
-        <LoadingState />
+        <LoadingState label={loadingLabel} />
       ) : status === "error" && !payload ? (
         <div className="pulse-error" role="alert">
           <strong>Couldn’t reach the market.</strong>
@@ -224,7 +227,7 @@ export default function MarketPulseApp() {
           </button>
         </div>
       ) : selectedCoin && payload ? (
-        <div className="pulse-workspace">
+        <div className="pulse-workspace" aria-busy={status === "refreshing"}>
           <section className="pulse-stage" aria-label={`${selectedCoin.name} market detail`}>
             <div className="pulse-quote">
               <div>
@@ -289,7 +292,9 @@ export default function MarketPulseApp() {
             </div>
           </aside>
         </div>
-      ) : null}
+      ) : (
+        <LoadingState label={loadingLabel} />
+      )}
 
       <footer className="pulse-footer" aria-live="polite">
         <span>
