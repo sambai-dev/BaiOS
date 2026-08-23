@@ -369,13 +369,14 @@ export function openAppWindow(
     workspaceId,
     options.instanceId,
   );
+  const placement = resolveDefaultPlacement(app);
   const createdWindow: WorkbenchWindow = {
     instanceId,
     appId,
     title: sequence === 0 ? app.label : `${app.label} ${sequence + 1}`,
     workspaceId,
-    x: app.defaultX + offsetSequence * cascadeOffset,
-    y: app.defaultY + offsetSequence * cascadeOffset,
+    x: placement.x + offsetSequence * cascadeOffset,
+    y: placement.y + offsetSequence * cascadeOffset,
     width: app.defaultWidth,
     height: app.defaultHeight,
     z: allocation.assignedZ,
@@ -393,6 +394,43 @@ export function openAppWindow(
     instanceId,
     allocation.nextZ,
   );
+}
+
+const VIEWPORT_MARGIN = 10;
+const DESKTOP_TOP_RESERVE = 0;
+const DESKTOP_BOTTOM_RESERVE = 84;
+
+/**
+ * Keep an app's composed default position inside the visible desktop.
+ * Registry coordinates are authored for a ~1264px laptop viewport; on
+ * smaller viewports they are pulled back in so windows never open
+ * clipped or stacked outside view. SSR-safe: without a DOM it is a
+ * passthrough.
+ */
+function resolveDefaultPlacement(app: WorkbenchAppDefinition): {
+  x: number;
+  y: number;
+} {
+  if (typeof window === "undefined") {
+    return { x: app.defaultX, y: app.defaultY };
+  }
+  const viewWidth = window.innerWidth;
+  const viewHeight = window.innerHeight;
+  const maxX = Math.max(
+    VIEWPORT_MARGIN,
+    viewWidth - app.defaultWidth - VIEWPORT_MARGIN,
+  );
+  const maxY = Math.max(
+    DESKTOP_TOP_RESERVE + VIEWPORT_MARGIN,
+    viewHeight -
+      app.defaultHeight -
+      DESKTOP_BOTTOM_RESERVE -
+      DESKTOP_TOP_RESERVE,
+  );
+  return {
+    x: Math.min(Math.max(app.defaultX, VIEWPORT_MARGIN), maxX),
+    y: Math.min(Math.max(app.defaultY, DESKTOP_TOP_RESERVE + 6), maxY),
+  };
 }
 
 export function minimizeWindow(
@@ -497,10 +535,11 @@ export function tidyWorkspace(
     const app = getWorkbenchApp(windowState.appId);
     const sequence = occurrenceByInstance.get(windowState.instanceId) ?? 0;
     const offsetSequence = cascadeSlot(sequence);
+    const placement = resolveDefaultPlacement(app);
     return {
       ...cloneWindow(windowState),
-      x: app.defaultX + offsetSequence * DEFAULT_CASCADE_OFFSET,
-      y: app.defaultY + offsetSequence * DEFAULT_CASCADE_OFFSET,
+      x: placement.x + offsetSequence * DEFAULT_CASCADE_OFFSET,
+      y: placement.y + offsetSequence * DEFAULT_CASCADE_OFFSET,
       width: app.defaultWidth,
       height: app.defaultHeight,
       maximized: false,
