@@ -2098,19 +2098,45 @@ export default function WorkbenchOSV3({
 
     if (windowState.appId === "scratch") {
       const scratchId = `${instanceDomId}-scratch`;
+      const scratchText = windowState.data.text ?? "";
+      const wordCount = scratchText.trim()
+        ? scratchText.trim().split(/\s+/).length
+        : 0;
+      const downloadScratch = () => {
+        const blob = new Blob([scratchText], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "scratch.txt";
+        anchor.click();
+        URL.revokeObjectURL(url);
+      };
       return (
         <div className="os-scratch">
           <label htmlFor={scratchId}>Scratchpad</label>
           <textarea
             id={scratchId}
-            value={windowState.data.text ?? ""}
+            value={scratchText}
             maxLength={100_000}
             onChange={(event) =>
               updateWindowData(windowState.instanceId, "text", event.target.value)
             }
             placeholder="Capture a thought, a question, or the next thing to build."
           />
-          <p>Saved only in this browser and included in session exports.</p>
+          <div className="os-scratch-bar">
+            <p>Saved only in this browser and included in session exports.</p>
+            <span className="os-scratch-count" aria-hidden="true">
+              {wordCount}w · {scratchText.length}c
+            </span>
+            <button
+              type="button"
+              className="os-scratch-download"
+              onClick={downloadScratch}
+              disabled={!scratchText.trim()}
+            >
+              Download .txt
+            </button>
+          </div>
         </div>
       );
     }

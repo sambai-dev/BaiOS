@@ -1517,3 +1517,52 @@
   letter-spacing: 0.05em;
   border-top: 1px solid var(--rule-light);
 }
+
+/* --- Scratch stats bar + export --- */
+
+.os-scratch-bar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 0.7rem;
+}
+
+.os-scratch-bar p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--ivory-muted);
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+}
+
+.os-scratch-count {
+  color: var(--ivory-muted);
+  font-family: var(--font-data), monospace;
+  font-size: 0.58rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.os-scratch-download {
+  padding: 0.32rem 0.6rem;
+  color: var(--carbon);
+  background: var(--cobalt);
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.os-scratch-download:hover:not(:disabled) {
+  background: #aab7ff;
+}
+
+.os-scratch-download:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
