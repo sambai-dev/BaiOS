@@ -285,6 +285,10 @@ export default function WorkbenchOSV3({
     createDefaultWorkbenchFiles(),
   );
   const [consoleInput, setConsoleInput] = useState("");
+  const [consoleHistory, setConsoleHistory] = useState<string[]>([]);
+  const [consoleHistoryIndex, setConsoleHistoryIndex] = useState<number | null>(
+    null,
+  );
   const [consoleLines, setConsoleLines] = useState([
     "SAM WORKBENCH / SESSION READY",
     "Type help to inspect available commands.",
@@ -1510,6 +1514,14 @@ export default function WorkbenchOSV3({
         `> ${rawCommand.trim()}`,
         response,
       ]);
+      setConsoleHistory((current) => {
+        const next =
+          current[current.length - 1] === rawCommand.trim()
+            ? current
+            : [...current, rawCommand.trim()].slice(-40);
+        return next;
+      });
+      setConsoleHistoryIndex(null);
       setConsoleInput("");
     },
     [
@@ -2289,6 +2301,29 @@ export default function WorkbenchOSV3({
               id={consoleId}
               value={consoleInput}
               onChange={(event) => setConsoleInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+                if (!consoleHistory.length) return;
+                event.preventDefault();
+                let nextIndex: number;
+                if (event.key === "ArrowUp") {
+                  const base =
+                    consoleHistoryIndex === null
+                      ? consoleHistory.length
+                      : consoleHistoryIndex;
+                  nextIndex = Math.max(0, base - 1);
+                } else {
+                  if (consoleHistoryIndex === null) return;
+                  nextIndex = consoleHistoryIndex + 1;
+                  if (nextIndex >= consoleHistory.length) {
+                    setConsoleHistoryIndex(null);
+                    setConsoleInput("");
+                    return;
+                  }
+                }
+                setConsoleHistoryIndex(nextIndex);
+                setConsoleInput(consoleHistory[nextIndex] ?? "");
+              }}
               autoComplete="off"
               spellCheck={false}
               placeholder="help"
