@@ -31,6 +31,8 @@ export type ControlCenterWorkspace = {
 export type ControlCenterSession = {
   lastSaved: string;
   status: "restored" | "fresh" | "saving";
+  openWindows?: number;
+  minimizedWindows?: number;
 };
 
 export type ControlCenterAppProps = {
@@ -354,6 +356,18 @@ export default function ControlCenterApp({
               <div>
                 <dt>Last saved</dt>
                 <dd>{session.lastSaved || "Not yet"}</dd>
+              </div>
+              <div>
+                <dt>Windows</dt>
+                <dd>
+                  {typeof session.openWindows === "number"
+                    ? `${session.openWindows} open${
+                        session.minimizedWindows
+                          ? ` · ${session.minimizedWindows} min`
+                          : ""
+                      }`
+                    : "—"}
+                </dd>
               </div>
               <div>
                 <dt>Storage</dt>

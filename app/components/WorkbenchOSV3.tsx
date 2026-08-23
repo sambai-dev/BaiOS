@@ -2276,6 +2276,8 @@ export default function WorkbenchOSV3({
           session={{
             lastSaved,
             status: sessionStatus,
+            openWindows: session.windows.filter((w) => w.open).length,
+            minimizedWindows: session.windows.filter((w) => w.minimized).length,
           }}
           onRestoreDefaultLayout={tidyCurrentWorkspace}
           onExportSession={exportSession}
