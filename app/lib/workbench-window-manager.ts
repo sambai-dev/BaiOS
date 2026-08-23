@@ -378,8 +378,8 @@ export function openAppWindow(
     workspaceId,
     x: placement.x + offsetSequence * cascadeOffset,
     y: placement.y + offsetSequence * cascadeOffset,
-    width: app.defaultWidth,
-    height: app.defaultHeight,
+    width: placement.width,
+    height: placement.height,
     z: allocation.assignedZ,
     open: true,
     minimized: false,
@@ -398,39 +398,71 @@ export function openAppWindow(
 }
 
 const VIEWPORT_MARGIN = 10;
-const DESKTOP_TOP_RESERVE = 0;
+const DESKTOP_TOP_OFFSET = 6;
 const DESKTOP_BOTTOM_RESERVE = 84;
+const TILE_GAP = 14;
 
-/**
- * Keep an app's composed default position inside the visible desktop.
- * Registry coordinates are authored for a ~1264px laptop viewport; on
- * smaller viewports they are pulled back in so windows never open
- * clipped or stacked outside view. SSR-safe: without a DOM it is a
- * passthrough.
- */
-function resolveDefaultPlacement(app: WorkbenchAppDefinition): {
+const UTILITY_GRID_SLOTS: Partial<
+  Record<WorkbenchAppId, { col: number; row: number }>
+> = {
+  now: { col: 0, row: 0 },
+  stack: { col: 1, row: 0 },
+  links: { col: 2, row: 0 },
+  method: { col: 0, row: 1 },
+  scratch: { col: 1, row: 1 },
+  console: { col: 2, row: 1 },
+};
+
+type DefaultPlacement = {
   x: number;
   y: number;
-} {
+  width: number;
+  height: number;
+};
+
+/**
+ * Derive a window's opening geometry from the live viewport.
+ * Utility apps tile the entire desktop edge-to-edge as a 3x2 grid on
+ * screens >= 900px; every other app opens large and centered so the
+ * desktop never reads as empty. Registry pixel values remain only as
+ * the SSR/no-DOM fallback.
+ */
+function resolveDefaultPlacement(app: WorkbenchAppDefinition): DefaultPlacement {
   if (typeof window === "undefined") {
-    return { x: app.defaultX, y: app.defaultY };
+    return {
+      x: app.defaultX,
+      y: app.defaultY,
+      width: app.defaultWidth,
+      height: app.defaultHeight,
+    };
   }
   const viewWidth = window.innerWidth;
   const viewHeight = window.innerHeight;
-  const maxX = Math.max(
-    VIEWPORT_MARGIN,
-    viewWidth - app.defaultWidth - VIEWPORT_MARGIN,
+  const desktopWidth = Math.max(240, viewWidth - VIEWPORT_MARGIN * 2);
+  const desktopHeight = Math.max(
+    200,
+    viewHeight - DESKTOP_TOP_OFFSET - DESKTOP_BOTTOM_RESERVE,
   );
-  const maxY = Math.max(
-    DESKTOP_TOP_RESERVE + VIEWPORT_MARGIN,
-    viewHeight -
-      app.defaultHeight -
-      DESKTOP_BOTTOM_RESERVE -
-      DESKTOP_TOP_RESERVE,
-  );
+
+  const slot = UTILITY_GRID_SLOTS[app.id];
+  if (slot && viewWidth >= 900) {
+    const cellWidth = desktopWidth / 3;
+    const cellHeight = desktopHeight / 2;
+    return {
+      x: VIEWPORT_MARGIN + slot.col * cellWidth + TILE_GAP / 2,
+      y: DESKTOP_TOP_OFFSET + slot.row * cellHeight + TILE_GAP / 2,
+      width: cellWidth - TILE_GAP,
+      height: cellHeight - TILE_GAP,
+    };
+  }
+
+  const width = Math.min(desktopWidth * 0.78, 1180);
+  const height = Math.min(desktopHeight * 0.84, 760);
   return {
-    x: Math.min(Math.max(app.defaultX, VIEWPORT_MARGIN), maxX),
-    y: Math.min(Math.max(app.defaultY, DESKTOP_TOP_RESERVE + 6), maxY),
+    x: VIEWPORT_MARGIN + (desktopWidth - width) / 2,
+    y: DESKTOP_TOP_OFFSET + (desktopHeight - height) / 2,
+    width,
+    height,
   };
 }
 
@@ -541,8 +573,8 @@ export function tidyWorkspace(
       ...cloneWindow(windowState),
       x: placement.x + offsetSequence * DEFAULT_CASCADE_OFFSET,
       y: placement.y + offsetSequence * DEFAULT_CASCADE_OFFSET,
-      width: app.defaultWidth,
-      height: app.defaultHeight,
+      width: placement.width,
+      height: placement.height,
       maximized: false,
       snap: null,
       restoreBounds: null,
