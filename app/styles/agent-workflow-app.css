@@ -282,6 +282,32 @@
   line-height: 1.4;
 }
 
+.agent-ask-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+
+.agent-ask-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 0.7rem;
+  color: var(--ivory);
+  background: var(--carbon-soft, #1b1b18);
+  border: 1px solid var(--rule-dark);
+  font-family: var(--font-data), monospace;
+  font-size: 0.72rem;
+}
+
+.agent-ask-input:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 1px;
+}
+
+.agent-ask-input::placeholder {
+  color: var(--ivory-muted);
+}
+
 @media (max-width: 760px) {
   .agent-workspace {
     display: block;

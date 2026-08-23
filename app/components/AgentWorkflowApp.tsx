@@ -4,143 +4,221 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { playSound } from "../lib/workbench-sound";
 
 type AgentPreset = "dashboard" | "rls" | "pipeline";
+type RunPhaseStatus = "pending" | "running" | "completed";
 
-type StepStatus = "pending" | "running" | "completed";
+const MODEL_BADGE = "nemotron-3-ultra · local route · free tier";
 
-const PRESETS: Record<
-  AgentPreset,
-  {
-    title: string;
-    prompt: string;
-    steps: Array<{ name: string; tool: string; detail: string; status?: StepStatus }>;
-    outputCode: string;
-  }
-> = {
+const PRESETS: Record<AgentPreset, { title: string; prompt: string }> = {
   dashboard: {
-    title: "Synthesize Reactive UI Component",
-    prompt: "Generate a zero-dependency SVG sparkline component in React 19 with accessible ARIA metrics.",
-    steps: [
-      { name: "Parse Component Specs", tool: "schema_analyzer", detail: "Extracted: SVG path builder, auto-scale Y, Intl currency." },
-      { name: "Generate TypeScript Interface", tool: "ts_synthesizer", detail: "Defined strictly typed MarketSparklineProps." },
-      { name: "Compile SVG Math & Curves", tool: "math_optimizer", detail: "Calculated non-scaling vector path coordinates." },
-      { name: "Verify A11y & ARIA Contract", tool: "a11y_validator", detail: "Passed WCAG contrast & screen-reader tree validation." },
-    ],
-    outputCode: `// Generated via Solynth AI Orchestrator
-export function Sparkline({ points, stroke = "#4c5ce5" }: SparklineProps) {
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const range = Math.max(max - min, 1);
-  const path = points.map((p, i) => \`\${i ? "L" : "M"}\${i * 12} \${100 - ((p - min) / range) * 80}\`).join(" ");
-  return (
-    <svg viewBox="0 0 240 100" role="img" aria-label="Trend line">
-      <path d={path} fill="none" stroke={stroke} strokeWidth="2.5" />
-    </svg>
-  );
-}`,
+    title: "Synthesize UI Component",
+    prompt:
+      "Write a zero-dependency React 19 SVG sparkline component in TypeScript. Include strict prop types, an accessible aria-label, and a short usage example. Reply with code only.",
   },
   rls: {
-    title: "Audit Database & Supabase RLS",
-    prompt: "Analyze multi-tenant Postgres schema and generate airtight Row-Level Security policies.",
-    steps: [
-      { name: "Inspect Foreign Keys", tool: "pg_introspect", detail: "Mapped workspaces -> teams -> memberships hierarchy." },
-      { name: "Detect Tenant Leak Vector", tool: "security_auditor", detail: "Found unguarded SELECT on workspace_files table." },
-      { name: "Synthesize RLS Policy", tool: "sql_generator", detail: "Generated auth.uid() matching team_members condition." },
-      { name: "Execute Dry-Run Simulation", tool: "sandbox_runner", detail: "0 cross-tenant leaks across 10,000 synthetic queries." },
-    ],
-    outputCode: `-- Generated Supabase RLS Security Policy
-ALTER TABLE public.workspace_files ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Tenant isolation for workspace files"
-ON public.workspace_files
-FOR ALL
-USING (
-  EXISTS (
-    SELECT 1 FROM public.team_memberships
-    WHERE team_memberships.team_id = workspace_files.team_id
-      AND team_memberships.user_id = auth.uid()
-  )
-);`,
+    title: "Draft Postgres RLS Policy",
+    prompt:
+      "Given a multi-tenant Postgres schema where workspace_files.team_id references team_memberships.team_id, write the Row-Level Security policy SQL that isolates rows per authenticated user via auth.uid(). Explain the leak it prevents in two sentences.",
   },
   pipeline: {
-    title: "Orchestrate Multi-Agent Pipeline",
-    prompt: "Coordinate parallel workers to summarize pull request diffs and benchmark latency regressions.",
-    steps: [
-      { name: "Spawn Git Diff Analyzer Subagent", tool: "agent_spawner", detail: "Parsed 14 modified files across 3 workspaces." },
-      { name: "Benchmark Bundle Size Impact", tool: "perf_worker", detail: "Measured +0.4kB delta on main client bundle." },
-      { name: "Run Integration Tests", tool: "test_runner", detail: "18 unit tests passed in 240ms." },
-      { name: "Synthesize Pull Request Summary", tool: "report_builder", detail: "Assembled markdown summary for engineering review." },
-    ],
-    outputCode: `### Automated PR Summary & Benchmarks
-• Architecture: All 15 apps and labs verified.
-• Latency: TTFB maintained at 38ms average.
-• Type Safety: 0 TypeScript regressions.
-• Status: Approved for production deployment.`,
+    title: "Plan an Agent Pipeline",
+    prompt:
+      "Design a multi-agent pipeline that summarizes pull request diffs and flags latency regressions. List each worker, its tool surface, and its hand-off. Be concise and concrete.",
   },
 };
 
+const RUN_PHASES: Array<{ name: string; tool: string; detail: string }> = [
+  {
+    name: "Parse Objective",
+    tool: "intent",
+    detail: "Prompt normalized and routed to the local model endpoint.",
+  },
+  {
+    name: "Plan Response Shape",
+    tool: "planner",
+    detail: "Model reasoning over the request scope.",
+  },
+  {
+    name: "Synthesize Output",
+    tool: "generator",
+    detail: "Tokens streaming from nemotron-3-ultra.",
+  },
+  {
+    name: "Review & Clean",
+    tool: "postprocess",
+    detail: "Reasoning traces stripped; final text verified.",
+  },
+];
+
+function stripThinking(text: string): string {
+  // Remove complete <think>…</think> blocks and an unterminated trailing one.
+  return text
+    .replace(/<think>[\s\S]*?<\/think>\s*/g, "")
+    .replace(/<think>[\s\S]*$/g, "");
+}
+
 export default function AgentWorkflowApp() {
   const [selectedPreset, setSelectedPreset] = useState<AgentPreset>("dashboard");
+  const [customPrompt, setCustomPrompt] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [streamedText, setStreamedText] = useState(PRESETS.dashboard.outputCode);
-  const [currentStepIndex, setCurrentStepIndex] = useState(4);
-  const [tokenCount, setTokenCount] = useState(148);
-  const [elapsedMs, setElapsedMs] = useState(42);
+  const [streamedText, setStreamedText] = useState("");
+  const [errorText, setErrorText] = useState<string | null>(null);
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(
+    RUN_PHASES.length,
+  );
+  const [tokenCount, setTokenCount] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const clockRef = useRef<number | null>(null);
 
-  const startStream = useCallback((presetKey: AgentPreset) => {
-    playSound("chime");
-    if (timerRef.current) clearInterval(timerRef.current);
+  const stopClock = useCallback(() => {
+    if (clockRef.current !== null) {
+      window.clearInterval(clockRef.current);
+      clockRef.current = null;
+    }
+  }, []);
 
-    setSelectedPreset(presetKey);
-    setIsStreaming(true);
-    setStreamedText("");
-    setCurrentStepIndex(0);
-    setTokenCount(0);
+  useEffect(
+    () => () => {
+      stopClock();
+      abortRef.current?.abort();
+    },
+    [stopClock],
+  );
 
-    const fullText = PRESETS[presetKey].outputCode;
-    let charIndex = 0;
-    const startTimestamp = Date.now();
+  const runPrompt = useCallback(
+    async (prompt: string) => {
+      if (!prompt.trim() || isStreaming) return;
+      playSound("chime");
+      setErrorText(null);
+      setStreamedText("");
+      setTokenCount(0);
+      setElapsedMs(0);
+      setCurrentPhaseIndex(0);
+      setIsStreaming(true);
 
-    timerRef.current = setInterval(() => {
-      charIndex += 4;
-      if (charIndex % 32 === 0) {
-        playSound("keystroke");
-      }
+      const controller = new AbortController();
+      abortRef.current = controller;
+      const startTimestamp = Date.now();
+      stopClock();
+      clockRef.current = window.setInterval(() => {
+        setElapsedMs(Date.now() - startTimestamp);
+      }, 120);
 
-      setStreamedText(fullText.slice(0, charIndex));
-      setTokenCount(Math.floor(charIndex / 3.8));
-      setElapsedMs(Date.now() - startTimestamp);
+      try {
+        const response = await fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [{ role: "user", content: prompt }],
+            stream: true,
+          }),
+          signal: controller.signal,
+        });
 
-      const stepProgress = Math.min(
-        Math.floor((charIndex / fullText.length) * PRESETS[presetKey].steps.length),
-        PRESETS[presetKey].steps.length
-      );
-      setCurrentStepIndex(stepProgress);
+        if (!response.ok || !response.body) {
+          let message = "The local AI service refused that request.";
+          try {
+            const data = (await response.json()) as { error?: string };
+            if (data.error) message = data.error;
+          } catch {
+            /* keep default */
+          }
+          throw new Error(message);
+        }
 
-      if (charIndex >= fullText.length) {
-        if (timerRef.current) clearInterval(timerRef.current);
-        setIsStreaming(false);
-        setCurrentStepIndex(PRESETS[presetKey].steps.length);
+        setCurrentPhaseIndex(1);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let raw = "";
+
+        const consume = () => {
+          const visible = stripThinking(raw);
+          setStreamedText(visible);
+          setTokenCount(Math.ceil(visible.length / 4));
+          const progress = Math.min(visible.length / 24, RUN_PHASES.length - 1);
+          setCurrentPhaseIndex(Math.max(1, Math.floor(progress) + 1));
+          if (visible.length % 96 < 4) playSound("keystroke");
+        };
+
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const events = buffer.split("\n\n");
+          buffer = events.pop() ?? "";
+          for (const event of events) {
+            for (const line of event.split("\n")) {
+              if (!line.startsWith("data:")) continue;
+              const payload = line.slice(5).trim();
+              if (!payload || payload === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(payload) as {
+                  choices?: Array<{ delta?: { content?: string } }>;
+                };
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) {
+                  raw += delta;
+                  consume();
+                }
+              } catch {
+                /* ignore malformed keep-alive fragments */
+              }
+            }
+          }
+        }
+
+        const visible = stripThinking(raw).trim();
+        setStreamedText(visible || "(empty response from the model)");
+        setTokenCount(Math.ceil(visible.length / 4));
+        setCurrentPhaseIndex(RUN_PHASES.length);
         playSound("snap");
+      } catch (caught) {
+        if ((caught as Error).name === "AbortError") {
+          setStreamedText((current) => current || "Run aborted.");
+        } else {
+          setErrorText((caught as Error).message);
+          playSound("delete");
+        }
+      } finally {
+        stopClock();
+        abortRef.current = null;
+        setIsStreaming(false);
       }
-    }, 18);
-  }, []);
+    },
+    [isStreaming, stopClock],
+  );
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
+  const runPreset = useCallback(
+    (presetKey: AgentPreset) => {
+      setSelectedPreset(presetKey);
+      void runPrompt(PRESETS[presetKey].prompt);
+    },
+    [runPrompt],
+  );
+
+  const submitCustom = useCallback(() => {
+    void runPrompt(customPrompt);
+  }, [customPrompt, runPrompt]);
 
   const activePreset = PRESETS[selectedPreset];
+  const phaseStatus = (index: number): RunPhaseStatus =>
+    currentPhaseIndex > index
+      ? "completed"
+      : currentPhaseIndex === index && isStreaming
+        ? "running"
+        : "pending";
 
   return (
     <div className="agent-app">
       <header className="agent-header">
         <div>
           <h2>Agent.</h2>
-          <p>Agentic workflow orchestration, streaming token synthesis, and automated systems engineering.</p>
+          <p>
+            Real inference on Nemotron 3 Ultra via this deployment&apos;s local
+            route. Presets below are one-click prompts; or ask anything.
+          </p>
         </div>
         <div className="agent-presets" role="tablist" aria-label="AI task presets">
           {(Object.keys(PRESETS) as AgentPreset[]).map((key) => (
@@ -149,7 +227,8 @@ export default function AgentWorkflowApp() {
               type="button"
               role="tab"
               aria-selected={selectedPreset === key}
-              onClick={() => startStream(key)}
+              disabled={isStreaming}
+              onClick={() => runPreset(key)}
             >
               {PRESETS[key].title}
             </button>
@@ -163,51 +242,101 @@ export default function AgentWorkflowApp() {
             <span className="agent-tag">User Objective / Task Prompt</span>
             <p className="agent-prompt-text">{activePreset.prompt}</p>
             <div className="agent-prompt-bar">
-              <span className="agent-model-badge">solynth-agent-v2-flash</span>
+              <span className="agent-model-badge">{MODEL_BADGE}</span>
               <button
                 type="button"
                 className="agent-btn-run"
                 disabled={isStreaming}
-                onClick={() => startStream(selectedPreset)}
+                onClick={() => runPreset(selectedPreset)}
               >
                 {isStreaming ? "Streaming Tokens…" : "Re-Run Workflow"}
               </button>
             </div>
           </div>
 
+          <form
+            className="agent-ask-row"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitCustom();
+            }}
+          >
+            <input
+              className="agent-ask-input"
+              type="text"
+              value={customPrompt}
+              maxLength={2000}
+              placeholder="Ask the agent anything…"
+              aria-label="Ask the agent anything"
+              disabled={isStreaming}
+              onChange={(event) => setCustomPrompt(event.target.value)}
+            />
+            {isStreaming ? (
+              <button
+                type="button"
+                className="agent-btn-run"
+                onClick={() => abortRef.current?.abort()}
+              >
+                Abort
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="agent-btn-run"
+                disabled={!customPrompt.trim()}
+              >
+                Run
+              </button>
+            )}
+          </form>
+
           <div className="agent-output-container">
             <div className="agent-output-head">
-              <span className="agent-output-title">Streaming Output</span>
+              <span className="agent-output-title">
+                {errorText ? "Run Failed" : "Streaming Output"}
+              </span>
               <div className="agent-output-meta">
                 <span>{tokenCount} Tokens</span>
                 <span>{elapsedMs}ms</span>
-                <span>~{Math.round((tokenCount / Math.max(elapsedMs, 1)) * 1000)} tokens/sec</span>
+                <span>
+                  ~{Math.round((tokenCount / Math.max(elapsedMs, 1)) * 1000)}{" "}
+                  tokens/sec
+                </span>
               </div>
             </div>
             <pre className="agent-code-block">
-              <code>{streamedText || (isStreaming ? "▌" : "")}</code>
+              <code>
+                {errorText
+                  ? errorText
+                  : streamedText || (isStreaming ? "▌" : "")}
+              </code>
             </pre>
           </div>
         </div>
 
         <aside className="agent-sidebar">
           <span className="agent-tag">Step-by-Step Execution Tree</span>
-          <h3>Orchestrator Plan</h3>
+          <h3>Run Phases</h3>
           <div className="agent-steps-list">
-            {activePreset.steps.map((step, idx) => {
-              const isDone = currentStepIndex > idx;
-              const isCurrent = currentStepIndex === idx;
+            {RUN_PHASES.map((phase, idx) => {
+              const status = phaseStatus(idx);
               return (
                 <div
-                  key={step.name}
-                  className={`agent-step-card ${isDone ? "is-done" : isCurrent ? "is-current" : ""}`}
+                  key={phase.name}
+                  className={`agent-step-card ${
+                    status === "completed"
+                      ? "is-done"
+                      : status === "running"
+                        ? "is-current"
+                        : ""
+                  }`}
                 >
                   <div className="agent-step-head">
                     <span className="agent-step-idx">{`0${idx + 1}`}</span>
-                    <strong>{step.name}</strong>
-                    <span className="agent-tool-tag">{step.tool}</span>
+                    <strong>{phase.name}</strong>
+                    <span className="agent-tool-tag">{phase.tool}</span>
                   </div>
-                  <p>{step.detail}</p>
+                  <p>{phase.detail}</p>
                 </div>
               );
             })}
@@ -216,9 +345,11 @@ export default function AgentWorkflowApp() {
           <div className="agent-telemetry-box">
             <h4>Workflow Verification</h4>
             <p>
-              {currentStepIndex >= activePreset.steps.length
-                ? "✓ All tool calls validated. Output clean of syntax and security regressions."
-                : "⚙ Executing tool pipeline..."}
+              {currentPhaseIndex >= RUN_PHASES.length && !isStreaming
+                ? "✓ Stream complete. Reasoning traces stripped from output."
+                : isStreaming
+                  ? "⚙ Live inference in progress…"
+                  : "Idle. Run a preset or ask anything."}
             </p>
           </div>
         </aside>
