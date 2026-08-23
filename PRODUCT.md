@@ -39,11 +39,11 @@ Three local workspaces organize the environment without pretending to be remote 
 - **Field:** interactive experiments and spatial tools.
 - **Notes:** Archive, working documents, and local scratch space.
 
-The fifteen registered apps are Now, Stack, Method, Scratch, Console, Links, Pulse, Book, Sandbox, AI Lab, Subsurface, Railshift, Vector, Archive, and Control. Pulse is a CoinGecko-powered 24-hour crypto market monitor with USD and NZD views. Scratch, Vector, and Archive support multiple simultaneous instances; all other apps focus an existing instance when reopened. Desktop windows support focus, drag, resize, minimize, close, maximize/restore, and left/right snap. Atlas shows every workspace and restores or focuses an open surface. App-aware Workbench, File, View, Window, and Go menus expose only meaningful actions for the current context, while system search finds apps, open window instances, workspaces, Archive entries, and local commands.
+The fifteen registered apps are Now, Stack, Method, Scratch, Console, Links, Pulse, Book, Sandbox, Agent, Subsurface, Railshift, Vector, Archive, and Control. Pulse is a CoinGecko-powered 24-hour crypto market monitor with USD and NZD views. Scratch, Vector, and Archive support multiple simultaneous instances; all other apps focus an existing instance when reopened. Desktop windows support focus, drag, resize, minimize, close, maximize/restore, and left/right snap. Atlas shows every workspace and restores or focuses an open surface. App-aware Workbench, File, View, Window, and Go menus expose only meaningful actions for the current context, while system search finds apps, open window instances, workspaces, Archive entries, and local commands.
 
 Archive is writable within the current browser. Visitors can create folders and notes, edit and rename notes, move items to trash, restore them, and permanently delete them. The session preserves the selected theme, active workspace, window instances and geometry, open/minimized/maximized/snap state, per-window data, scratch content, Method state, and Archive contents. Control can export that state as a versioned JSON backup, validate and import a backup, or restore the default window layout.
 
-The Workbench is entirely local to the current browser. It has no account, login, remote sync, filesystem service, or backend; browser-local state and user-triggered JSON backup/restore are the only persistence mechanisms. Product copy must never imply that Archive contents or session state are uploaded.
+The Workbench is entirely local to the current browser. It has no account, login, remote sync, filesystem service, or backend; browser-local state, IndexedDB mirroring, and user-triggered JSON backup/restore are the persistence mechanisms. Product copy must never imply that Archive contents or session state are uploaded.
 
 ## Capabilities and Constraints
 
@@ -60,7 +60,7 @@ The Workbench is entirely local to the current browser. It has no account, login
 ## Interaction and Accessibility Commitments
 
 - Pointer interactions have keyboard equivalents: menu bars use standard arrow-key movement; dialogs trap and restore focus; tabs and listboxes use roving selection; system search supports arrows, Home, End, Enter, and Escape.
-- Global shortcuts include F3 for Atlas, `/` for system search, Alt+1 through Alt+3 for workspaces, the numbered app shortcuts, and R for Railshift. Shift plus an app shortcut creates a new instance only where the registry allows it.
+- Global shortcuts include F3 for Atlas, `/` for system search, Alt+1 through Alt+3 for workspaces, the numbered app shortcuts, and letter shortcuts (P, B, S, A, R). Shift plus an app shortcut creates a new instance only where the registry allows it.
 - Window resize grips use arrow keys in 12px steps and Shift+arrow in 32px steps. Maximize, restore, snapping, closing, and workspace switching remain available through semantic controls or menus.
 - Archive supports keyboard traversal and file actions, including Home, End, Enter, F2, and Delete, with confirmation for destructive operations.
 - Visible focus, semantic roles and labels, live status messages, error association, and reduced-motion behavior are part of the product contract.
