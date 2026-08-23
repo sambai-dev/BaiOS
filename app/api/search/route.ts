@@ -57,9 +57,7 @@ export async function GET(request: Request) {
       });
     }
 
-    const [topTitle] = hits[0].title as [string] ?? [];
-    const title = hits[0].title as string;
-    void topTitle;
+    const title = String(hits[0].title ?? "");
 
     let summary: {
       extract?: string;
