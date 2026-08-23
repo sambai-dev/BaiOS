@@ -1,7 +1,18 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { playSound } from "../lib/workbench-sound";
+
+const BOOK_DRAFT_KEY = "sam-workbench-book-draft-v1";
+
+type BookDraft = {
+  model: string;
+  selectedDeliverables: string[];
+  timelineTarget: string;
+  clientName: string;
+  clientEmail: string;
+  projectNotes: string;
+};
 
 type EngagementModel = "sprint" | "retainer" | "audit" | "advisory";
 
@@ -68,7 +79,72 @@ export default function BookConsultApp() {
   const [clientEmail, setClientEmail] = useState("");
   const [projectNotes, setProjectNotes] = useState("");
   const [copied, setCopied] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
   const [viewMode, setViewMode] = useState<"estimator" | "calendar">("estimator");
+
+  // Restore an in-progress brief across sessions.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(BOOK_DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as Partial<BookDraft>;
+      if (typeof draft.model === "string") setModel(draft.model as EngagementModel);
+      if (Array.isArray(draft.selectedDeliverables))
+        setSelectedDeliverables(draft.selectedDeliverables.filter(
+          (id): id is string => typeof id === "string",
+        ));
+      if (typeof draft.timelineTarget === "string")
+        setTimelineTarget(draft.timelineTarget);
+      if (typeof draft.clientName === "string") setClientName(draft.clientName);
+      if (typeof draft.clientEmail === "string") setClientEmail(draft.clientEmail);
+      if (typeof draft.projectNotes === "string") setProjectNotes(draft.projectNotes);
+      if (
+        draft.clientName ||
+        draft.projectNotes ||
+        (Array.isArray(draft.selectedDeliverables) &&
+          draft.selectedDeliverables.length)
+      ) {
+        setDraftRestored(true);
+      }
+    } catch {
+      /* corrupt or unavailable storage — start fresh */
+    }
+  }, []);
+
+  // Persist on every change (debounced by React batching; payload is tiny).
+  useEffect(() => {
+    const draft: BookDraft = {
+      model,
+      selectedDeliverables,
+      timelineTarget,
+      clientName,
+      clientEmail,
+      projectNotes,
+    };
+    try {
+      window.localStorage.setItem(BOOK_DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      /* storage full or blocked — estimator keeps working in-memory */
+    }
+  }, [
+    model,
+    selectedDeliverables,
+    timelineTarget,
+    clientName,
+    clientEmail,
+    projectNotes,
+  ]);
+
+  const downloadBrief = () => {
+    playSound("click");
+    const blob = new Blob([scopeBriefMarkdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "solynth-scope-brief.md";
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   const nameInputId = useId();
   const emailInputId = useId();
@@ -339,6 +415,13 @@ ${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural 
                 onClick={copyBriefToClipboard}
               >
                 {copied ? "✓ Copied Scope Brief" : "Copy Formatted Brief"}
+              </button>
+              <button
+                type="button"
+                className="book-cta-secondary"
+                onClick={downloadBrief}
+              >
+                Download .md
               </button>
               <button
                 type="button"
