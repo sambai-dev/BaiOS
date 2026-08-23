@@ -3,11 +3,16 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const INSTANT_ANSWER_URL = "https://api.duckduckgo.com/";
+const WIKI_SEARCH_URL = "https://en.wikipedia.org/w/api.php";
+const WIKI_SUMMARY_URL = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 const MAX_QUERY = 300;
+const USER_AGENT =
+  "sambai.dev-workbench-search/1.0 (https://www.sambai.dev; contact: sambai.codes@gmail.com)";
 
 function clamp(value: unknown, max: number): string {
-  return typeof value === "string" ? value.slice(0, max) : "";
+  if (typeof value !== "string") return "";
+  // Strip the <span class="searchmatch"> highlighting Wikipedia injects.
+  return value.replace(/<[^>]+>/g, "").slice(0, max);
 }
 
 export async function GET(request: Request) {
@@ -18,63 +23,74 @@ export async function GET(request: Request) {
   }
 
   try {
-    const upstream = await fetch(
-      `${INSTANT_ANSWER_URL}?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,
-      { headers: { Accept: "application/json" } },
-    );
-    if (!upstream.ok) {
+    const searchUrl = `${WIKI_SEARCH_URL}?${new URLSearchParams({
+      action: "query",
+      format: "json",
+      list: "search",
+      srsearch: query,
+      srlimit: "8",
+    })}`;
+    const searchResponse = await fetch(searchUrl, {
+      headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    });
+    if (!searchResponse.ok) {
       return NextResponse.json(
         { error: "Upstream search provider unavailable." },
         { status: 502 },
       );
     }
-
-    const data = (await upstream.json()) as {
-      AbstractText?: string;
-      AbstractSource?: string;
-      AbstractURL?: string;
-      Heading?: string;
-      Answer?: string;
-      Definition?: string;
-      DefinitionURL?: string;
-      RelatedTopics?: Array<{
-        Text?: string;
-        FirstURL?: string;
-        Topics?: Array<{ Text?: string; FirstURL?: string }>;
-      }>;
+    const searchData = (await searchResponse.json()) as {
+      query?: {
+        search?: Array<{ title?: string; snippet?: string }>;
+      };
     };
+    const hits = (searchData.query?.search ?? []).filter((hit) => hit.title);
 
-    const related = (data.RelatedTopics ?? [])
-      .flatMap((topic) =>
-        topic.Topics?.length
-          ? topic.Topics.map((nested) => ({
-              text: clamp(nested.Text, 400),
-              url: clamp(nested.FirstURL, 500),
-            }))
-          : [
-              {
-                text: clamp(topic.Text, 400),
-                url: clamp(topic.FirstURL, 500),
-              },
-            ],
-      )
-      .filter((item) => item.text)
-      .slice(0, 8);
+    if (!hits.length) {
+      return NextResponse.json({
+        query,
+        heading: "",
+        abstract: { text: "", source: "", url: "" },
+        answer: "",
+        definition: { text: "", url: "" },
+        related: [],
+      });
+    }
+
+    const [topTitle] = hits[0].title as [string] ?? [];
+    const title = hits[0].title as string;
+    void topTitle;
+
+    let summary: {
+      extract?: string;
+      content_urls?: { desktop?: { page?: string } };
+    } = {};
+    const summaryResponse = await fetch(
+      `${WIKI_SUMMARY_URL}${encodeURIComponent(title)}?redirect=true`,
+      {
+        headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+      },
+    );
+    if (summaryResponse.ok) {
+      summary = (await summaryResponse.json()) as typeof summary;
+    }
 
     return NextResponse.json({
       query,
-      heading: clamp(data.Heading, 200),
+      heading: title.slice(0, 200),
       abstract: {
-        text: clamp(data.AbstractText, 1200),
-        source: clamp(data.AbstractSource, 100),
-        url: clamp(data.AbstractURL, 500),
+        text: clamp(summary.extract, 1200),
+        source: "Wikipedia",
+        url: clamp(summary.content_urls?.desktop?.page, 500),
       },
-      answer: clamp(data.Answer, 400),
-      definition: {
-        text: clamp(data.Definition, 800),
-        url: clamp(data.DefinitionURL, 500),
-      },
-      related,
+      answer: "",
+      definition: { text: "", url: "" },
+      related: hits.slice(1, 8).map((hit) => ({
+        text: clamp(hit.snippet, 400),
+        url: `https://en.wikipedia.org/wiki/${encodeURIComponent(
+          (hit.title ?? "").replace(/ /g, "_"),
+        )}`,
+      })),
     });
   } catch {
     return NextResponse.json(
