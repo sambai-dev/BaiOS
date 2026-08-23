@@ -2303,15 +2303,19 @@ export default function WorkbenchOSV3({
       <nav className="os-links" aria-label="Sam Bai links">
         <a href="https://solynthlabs.com" target="_blank" rel="noreferrer">
           <span>Company</span><strong>Solynth Labs</strong>
+          <small aria-hidden="true">↗</small>
         </a>
         <a href="https://trekky.app" target="_blank" rel="noreferrer">
           <span>Product</span><strong>Trekky.app</strong>
+          <small aria-hidden="true">↗</small>
         </a>
         <a href="mailto:sambai.codes@gmail.com">
           <span>Direct</span><strong>Email Sam</strong>
+          <small aria-hidden="true">→</small>
         </a>
         <a href="https://github.com/sambai-dev" target="_blank" rel="noreferrer">
           <span>Code</span><strong>GitHub</strong>
+          <small aria-hidden="true">↗</small>
         </a>
         <a
           href="https://www.linkedin.com/in/sam-bai-dev/"
@@ -2319,6 +2323,7 @@ export default function WorkbenchOSV3({
           rel="noreferrer"
         >
           <span>Network</span><strong>LinkedIn</strong>
+          <small aria-hidden="true">↗</small>
         </a>
       </nav>
     );

@@ -1566,3 +1566,32 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* --- Links arrow affordance --- */
+
+.os-links a {
+  grid-template-columns: 6rem 1fr auto;
+}
+
+.os-links a small {
+  align-self: center;
+  color: var(--ivory-muted);
+  font-family: var(--font-data), monospace;
+  font-size: 0.7rem;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 200ms ease, transform 240ms var(--ease-out-expo);
+}
+
+.os-links a:hover small,
+.os-links a:focus-visible small {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .os-links a small {
+    transform: none;
+    transition: none;
+  }
+}
