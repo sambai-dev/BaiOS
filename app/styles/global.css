@@ -151,6 +151,7 @@ template {
 
 .identity-block .identity-time {
   display: flex;
+  align-items: baseline;
   margin-top: 0.45rem;
   color: var(--ivory-muted);
   font-variant-numeric: tabular-nums;
@@ -158,18 +159,27 @@ template {
 
 .odo-row {
   display: inline-flex;
-  overflow: hidden;
+  align-items: baseline;
 }
 
-.odo-cell {
-  display: inline-flex;
+.odo-digit {
+  position: relative;
+  display: inline-block;
+  width: 1ch;
   height: 1em;
   overflow: hidden;
-  line-height: 1;
+  vertical-align: baseline;
+}
+
+.odo-colon {
+  display: inline-block;
 }
 
 .odo-strip {
-  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
   transition: transform 520ms var(--ease-out-expo);
   will-change: transform;
 }
@@ -177,6 +187,7 @@ template {
 .odo-strip > span {
   display: block;
   height: 1em;
+  line-height: 1;
 }
 
 .hero-cluster {

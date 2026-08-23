@@ -50,11 +50,11 @@ function RollingClock({
       <span className="odo-row" aria-hidden="true">
         {display.split("").map((character, index) =>
           character === ":" ? (
-            <span key={`${character}-${index}`} className="odo-cell">
+            <span key={`${character}-${index}`} className="odo-colon">
               :
             </span>
           ) : (
-            <span key={`${character}-${index}`} className="odo-cell">
+            <span key={`${character}-${index}`} className="odo-digit">
               <span
                 className="odo-strip"
                 style={{
