@@ -453,6 +453,20 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
           <button type="button" onClick={handleCopyResults} disabled={!results}>
             {copyState === "copied" ? "Copied" : copyState === "failed" ? "Blocked" : "Copy"}
           </button>
+          <button
+            type="button"
+            className="os-vector-random"
+            onClick={() => {
+              const randomDraft = () =>
+                Array.from({ length: 3 }, () =>
+                  String(Math.round((Math.random() * 6 - 3) * 10) / 10),
+                );
+              setVectorADraft(randomDraft());
+              setVectorBDraft(randomDraft());
+            }}
+          >
+            Randomize
+          </button>
           <span aria-live="polite">saves locally</span>
         </div>
       </div>

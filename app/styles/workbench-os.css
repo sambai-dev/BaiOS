@@ -1622,3 +1622,16 @@
   font-size: 0.56rem;
   font-variant-numeric: tabular-nums;
 }
+
+/* --- Vector randomize action --- */
+
+.os-vector-random {
+  color: var(--ivory);
+  background: transparent;
+  border: 1px solid var(--rule-light);
+}
+
+.os-vector-random:hover:not(:disabled) {
+  border-color: var(--cobalt);
+  color: #aab7ff;
+}
