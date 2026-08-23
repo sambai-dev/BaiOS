@@ -228,6 +228,7 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
   const [status, setStatus] = useState<GameStatus>("idle");
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
+  const [divesPlayed, setDivesPlayed] = useState(0);
 
   useEffect(() => {
     let hydrationFrame = 0;
@@ -264,6 +265,7 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
       const finalScore = gameRef.current.score;
       setScore(finalScore);
       setStatus("crashed");
+      setDivesPlayed((current) => current + 1);
       setBest((current) => {
         const next = Math.max(current, finalScore);
         try {
@@ -382,6 +384,7 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
           <span>Depth control / manual</span>
           <span>Score {String(score).padStart(2, "0")}</span>
           <span>Best {String(best).padStart(2, "0")}</span>
+          <span>Dives {String(divesPlayed).padStart(2, "0")}</span>
         </div>
         {status !== "playing" && (
           <div className="subsurface-overlay">
