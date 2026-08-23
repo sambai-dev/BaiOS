@@ -13,6 +13,7 @@ export const workbenchAppIds = [
   "railshift",
   "vector",
   "archive",
+  "search",
   "control",
 ] as const;
 
@@ -288,6 +289,18 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
     defaultHeight: 470,
     defaultX: 260,
     defaultY: 44,
+  },
+  {
+    id: "search",
+    label: "Search",
+    shortcut: "d",
+    summary: "Instant answers with save-to-Archive notes.",
+    keywords: ["search", "lookup", "answers", "wikipedia", "ddg", "find"],
+    supportsMultiple: false,
+    defaultWidth: 640,
+    defaultHeight: 470,
+    defaultX: 310,
+    defaultY: 50,
   },
   {
     id: "control",

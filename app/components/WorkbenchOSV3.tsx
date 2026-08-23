@@ -36,6 +36,7 @@ import {
   ROOT_FILE_ID,
   WORKBENCH_FILES_STORAGE_KEY,
   createDefaultWorkbenchFiles,
+  createNote,
   getNodePath,
   isNodeInTrash,
   parseWorkbenchFiles,
@@ -107,6 +108,11 @@ const CaseStudySandboxApp = dynamic(() => import("./CaseStudySandboxApp"), {
 const AgentWorkflowApp = dynamic(() => import("./AgentWorkflowApp"), {
   ssr: false,
   loading: () => <div className="os-app-loading">Loading Agent…</div>,
+});
+
+const SearchApp = dynamic(() => import("./SearchApp"), {
+  ssr: false,
+  loading: () => <div className="os-app-loading">Loading Search…</div>,
 });
 
 import { playSound } from "../lib/workbench-sound";
@@ -2154,6 +2160,27 @@ export default function WorkbenchOSV3({
 
     if (windowState.appId === "agent") {
       return <AgentWorkflowApp />;
+    }
+
+    if (windowState.appId === "search") {
+      return (
+        <SearchApp
+          onSavedToArchive={(note) => {
+            const outcome = createNote(files, ROOT_FILE_ID, note.title, {
+              content: `${note.body}\n\nSaved from Search · ${new Date()
+                .toISOString()
+                .slice(0, 16)
+                .replace("T", " ")}`,
+            });
+            if (outcome !== files) {
+              replaceFiles(outcome);
+              setNotice(`Saved "${note.title}" to Archive → Notes.`);
+            } else {
+              setNotice("Archive is full — could not save that note.");
+            }
+          }}
+        />
+      );
     }
 
     if (windowState.appId === "archive") {
