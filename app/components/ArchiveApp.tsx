@@ -507,7 +507,23 @@ export default function ArchiveApp({
 
           <div className="archive-browser-status" role="status" aria-live="polite">
             <span>{normalizedQuery ? `Search / ${normalizedQuery}` : currentFolder?.name}</span>
-            <span>{displayItems.length} {displayItems.length === 1 ? "item" : "items"}</span>
+            <span>
+              {displayItems.length} {displayItems.length === 1 ? "item" : "items"}
+              {" · "}
+              {new Intl.NumberFormat("en-NZ", {
+                notation: "compact",
+                maximumFractionDigits: 1,
+              }).format(
+                files.nodes
+                  .filter((node) => node.kind === "note")
+                  .reduce(
+                    (sum, node) =>
+                      sum + (node.kind === "note" ? node.content.length : 0),
+                    0,
+                  ),
+              )}{" "}
+              chars stored
+            </span>
           </div>
 
           {displayItems.length ? (
