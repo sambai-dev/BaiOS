@@ -2372,7 +2372,7 @@ export default function WorkbenchOSV3({
             onClick={() => openWindow("agent")}
           >
             <span className="os-desktop-object-mark" aria-hidden="true">AI</span>
-            <span>AI Lab</span>
+            <span>Agent</span>
           </button>
           <button
             type="button"

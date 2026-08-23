@@ -207,7 +207,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "book",
-    label: "Scope & Book",
+    label: "Book",
     shortcut: "B",
     summary: "B2B scope estimator & consultation booking.",
     keywords: ["book", "consult", "scope", "estimate", "sprint", "retainer", "cal"],
@@ -219,7 +219,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "sandbox",
-    label: "Case Sandbox",
+    label: "Sandbox",
     shortcut: "S",
     summary: "Interactive systems teardown & case studies.",
     keywords: ["sandbox", "case study", "trekky", "solynth", "architecture", "telemetry", "metrics"],
@@ -231,7 +231,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "agent",
-    label: "AI Lab",
+    label: "Agent",
     shortcut: "A",
     summary: "AI workflow orchestrator & prompt-to-UI terminal.",
     keywords: ["ai", "agent", "workflow", "prompt", "llm", "tokens", "streaming"],
