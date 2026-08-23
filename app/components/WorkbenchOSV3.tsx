@@ -2008,6 +2008,15 @@ export default function WorkbenchOSV3({
               </div>
             ))}
           </dl>
+          <div className="os-stack-foot" aria-hidden="true">
+            <span>{stackRows.length} domains</span>
+            <span>
+              {stackRows
+                .map(([, value]) => value.split(" · ").length)
+                .reduce((sum, count) => sum + count, 0)}{" "}
+              tools in rotation
+            </span>
+          </div>
         </div>
       );
     }

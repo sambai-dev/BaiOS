@@ -1501,3 +1501,19 @@
   font-variant-numeric: tabular-nums;
   border-top: 1px solid var(--rule-light);
 }
+
+/* --- Stack app footer tally --- */
+
+.os-stack-foot {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 0.8rem;
+  color: var(--ivory-muted);
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  border-top: 1px solid var(--rule-light);
+}
