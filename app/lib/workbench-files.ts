@@ -232,6 +232,15 @@ const defaultNodes: readonly FileNode[] = [
     summary: "Open the interactive method application.",
   },
   {
+    id: "folder-systems",
+    kind: "folder",
+    name: "Systems",
+    parentId: ROOT_FILE_ID,
+    createdAt: DEFAULT_TIMESTAMP,
+    updatedAt: DEFAULT_TIMESTAMP,
+    summary: "Interactive teardowns of real systems, captured as cases.",
+  },
+  {
     id: "folder-experiments",
     kind: "folder",
     name: "Experiments",
