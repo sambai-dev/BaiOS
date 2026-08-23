@@ -41,3 +41,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local build/QA artifacts (not for the public repo)
+/tmp/
+/.impeccable/
+/output/
