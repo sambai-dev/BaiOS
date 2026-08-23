@@ -7,6 +7,73 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 const loadWorkbenchOS = () => import("@/app/components/WorkbenchOS");
 const WorkbenchOS = dynamic(loadWorkbenchOS, { ssr: false });
 
+const CLOCK_DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+function RollingClock({
+  time,
+  reducedMotion,
+}: {
+  time: string;
+  reducedMotion: boolean;
+}) {
+  const [display, setDisplay] = useState("00:00");
+  const [settled, setSettled] = useState(reducedMotion);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setDisplay(time);
+      return;
+    }
+    const randomPair = () =>
+      `${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`;
+    const scramble = `${randomPair()}:${randomPair()}`;
+    const first = window.setTimeout(() => setDisplay(scramble), 140);
+    const second = window.setTimeout(() => {
+      setDisplay(time);
+      setSettled(true);
+    }, 360);
+    return () => {
+      window.clearTimeout(first);
+      window.clearTimeout(second);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (settled) {
+      setDisplay(time);
+    }
+  }, [settled, time]);
+
+  return (
+    <>
+      <span className="odo-row" aria-hidden="true">
+        {display.split("").map((character, index) =>
+          character === ":" ? (
+            <span key={`${character}-${index}`} className="odo-cell">
+              :
+            </span>
+          ) : (
+            <span key={`${character}-${index}`} className="odo-cell">
+              <span
+                className="odo-strip"
+                style={{
+                  transform: `translateY(-${Number(character)}em)`,
+                }}
+              >
+                {CLOCK_DIGITS.map((digit) => (
+                  <span key={digit}>{digit}</span>
+                ))}
+              </span>
+            </span>
+          ),
+        )}
+      </span>
+      <span className="sr-only">{time}</span>
+    </>
+  );
+}
+
 export default function PortfolioShell() {
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState(false);
   const [newZealandTime, setNewZealandTime] = useState("--:--");
@@ -137,11 +204,20 @@ export default function PortfolioShell() {
             <p>Founder, Solynth Labs</p>
             <p>Hamilton, New Zealand</p>
             <p className="identity-time">
-              <time
-                dateTime={newZealandTime === "--:--" ? undefined : newZealandTime}
-              >
-                NZT · {newZealandTime}
-              </time>
+              <span aria-hidden="true">NZT ·&nbsp;</span>
+              <RollingClock
+                time={newZealandTime}
+                reducedMotion={Boolean(prefersReducedMotion)}
+              />
+              <span className="sr-only">
+                <time
+                  dateTime={
+                    newZealandTime === "--:--" ? undefined : newZealandTime
+                  }
+                >
+                  NZT · {newZealandTime}
+                </time>
+              </span>
             </p>
           </div>
 
@@ -184,13 +260,15 @@ export default function PortfolioShell() {
             className="hero-statement"
             aria-label="Sam designs and builds software."
           >
-            <span>
-              Sam designs and
+            <span className="hero-line">
+              <span className="hero-line-inner">Sam designs and</span>
             </span>
-            <span>
-              builds software
-              <span className="hero-period" aria-hidden="true">
-                .
+            <span className="hero-line">
+              <span className="hero-line-inner">
+                builds software
+                <span className="hero-period" aria-hidden="true">
+                  .
+                </span>
               </span>
             </span>
           </h1>
@@ -218,7 +296,10 @@ export default function PortfolioShell() {
               rel="noreferrer"
               aria-label="Email sambai.codes@gmail.com about a project in Gmail"
             >
-              sambai.codes@gmail.com
+              <span className="index-link-text">sambai.codes@gmail.com</span>
+              <span className="index-arrow" aria-hidden="true">
+                →
+              </span>
             </a>
             <a
               className="index-link"
@@ -226,7 +307,10 @@ export default function PortfolioShell() {
               target="_blank"
               rel="noreferrer"
             >
-              Solynth Labs
+              <span className="index-link-text">Solynth Labs</span>
+              <span className="index-arrow" aria-hidden="true">
+                →
+              </span>
             </a>
             <button
               className="index-link"
@@ -235,7 +319,10 @@ export default function PortfolioShell() {
               onFocus={() => void loadWorkbenchOS()}
               onMouseEnter={() => void loadWorkbenchOS()}
             >
-              Open Workbench
+              <span className="index-link-text">Open Workbench</span>
+              <span className="index-arrow" aria-hidden="true">
+                →
+              </span>
             </button>
           </nav>
 
@@ -249,7 +336,10 @@ export default function PortfolioShell() {
               target="_blank"
               rel="noreferrer"
             >
-              GitHub
+              <span className="index-link-text">GitHub</span>
+              <span className="index-arrow" aria-hidden="true">
+                ↗
+              </span>
             </a>
             <a
               className="index-link"
@@ -257,7 +347,10 @@ export default function PortfolioShell() {
               target="_blank"
               rel="noreferrer"
             >
-              LinkedIn
+              <span className="index-link-text">LinkedIn</span>
+              <span className="index-arrow" aria-hidden="true">
+                ↗
+              </span>
             </a>
             <a
               className="index-link"
@@ -265,7 +358,10 @@ export default function PortfolioShell() {
               target="_blank"
               rel="noreferrer"
             >
-              Résumé
+              <span className="index-link-text">Résumé</span>
+              <span className="index-arrow" aria-hidden="true">
+                ↗
+              </span>
             </a>
           </nav>
         </div>
