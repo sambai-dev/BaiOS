@@ -840,6 +840,11 @@
   touch-action: none;
 }
 
+.os-vector-stage canvas:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: -2px;
+}
+
 .os-vector-stage canvas:active {
   cursor: grabbing;
 }
@@ -980,6 +985,51 @@
   font-family: var(--font-data), monospace;
   font-size: 0.66rem;
   text-align: right;
+}
+
+.os-vector-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--rule-dark);
+}
+
+.os-vector-actions button {
+  padding: 0.4rem 0.9rem;
+  color: var(--ivory);
+  background: var(--carbon);
+  border: 1px solid var(--carbon);
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.os-vector-actions button:hover:not(:disabled),
+.os-vector-actions button:focus-visible {
+  color: var(--carbon);
+  background: var(--ivory);
+}
+
+.os-vector-actions button:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 1px;
+}
+
+.os-vector-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.os-vector-actions span {
+  color: #66665f;
+  font-family: var(--font-data), monospace;
+  font-size: 0.52rem;
+  text-transform: uppercase;
 }
 
 .os-empty {

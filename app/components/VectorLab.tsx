@@ -2,6 +2,7 @@
 
 import {
   type ChangeEvent,
+  type KeyboardEvent,
   type PointerEvent,
   useEffect,
   useId,
@@ -30,6 +31,8 @@ export type VectorLabProps = {
 };
 
 const AXIS_LABELS = ["X", "Y", "Z"] as const;
+
+const VECTOR_STORAGE_KEY = "sam-workbench-vector-v1";
 
 function parseVectorDraft(draft: VectorDraft) {
   const invalid = draft.map((value) => {
@@ -180,6 +183,12 @@ function format(value: number) {
   return Number.isFinite(value) ? value.toFixed(2) : "0.00";
 }
 
+function angleBetween(a: Vector3, b: Vector3) {
+  const denominator = magnitude(a) * magnitude(b);
+  if (denominator === 0) return null;
+  return Math.atan2(magnitude(cross(a, b)), dot(a, b));
+}
+
 function safeDomId(value: string) {
   return value.replace(/[^a-zA-Z0-9_-]/g, "-");
 }
@@ -189,9 +198,66 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
   const domIdPrefix = `${safeDomId(idPrefix?.trim() || "vector-lab")}-${safeDomId(generatedId)}`;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef<DragState>(null);
-  const [vectorADraft, setVectorADraft] = useState<VectorDraft>(["1.8", "1.2", "0.6"]);
-  const [vectorBDraft, setVectorBDraft] = useState<VectorDraft>(["-0.8", "1.7", "1.4"]);
-  const [view, setView] = useState<ViewState>({ yaw: -0.55, pitch: 0.45 });
+  // Client-only component (loaded with ssr: false), so window and
+  // localStorage exist during the first render and can seed initial state.
+  function readStoredDrafts(): { a?: VectorDraft; b?: VectorDraft } {
+    try {
+      const stored: unknown = JSON.parse(
+        window.localStorage.getItem(VECTOR_STORAGE_KEY) ?? "null",
+      );
+      if (!stored || typeof stored !== "object") return {};
+      const candidate = stored as { a?: unknown; b?: unknown };
+      const readDraft = (value: unknown): VectorDraft | undefined => {
+        if (!Array.isArray(value) || value.length !== 3) return undefined;
+        if (!value.every((item) => typeof item === "string" && item.length <= 24)) {
+          return undefined;
+        }
+        return value as VectorDraft;
+      };
+      return { a: readDraft(candidate.a), b: readDraft(candidate.b) };
+    } catch {
+      return {};
+    }
+  }
+
+  function readStoredView(): ViewState | undefined {
+    try {
+      const stored: unknown = JSON.parse(
+        window.localStorage.getItem(VECTOR_STORAGE_KEY) ?? "null",
+      );
+      if (!stored || typeof stored !== "object") return undefined;
+      const candidate = (stored as { view?: unknown }).view as
+        | { yaw?: unknown; pitch?: unknown }
+        | undefined;
+      if (
+        !candidate ||
+        typeof candidate.yaw !== "number" ||
+        typeof candidate.pitch !== "number" ||
+        !Number.isFinite(candidate.yaw) ||
+        !Number.isFinite(candidate.pitch)
+      ) {
+        return undefined;
+      }
+      return {
+        yaw: Math.max(-Math.PI, Math.min(Math.PI, candidate.yaw)),
+        pitch: Math.max(-1.1, Math.min(1.1, candidate.pitch)),
+      };
+    } catch {
+      return undefined;
+    }
+  }
+
+  const [vectorADraft, setVectorADraft] = useState<VectorDraft>(
+    () => readStoredDrafts().a ?? ["1.8", "1.2", "0.6"],
+  );
+  const [vectorBDraft, setVectorBDraft] = useState<VectorDraft>(
+    () => readStoredDrafts().b ?? ["-0.8", "1.7", "1.4"],
+  );
+  const [view, setView] = useState<ViewState>(
+    () => readStoredView() ?? { yaw: -0.55, pitch: 0.45 },
+  );
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const copyTimerRef = useRef<number | null>(null);
 
   const parsedA = useMemo(() => parseVectorDraft(vectorADraft), [vectorADraft]);
   const parsedB = useMemo(() => parseVectorDraft(vectorBDraft), [vectorBDraft]);
@@ -203,8 +269,29 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
       dot: dot(parsedA.vector, parsedB.vector),
       cross: crossProduct,
       area: magnitude(crossProduct),
+      angle: angleBetween(parsedA.vector, parsedB.vector),
     };
   }, [parsedA.vector, parsedB.vector]);
+
+  // Persist drafts and camera once they settle into a valid shape.
+  useEffect(() => {
+    if (!parsedA.vector || !parsedB.vector) return;
+    try {
+      window.localStorage.setItem(
+        VECTOR_STORAGE_KEY,
+        JSON.stringify({ a: vectorADraft, b: vectorBDraft, view }),
+      );
+    } catch {
+      // Storage may be unavailable; the session simply won't persist.
+    }
+  }, [vectorADraft, vectorBDraft, view, parsedA.vector, parsedB.vector]);
+
+  useEffect(
+    () => () => {
+      if (copyTimerRef.current !== null) window.clearTimeout(copyTimerRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -253,22 +340,61 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
     }
   };
 
+  const handleCanvasKeyDown = (event: KeyboardEvent<HTMLCanvasElement>) => {
+    const step = 0.14;
+    const deltas: Record<string, [number, number]> = {
+      ArrowLeft: [-step, 0],
+      ArrowRight: [step, 0],
+      ArrowUp: [0, -step],
+      ArrowDown: [0, step],
+    };
+    const delta = deltas[event.key];
+    if (!delta) return;
+    event.preventDefault();
+    setView((current) => ({
+      yaw: current.yaw + delta[0],
+      pitch: Math.max(-1.1, Math.min(1.1, current.pitch + delta[1])),
+    }));
+  };
+
+  const handleCopyResults = async () => {
+    if (!results) return;
+    const lines = [
+      `A = [${vectorADraft.join(", ")}]`,
+      `B = [${vectorBDraft.join(", ")}]`,
+      `A · B = ${format(results.dot)}`,
+      `A × B = [${results.cross.map(format).join(", ")}]`,
+      `|A × B| = ${format(results.area)}`,
+      results.angle === null ? null : `angle(A,B) = ${format((results.angle * 180) / Math.PI)}°`,
+    ].filter((line): line is string => line !== null);
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+    if (copyTimerRef.current !== null) window.clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = window.setTimeout(() => setCopyState("idle"), 1800);
+  };
+
   return (
     <div className="os-vector">
       <div className="os-vector-stage">
         <canvas
           ref={canvasRef}
+          tabIndex={0}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
+          onKeyDown={handleCanvasKeyDown}
           aria-label={
             results
-              ? `Interactive vector plot. Dot product ${format(results.dot)}. Cross product ${results.cross.map(format).join(", ")}.`
+              ? `Interactive vector plot. Dot product ${format(results.dot)}. Cross product ${results.cross.map(format).join(", ")}.${results.angle === null ? "" : ` Angle ${format((results.angle * 180) / Math.PI)} degrees.`} Arrow keys orbit.`
               : "Interactive vector plot. Complete both vectors with values from minus three to three."
           }
         />
-        <span>Drag to orbit</span>
+        <span>Drag or arrow keys to orbit</span>
       </div>
 
       <div className="os-vector-panel">
@@ -314,7 +440,21 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
           <div><dt>A · B</dt><dd>{results ? format(results.dot) : "—"}</dd></div>
           <div><dt>A × B</dt><dd>{results ? `[${results.cross.map(format).join(", ")}]` : "—"}</dd></div>
           <div><dt>Area</dt><dd>{results ? format(results.area) : "—"}</dd></div>
+          <div>
+            <dt>Angle</dt>
+            <dd>
+              {results && results.angle !== null
+                ? `${format((results.angle * 180) / Math.PI)}°`
+                : "—"}
+            </dd>
+          </div>
         </dl>
+        <div className="os-vector-actions">
+          <button type="button" onClick={handleCopyResults} disabled={!results}>
+            {copyState === "copied" ? "Copied" : copyState === "failed" ? "Blocked" : "Copy"}
+          </button>
+          <span aria-live="polite">saves locally</span>
+        </div>
       </div>
     </div>
   );
