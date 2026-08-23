@@ -95,17 +95,17 @@ const MarketPulseApp = dynamic(() => import("./MarketPulseApp"), {
 
 const BookConsultApp = dynamic(() => import("./BookConsultApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Scope & Book…</div>,
+  loading: () => <div className="os-app-loading">Loading Book…</div>,
 });
 
 const CaseStudySandboxApp = dynamic(() => import("./CaseStudySandboxApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Case Sandbox…</div>,
+  loading: () => <div className="os-app-loading">Loading Sandbox…</div>,
 });
 
 const AgentWorkflowApp = dynamic(() => import("./AgentWorkflowApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading AI Lab…</div>,
+  loading: () => <div className="os-app-loading">Loading Agent…</div>,
 });
 
 import { playSound } from "../lib/workbench-sound";
@@ -2371,7 +2371,7 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("agent")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">AI</span>
+            <span className="os-desktop-object-mark" aria-hidden="true">AG</span>
             <span>Agent</span>
           </button>
           <button

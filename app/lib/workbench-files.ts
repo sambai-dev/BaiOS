@@ -293,7 +293,7 @@ const defaultNodes: readonly FileNode[] = [
   {
     id: "shortcut-book",
     kind: "app",
-    name: "Scope & Book",
+    name: "Book",
     parentId: "folder-about",
     appId: "book",
     createdAt: DEFAULT_TIMESTAMP,
@@ -303,7 +303,7 @@ const defaultNodes: readonly FileNode[] = [
   {
     id: "shortcut-sandbox",
     kind: "app",
-    name: "Case Sandbox",
+    name: "Sandbox",
     parentId: "folder-systems",
     appId: "sandbox",
     createdAt: DEFAULT_TIMESTAMP,
@@ -313,7 +313,7 @@ const defaultNodes: readonly FileNode[] = [
   {
     id: "shortcut-agent",
     kind: "app",
-    name: "AI Lab",
+    name: "Agent",
     parentId: "folder-experiments",
     appId: "agent",
     createdAt: DEFAULT_TIMESTAMP,

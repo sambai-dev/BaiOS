@@ -137,7 +137,7 @@ ${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural 
     <div className="book-app">
       <header className="book-header">
         <div>
-          <h2>Scope & Book.</h2>
+          <h2>Book.</h2>
           <p>Estimate a B2B engagement, configure deliverables, and schedule an intro call.</p>
         </div>
         <div className="book-nav" role="tablist" aria-label="Booking view selector">

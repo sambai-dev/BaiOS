@@ -139,7 +139,7 @@ export default function AgentWorkflowApp() {
     <div className="agent-app">
       <header className="agent-header">
         <div>
-          <h2>AI Lab.</h2>
+          <h2>Agent.</h2>
           <p>Agentic workflow orchestration, streaming token synthesis, and automated systems engineering.</p>
         </div>
         <div className="agent-presets" role="tablist" aria-label="AI task presets">

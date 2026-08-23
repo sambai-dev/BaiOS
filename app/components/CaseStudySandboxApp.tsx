@@ -109,7 +109,7 @@ export default function CaseStudySandboxApp() {
     <div className="sandbox-app">
       <header className="sandbox-header">
         <div>
-          <h2>Case Sandbox.</h2>
+          <h2>Sandbox.</h2>
           <p>Inspectable architectures, interactive engines, and live micro-interaction physics.</p>
         </div>
         <div className="sandbox-tabs" role="tablist" aria-label="Case study areas">

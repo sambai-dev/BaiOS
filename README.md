@@ -95,8 +95,7 @@ portfolio-under-construction/
 │   ├── sitemap.ts / robots.txt     # SEO plumbing
 │   └── opengraph-image.tsx         # Generated OG image
 ├── public/
-│   ├── imgs/logos/                 # Tech SVG icons
-│   ├── imgs/projects/              # Screenshots
+│   ├── textures/carbon-grain.webp  # Carbon grain background texture
 │   └── resume/SamBai_Resume.pdf    # Résumé (served with no-store)
 ├── scripts/build_resume.py         # Résumé build script
 ├── DESIGN.md                       # Quiet Junction design system spec
@@ -163,5 +162,5 @@ Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) with default Next.
 ## Troubleshooting
 
 - **Styles not loading?** Ensure `@import "tailwindcss"` is at the top of `app/styles/global.css` and restart the dev server after config changes.
-- **Images not showing?** Verify paths start with `/imgs/` and files exist under `public/imgs/`.
+- **Textures not showing?** The carbon grain lives at `public/textures/carbon-grain.webp` and is referenced from `app/styles/global.css`.
 - **Workbench state lost?** State is browser-local by design — use Control → Export to keep a versioned JSON backup before clearing site data.
