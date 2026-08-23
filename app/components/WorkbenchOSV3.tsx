@@ -2104,6 +2104,17 @@ export default function WorkbenchOSV3({
             <h2>{activeStep.label}</h2>
             <p>{activeStep.text}</p>
           </motion.div>
+          <div className="os-method-progress" aria-hidden="true">
+            {methodSteps.map((step, index) => (
+              <span
+                key={step.id}
+                data-active={index <= methodSteps.indexOf(activeStep)}
+              />
+            ))}
+            <small>
+              {methodSteps.indexOf(activeStep) + 1}/{methodSteps.length}
+            </small>
+          </div>
         </div>
       );
     }

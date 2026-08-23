@@ -1595,3 +1595,30 @@
     transition: none;
   }
 }
+
+/* --- Method progress readout --- */
+
+.os-method-progress {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 0.8rem;
+}
+
+.os-method-progress span {
+  height: 3px;
+  flex: 1;
+  background: var(--rule-light);
+}
+
+.os-method-progress span[data-active="true"] {
+  background: var(--cobalt);
+}
+
+.os-method-progress small {
+  color: var(--ivory-muted);
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  font-variant-numeric: tabular-nums;
+}
