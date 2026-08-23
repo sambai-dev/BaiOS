@@ -131,50 +131,53 @@ export default function PortfolioShell() {
         aria-hidden={isWorkbenchOpen || undefined}
         inert={isWorkbenchOpen ? true : undefined}
       >
-        <header className="identity-block">
-          <p className="identity-name">Sam Bai</p>
-          <p>Founder, Solynth Labs</p>
-          <p>Hamilton, New Zealand</p>
-          <p className="identity-time">
-            <time
-              dateTime={newZealandTime === "--:--" ? undefined : newZealandTime}
-            >
-              NZT · {newZealandTime}
-            </time>
-          </p>
-        </header>
+        <header className="public-header">
+          <div className="identity-block">
+            <p className="identity-name">Sam Bai</p>
+            <p>Founder, Solynth Labs</p>
+            <p>Hamilton, New Zealand</p>
+            <p className="identity-time">
+              <time
+                dateTime={newZealandTime === "--:--" ? undefined : newZealandTime}
+              >
+                NZT · {newZealandTime}
+              </time>
+            </p>
+          </div>
 
-        <button
-          ref={openerRef}
-          type="button"
-          className="workbench-aperture"
-          onClick={openWorkbench}
-          onFocus={() => void loadWorkbenchOS()}
-          onMouseEnter={() => void loadWorkbenchOS()}
-          aria-label="Open Sam's Workbench"
-          aria-haspopup="dialog"
-          aria-expanded={isWorkbenchOpen}
-        >
-          <span className="aperture-bar">
-            <span>S/B · Workbench [W]</span>
-            <span className="live-state">
-              <span className="live-dot" aria-hidden="true" /> Live
+          <button
+            ref={openerRef}
+            type="button"
+            className="workbench-aperture"
+            onClick={openWorkbench}
+            onFocus={() => void loadWorkbenchOS()}
+            onMouseEnter={() => void loadWorkbenchOS()}
+            aria-label="Open Sam's Workbench (keyboard shortcut W)"
+            aria-haspopup="dialog"
+            aria-expanded={isWorkbenchOpen}
+          >
+            <span className="aperture-bar">
+              <span>Workbench</span>
+              <span className="live-state">
+                <span className="live-dot" aria-hidden="true" />
+                <kbd className="aperture-key" aria-hidden="true">W</kbd>
+              </span>
             </span>
-          </span>
-          <span className="aperture-body" aria-hidden="true">
-            <span className="aperture-column">
-              <span>BUILD / 03</span>
-              <span>FIELD / 03</span>
-              <span>NOTES / 02</span>
+            <span className="aperture-body" aria-hidden="true">
+              <span className="aperture-column">
+                <span>BUILD / 03</span>
+                <span>FIELD / 03</span>
+                <span>NOTES / 02</span>
+              </span>
+              <span className="aperture-signal">
+                <span>ATLAS / READY</span>
+                <span>ARCHIVE / LOCAL</span>
+                <span>15 APPS / {newZealandTime}</span>
+              </span>
             </span>
-            <span className="aperture-signal">
-              <span>ATLAS / READY</span>
-              <span>ARCHIVE / LOCAL</span>
-              <span>15 APPS / {newZealandTime}</span>
-            </span>
-          </span>
-          <span className="aperture-action">Enter the local system</span>
-        </button>
+            <span className="aperture-action">Enter the local system</span>
+          </button>
+        </header>
 
         <div className="hero-cluster">
           <h1
@@ -185,17 +188,29 @@ export default function PortfolioShell() {
               Sam designs and
             </span>
             <span>
-              builds software.
+              builds software
+              <span className="hero-period" aria-hidden="true">
+                .
+              </span>
             </span>
           </h1>
+          <p className="hero-coordinates" aria-hidden="true">
+            37.7889°S · 175.4646°E · Hamilton NZ
+          </p>
         </div>
 
         <div className="public-index" id="primary-links">
           <div className="index-intro">
-            <p>Open for select B2B software projects.</p>
+            <p className="index-label">Status</p>
+            <p className="index-statement">
+              Open for select B2B software projects.
+            </p>
           </div>
 
           <nav className="index-group" aria-label="Primary links">
+            <p className="index-label" aria-hidden="true">
+              Direct
+            </p>
             <a
               className="index-link index-link--email"
               href="https://mail.google.com/mail/?view=cm&fs=1&to=sambai.codes%40gmail.com&su=Project%20enquiry"
@@ -225,6 +240,9 @@ export default function PortfolioShell() {
           </nav>
 
           <nav className="index-group" aria-label="Social and résumé links">
+            <p className="index-label" aria-hidden="true">
+              Elsewhere
+            </p>
             <a
               className="index-link"
               href="https://github.com/sambai-dev"
