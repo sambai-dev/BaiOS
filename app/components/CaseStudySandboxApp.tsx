@@ -283,7 +283,31 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
               <canvas ref={canvasRef} width={500} height={180} className="sandbox-spring-canvas" />
             </div>
 
-            <div className="sandbox-controls-cluster">
+              <div className="sandbox-controls-cluster">
+              <div className="sandbox-presets" role="group" aria-label="Spring presets">
+                {(
+                  [
+                    ["Bouncy", 320, 12],
+                    ["Snappy", 420, 28],
+                    ["Critical", 240, Math.round(2 * Math.sqrt(240))],
+                    ["Floaty", 90, 18],
+                  ] as const
+                ).map(([label, k, d]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    aria-pressed={stiffness === k && damping === d}
+                    onClick={() => {
+                      playSound("click");
+                      setStiffness(k);
+                      setDamping(d);
+                      setSpringTrigger((v) => v + 1);
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
               <div className="sandbox-slider-control">
                 <div className="sandbox-slider-head">
                   <label htmlFor="spring-stiffness">Stiffness (k)</label>

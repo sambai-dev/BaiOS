@@ -320,3 +320,35 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* --- Spring preset chips --- */
+
+.sandbox-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.sandbox-presets button {
+  padding: 0.3rem 0.6rem;
+  color: var(--ivory-muted);
+  background: transparent;
+  border: 1px solid var(--rule-light);
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.sandbox-presets button[aria-pressed="true"] {
+  color: var(--carbon);
+  background: var(--cobalt, #4c5ce5);
+  border-color: var(--cobalt, #4c5ce5);
+}
+
+.sandbox-presets button:hover:not([aria-pressed="true"]) {
+  color: var(--ivory);
+  border-color: var(--ivory-muted);
+}
