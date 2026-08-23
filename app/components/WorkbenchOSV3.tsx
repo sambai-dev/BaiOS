@@ -1986,6 +1986,9 @@ export default function WorkbenchOSV3({
             <div><dt>Trekky.app</dt><dd>Current product</dd></div>
             <div><dt>Consulting</dt><dd>Open</dd></div>
           </dl>
+          <p className="os-now-foot" aria-hidden="true">
+            NZT {time} · Hamilton · 37.79°S 175.46°E
+          </p>
         </div>
       );
     }

@@ -385,6 +385,8 @@
 .os-method,
 .os-scratch,
 .os-links {
+  display: flex;
+  flex-direction: column;
   min-height: 100%;
   padding: 1.2rem;
 }
@@ -1485,4 +1487,17 @@
   .os-palette-results button {
     transition-duration: 0.01ms !important;
   }
+}
+
+/* --- Now app footer telemetry --- */
+
+.os-now-foot {
+  margin: auto 0 0;
+  padding-top: 0.8rem;
+  color: var(--ivory-muted);
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--rule-light);
 }
