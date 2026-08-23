@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Currency = "usd" | "nzd";
 
@@ -128,6 +128,11 @@ export default function MarketPulseApp() {
   const [error, setError] = useState("");
   const [loadingLabel, setLoadingLabel] = useState("Connecting to CoinGecko");
   const [requestVersion, setRequestVersion] = useState(0);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [sortMode, setSortMode] = useState<"rank" | "gainers" | "losers">("rank");
+  const [flash, setFlash] = useState<Record<string, "up" | "down">>({});
+
+  const previousPrices = useRef<Map<string, number>>(new Map());
 
   const fetchMarket = useCallback(async (signal: AbortSignal) => {
     setStatus((current) => (current === "ready" ? "refreshing" : "loading"));
@@ -150,6 +155,17 @@ export default function MarketPulseApp() {
       if (!Array.isArray(next.coins) || !next.coins.length) {
         throw new Error("CoinGecko returned no market rows.");
       }
+      const nextFlash: Record<string, "up" | "down"> = {};
+      for (const coin of next.coins) {
+        const before = previousPrices.current.get(coin.id);
+        if (before !== undefined && coin.price !== before) {
+          nextFlash[coin.id] = coin.price > before ? "up" : "down";
+        }
+        previousPrices.current.set(coin.id, coin.price);
+      }
+      if (Object.keys(nextFlash).length) {
+        setFlash(nextFlash);
+      }
       setPayload(next);
       setSelectedId((current) =>
         next.coins.some((coin) => coin.id === current) ? current : next.coins[0].id,
@@ -171,6 +187,29 @@ export default function MarketPulseApp() {
     void fetchMarket(controller.signal);
     return () => controller.abort();
   }, [fetchMarket, requestVersion]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = window.setInterval(() => {
+      setRequestVersion((current) => current + 1);
+    }, 90_000);
+    return () => window.clearInterval(interval);
+  }, [autoRefresh]);
+
+  useEffect(() => {
+    if (!flash || !Object.keys(flash).length) return;
+    const timeout = window.setTimeout(() => setFlash({}), 1400);
+    return () => window.clearTimeout(timeout);
+  }, [flash]);
+
+  const sortedCoins = useMemo(() => {
+    if (!payload) return [];
+    const coins = [...payload.coins];
+    if (sortMode === "gainers") coins.sort((a, b) => b.change24h - a.change24h);
+    else if (sortMode === "losers") coins.sort((a, b) => a.change24h - b.change24h);
+    else coins.sort((a, b) => a.marketCapRank - b.marketCapRank);
+    return coins;
+  }, [payload, sortMode]);
 
   const selectedCoin = useMemo(
     () => payload?.coins.find((coin) => coin.id === selectedId) ?? payload?.coins[0],
@@ -205,6 +244,14 @@ export default function MarketPulseApp() {
               </button>
             ))}
           </div>
+          <button
+            type="button"
+            className="pulse-refresh"
+            aria-pressed={autoRefresh}
+            onClick={() => setAutoRefresh((current) => !current)}
+          >
+            {autoRefresh ? "Auto 90s ✓" : "Auto off"}
+          </button>
           <button
             type="button"
             className="pulse-refresh"
@@ -268,12 +315,31 @@ export default function MarketPulseApp() {
             <div className="pulse-market-head" aria-hidden="true">
               <span>Asset</span><span>Price / 24h</span>
             </div>
+            <div className="pulse-sort" role="group" aria-label="Sort assets">
+              {(
+                [
+                  ["rank", "Rank"],
+                  ["gainers", "Gainers"],
+                  ["losers", "Losers"],
+                ] as const
+              ).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  type="button"
+                  aria-pressed={sortMode === mode}
+                  onClick={() => setSortMode(mode)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
             <div className="pulse-market-rows">
-              {payload.coins.map((coin) => (
+              {sortedCoins.map((coin) => (
                 <button
                   key={coin.id}
                   type="button"
                   aria-pressed={coin.id === selectedCoin.id}
+                  data-flash={flash[coin.id]}
                   onClick={() => setSelectedId(coin.id)}
                 >
                   <span className="pulse-rank">{coin.marketCapRank.toString().padStart(2, "0")}</span>

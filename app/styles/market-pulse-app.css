@@ -503,3 +503,58 @@
     transform: none;
   }
 }
+
+/* --- sort tabs + price flash (auto-refresh upgrade) --- */
+
+.pulse-sort {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.45rem 0.75rem;
+}
+
+.pulse-sort button {
+  padding: 0.28rem 0.55rem;
+  color: var(--ivory-muted);
+  background: transparent;
+  border: 1px solid var(--rule-light);
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pulse-sort button[aria-pressed="true"] {
+  color: var(--carbon);
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+}
+
+.pulse-sort button:hover:not([aria-pressed="true"]) {
+  color: var(--ivory);
+  border-color: var(--ivory-muted);
+}
+
+.pulse-market-rows button[data-flash="up"] strong {
+  animation: pulse-flash-up 1.4s ease-out;
+}
+
+.pulse-market-rows button[data-flash="down"] strong {
+  animation: pulse-flash-down 1.4s ease-out;
+}
+
+@keyframes pulse-flash-up {
+  0% { color: var(--signal); }
+  100% { color: inherit; }
+}
+
+@keyframes pulse-flash-down {
+  0% { color: #ff8f7a; }
+  100% { color: inherit; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-market-rows button[data-flash] strong {
+    animation: none;
+  }
+}
