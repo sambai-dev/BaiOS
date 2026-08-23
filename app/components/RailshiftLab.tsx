@@ -82,6 +82,7 @@ type RailshiftLabProps = {
 };
 
 const BEST_SCORE_KEY = "sam-workbench-railshift-best-v1";
+const BEST_DISTANCE_KEY = "sam-workbench-railshift-best-distance-v1";
 const ENTITY_POOL_SIZE = 72;
 const PARTICLE_POOL_SIZE = 42;
 const FIXED_STEP = 1 / 60;
@@ -658,6 +659,7 @@ export default function RailshiftLab({
   const [status, setStatus] = useState<RunnerStatus>("idle");
   const [hud, setHud] = useState<RunnerHud>(EMPTY_HUD);
   const [best, setBest] = useState(0);
+  const [bestDistance, setBestDistance] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(false);
 
   const commitStatus = useCallback((next: RunnerStatus) => {
@@ -703,6 +705,14 @@ export default function RailshiftLab({
       const saved = Number(window.localStorage.getItem(BEST_SCORE_KEY));
       if (Number.isFinite(saved) && saved > 0) {
         hydrationFrame = window.requestAnimationFrame(() => setBest(saved));
+      }
+      const savedDistance = Number(
+        window.localStorage.getItem(BEST_DISTANCE_KEY),
+      );
+      if (Number.isFinite(savedDistance) && savedDistance > 0) {
+        hydrationFrame = window.requestAnimationFrame(() =>
+          setBestDistance(savedDistance),
+        );
       }
     } catch {
       // Railshift remains playable when local storage is unavailable.
@@ -761,6 +771,15 @@ export default function RailshiftLab({
           window.localStorage.setItem(BEST_SCORE_KEY, String(next));
         } catch {
           // Best-score persistence is optional.
+        }
+        return next;
+      });
+      setBestDistance((current) => {
+        const next = Math.max(current, Math.floor(model.distance));
+        try {
+          window.localStorage.setItem(BEST_DISTANCE_KEY, String(next));
+        } catch {
+          // Best-distance persistence is optional.
         }
         return next;
       });
@@ -1026,7 +1045,7 @@ export default function RailshiftLab({
             </strong>
             <p>
               {status === "crashed"
-                ? `${hud.distance}m · ${hud.score.toLocaleString()} points · best ${best.toLocaleString()}`
+                ? `${hud.distance}m · ${hud.score.toLocaleString()} points · best ${best.toLocaleString()} pts / ${bestDistance.toLocaleString()}m`
                 : status === "paused"
                   ? "Your run is frozen exactly where you left it."
                   : "Build flow by collecting cells. Jump barriers, duck gantries, and switch away from blocks."}
