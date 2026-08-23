@@ -2,6 +2,7 @@ import {
   getWorkbenchApp,
   isWorkbenchAppId,
   isWorkspaceId,
+  type WorkbenchAppDefinition,
   type WorkbenchAppId,
   type WorkbenchWindow,
   type WorkspaceId,
