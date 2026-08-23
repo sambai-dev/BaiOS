@@ -5,7 +5,12 @@ import { playSound } from "../lib/workbench-sound";
 
 type CaseTab = "trekky" | "springs" | "architecture";
 
-export default function CaseStudySandboxApp() {
+type CaseStudySandboxAppProps = {
+  /** False while the host window is minimized or hidden, pausing background loops. */
+  isActive: boolean;
+};
+
+export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppProps) {
   const [activeTab, setActiveTab] = useState<CaseTab>("trekky");
 
   // Trekky Sandbox State
@@ -34,7 +39,7 @@ export default function CaseStudySandboxApp() {
 
   // Spring physics simulation on Canvas
   useEffect(() => {
-    if (activeTab !== "springs") return;
+    if (activeTab !== "springs" || !isActive) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -103,7 +108,7 @@ export default function CaseStudySandboxApp() {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [activeTab, stiffness, damping, springTrigger]);
+  }, [activeTab, isActive, stiffness, damping, springTrigger]);
 
   return (
     <div className="sandbox-app">

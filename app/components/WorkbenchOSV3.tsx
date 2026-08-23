@@ -2108,7 +2108,15 @@ export default function WorkbenchOSV3({
     }
 
     if (windowState.appId === "sandbox") {
-      return <CaseStudySandboxApp />;
+      return (
+        <CaseStudySandboxApp
+          isActive={
+            activeWorkspaceId === windowState.workspaceId &&
+            activeInstanceId === windowState.instanceId &&
+            !windowState.minimized
+          }
+        />
+      );
     }
 
     if (windowState.appId === "agent") {

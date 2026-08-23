@@ -5,7 +5,7 @@
  */
 
 let audioCtx: AudioContext | null = null;
-let soundEnabled = true;
+let soundEnabled = false;
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -36,18 +36,29 @@ export function setWorkbenchSoundEnabled(enabled: boolean) {
   }
 }
 
+/**
+ * Resolves the persisted sound preference with OPT-IN semantics:
+ * only an explicit stored "true" enables sound; first-time visitors
+ * (no stored value) and storage failures resolve to OFF.
+ */
+export function resolveSoundEnabledPreference(stored: string | null): boolean {
+  return stored === "true";
+}
+
 export function isWorkbenchSoundEnabled(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    const stored = localStorage.getItem("sam-workbench-sound-enabled");
-    return stored === null ? true : stored === "true";
+    return resolveSoundEnabledPreference(
+      localStorage.getItem("sam-workbench-sound-enabled"),
+    );
   } catch {
-    return true;
+    return false;
   }
 }
 
 export function playSound(type: SoundEffectType) {
-  if (!soundEnabled || !isWorkbenchSoundEnabled()) return;
+  // Honor either the in-session toggle or a persisted opt-in; both default OFF.
+  if (!soundEnabled && !isWorkbenchSoundEnabled()) return;
 
   const ctx = getAudioContext();
   if (!ctx) return;
