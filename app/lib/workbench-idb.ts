@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Attribution and additional terms: see NOTICE.md.
+
 /**
  * Lightweight IndexedDB persistence layer for Workbench OS.
  * Provides high-capacity, asynchronous local-first storage

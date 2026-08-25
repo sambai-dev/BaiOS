@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Attribution and additional terms: see NOTICE.md.
+
 import "@/app/styles/global.css";
 import "@/app/styles/workbench-os.css";
 import "@/app/styles/workbench-menu-bar.css";

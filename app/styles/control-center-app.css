@@ -1,3 +1,7 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+ * Attribution and additional terms: see NOTICE.md.
+ */
+
 .control-center-app {
   --control-center-carbon: var(--carbon, #11110f);
   --control-center-carbon-soft: var(--carbon-soft, #1b1b18);

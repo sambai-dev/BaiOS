@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Attribution and additional terms: see NOTICE.md.
+
 /**
  * Pure Web Audio API haptic sound synthesizer for Workbench OS.
  * Zero external assets or network requests; generates sub-15ms mechanical relays,

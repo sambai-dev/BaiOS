@@ -1,7 +1,7 @@
 # BaiOS
 
 [![Release](https://img.shields.io/github/v/release/sambai-dev/BaiOS?display_name=tag)](https://github.com/sambai-dev/BaiOS/releases/latest)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](./LICENSE)
+[![Code license: AGPL v3](https://img.shields.io/badge/Code_License-AGPL_v3-blue.svg)](./LICENSE)
 
 **BaiOS** is [Sam Bai](https://www.sambai.dev)'s open-source personal operating surface: a sparse public front door backed by an original, fully local desktop-style environment called the **Workbench**.
 
@@ -101,8 +101,12 @@ BaiOS/
 │   ├── textures/carbon-grain.webp  # Carbon grain background texture
 │   └── resume/SamBai_Resume.pdf    # Résumé (served with no-store)
 ├── scripts/build_resume.py         # Résumé build script
+├── licenses/                       # Third-party license texts
 ├── DESIGN.md                       # Quiet Junction design system spec
+├── NOTICE.md                       # License scope and required attribution
 ├── PRODUCT.md                      # Product contract
+├── THIRD_PARTY_NOTICES.md          # Dependency, font, and service notices
+├── TRADEMARKS.md                   # BaiOS name and brand policy
 └── README.md
 ```
 
@@ -162,11 +166,17 @@ Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) with default Next.
 | `DESIGN.md` | Quiet Junction design tokens and component spec |
 | `PRODUCT.md`| Product purpose, positioning, and constraints   |
 
-## License
+## Licensing
 
-BaiOS is free and open-source software licensed under the [GNU Affero General Public License v3.0](./LICENSE).
+BaiOS uses a mixed licensing model:
 
-You may use, study, modify, and redistribute this project under the terms of the AGPL-3.0. If you modify it and make it available over a network, you must also make the corresponding source code available under the same license. See [`LICENSE`](./LICENSE) for the complete terms.
+- **Application code:** [GNU Affero General Public License v3.0 or later](./LICENSE).
+- **Required attribution:** Reuse of covered code must preserve [`NOTICE.md`](./NOTICE.md) and credit BaiOS with a link to this repository.
+- **Name and branding:** The BaiOS identity is reserved under the [brand policy](./TRADEMARKS.md).
+- **Personal content:** Sam Bai's résumé, portfolio writing, personal identity, and original media are excluded from the AGPL and reserved as described in [`NOTICE.md`](./NOTICE.md).
+- **Third-party components:** Dependencies, fonts, and external services retain their own licenses and terms, documented in [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
+
+Modified network deployments must offer their corresponding source code under the AGPL. Public forks must also remove or replace the excluded personal and brand materials unless written permission is granted.
 
 ## Troubleshooting
 

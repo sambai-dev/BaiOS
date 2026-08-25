@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Attribution and additional terms: see NOTICE.md.
+
 "use client";
 
 import { AnimatePresence, useReducedMotion } from "framer-motion";
@@ -345,6 +348,17 @@ export default function PortfolioShell() {
               rel="noreferrer"
             >
               <span className="index-link-text">GitHub</span>
+              <span className="index-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </a>
+            <a
+              className="index-link"
+              href="https://github.com/sambai-dev/BaiOS"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className="index-link-text">BaiOS Source</span>
               <span className="index-arrow" aria-hidden="true">
                 ↗
               </span>

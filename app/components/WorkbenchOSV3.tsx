@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Attribution and additional terms: see NOTICE.md.
+
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -2361,8 +2364,8 @@ export default function WorkbenchOSV3({
           <span>Direct</span><strong>Email Sam</strong>
           <small aria-hidden="true">→</small>
         </a>
-        <a href="https://github.com/sambai-dev" target="_blank" rel="noreferrer">
-          <span>Code</span><strong>GitHub</strong>
+        <a href="https://github.com/sambai-dev/BaiOS" target="_blank" rel="noreferrer">
+          <span>Source</span><strong>BaiOS Repository</strong>
           <small aria-hidden="true">↗</small>
         </a>
         <a

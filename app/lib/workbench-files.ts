@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Attribution and additional terms: see NOTICE.md.
+
 export const WORKBENCH_FILES_VERSION = 1 as const;
 export const WORKBENCH_FILES_STORAGE_KEY = "sam-workbench-files-v1";
 export const ROOT_FILE_ID = "archive-root";
