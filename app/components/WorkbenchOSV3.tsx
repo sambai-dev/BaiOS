@@ -188,6 +188,31 @@ const workbenchTimestampFormat = new Intl.DateTimeFormat("en-NZ", {
   timeStyle: "short",
 });
 
+/** Recovery/probe snapshots younger than this are left untouched. */
+const RECOVERY_SWEEP_MIN_AGE_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Prefixes of safety-net keys written by acceptFreshStorage (and its write
+ * probe). Failed attempts used to strand multi-megabyte copies forever.
+ */
+const RECOVERY_KEY_PREFIXES = [
+  `${WORKBENCH_COMMITTED_STATE_STORAGE_KEY}-probe-`,
+  `${WORKBENCH_COMMITTED_STATE_STORAGE_KEY}-recovery-`,
+  `${workbenchStorageKeys.session}-recovery-`,
+  `${WORKBENCH_FILES_STORAGE_KEY}-recovery-`,
+];
+
+/**
+ * True when a recovery/probe key carries an embeddable timestamp older than
+ * the retention window. Keys without a parseable timestamp are preserved.
+ */
+function isStaleRecoveryKey(key: string): boolean {
+  const match = /-(?:recovery|probe)-(\d+)$/.exec(key);
+  const timestamp = match ? Number(match[1]) : NaN;
+  if (!Number.isFinite(timestamp)) return false;
+  return Date.now() - timestamp >= RECOVERY_SWEEP_MIN_AGE_MS;
+}
+
 const stackRows = [
   ["Applications", "React · Next.js · TypeScript"],
   ["Systems", "Node.js · PostgreSQL · Drizzle ORM"],
@@ -581,6 +606,47 @@ export default function WorkbenchOSV3({
     setHasHydrated(true);
   }, [deepLink, replaceFiles, replaceSession]);
 
+  // One-shot quota reclaim: once boot resolves healthy, drop recovery/probe
+  // snapshots stranded by failed fresh-start attempts in earlier sessions.
+  // Recent snapshots (and anything written later by an active recovery flow)
+  // are always preserved.
+  const recoverySweepDoneRef = useRef(false);
+  useEffect(() => {
+    if (!hasHydrated || recoverySweepDoneRef.current) return;
+    recoverySweepDoneRef.current = true;
+    const blocked = corruptStorageRef.current;
+    if (
+      storageBlocked ||
+      hasStorageConflict ||
+      blocked.committed ||
+      blocked.session ||
+      blocked.files
+    ) {
+      return;
+    }
+    try {
+      const storage = window.localStorage;
+      const doomed: string[] = [];
+      for (let index = 0; index < storage.length; index += 1) {
+        const key = storage.key(index);
+        if (!key) continue;
+        const matchesRecovery = RECOVERY_KEY_PREFIXES.some((prefix) =>
+          key.startsWith(prefix),
+        );
+        if (matchesRecovery && isStaleRecoveryKey(key)) doomed.push(key);
+      }
+      for (const key of doomed) {
+        try {
+          storage.removeItem(key);
+        } catch {
+          // Individual removals are best effort.
+        }
+      }
+    } catch {
+      // Storage unavailable; sweeping is optional.
+    }
+  }, [hasHydrated, storageBlocked, hasStorageConflict]);
+
   useEffect(() => {
     if (!hasHydrated || storageBlocked || hasStorageConflict) return;
     setSessionStatus("saving");
@@ -673,9 +739,10 @@ export default function WorkbenchOSV3({
     (windowState) => windowState.instanceId === activeInstanceId,
   );
   const activeAppId = activeWindow?.appId ?? null;
-  const activeWorkspace = workspaces.find(
-    (workspace) => workspace.id === activeWorkspaceId,
-  ) ?? workspaces[0];
+  const fallbackWorkspace = workspaces[0];
+  if (!fallbackWorkspace) throw new Error("workspaces registry must not be empty");
+  const activeWorkspace =
+    workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? fallbackWorkspace;
 
   useEffect(() => {
     setVisitedWorkspaceIds((current) =>
@@ -1961,6 +2028,7 @@ export default function WorkbenchOSV3({
         }
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
+        if (!first || !last) return;
         const activeElement = document.activeElement;
         if (!(activeElement instanceof Node) || !scope.contains(activeElement)) {
           event.preventDefault();
@@ -2121,6 +2189,7 @@ export default function WorkbenchOSV3({
         }
         event.preventDefault();
         const step = methodSteps[nextIndex];
+        if (!step) return;
         updateSession((current) => ({ ...current, methodStep: step.id }));
         methodTabRefs.current[windowState.instanceId]?.[nextIndex]?.focus();
       };

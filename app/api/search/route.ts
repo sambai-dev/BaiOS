@@ -98,7 +98,8 @@ export async function GET(request: Request) {
       });
     }
 
-    const title = String(hits[0].title ?? "");
+    const firstHit = hits[0];
+    const title = String(firstHit?.title ?? "");
 
     let summary: {
       extract?: string;

@@ -171,7 +171,9 @@ export default function MarketPulseApp() {
       }
       setPayload(next);
       setSelectedId((current) =>
-        next.coins.some((coin) => coin.id === current) ? current : next.coins[0].id,
+        next.coins.some((coin) => coin.id === current)
+          ? current
+          : (next.coins[0]?.id ?? current),
       );
       setStatus("ready");
     } catch (caught) {

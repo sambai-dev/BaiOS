@@ -325,8 +325,14 @@ export const workbenchStorageKeys = {
   legacyScratch: "sam-workbench-scratch-v1",
 } as const;
 
-export function getWorkbenchApp(id: WorkbenchAppId) {
-  return workbenchApps.find((app) => app.id === id) ?? workbenchApps[0];
+export function getWorkbenchApp(id: WorkbenchAppId): WorkbenchAppDefinition {
+  const found = workbenchApps.find((app) => app.id === id);
+  if (found) return found;
+  // The static registry always has entries; guard instead of asserting so a
+  // future empty-registry refactor fails loudly here rather than downstream.
+  const fallback = workbenchApps.at(0);
+  if (!fallback) throw new Error("workbenchApps registry must not be empty");
+  return fallback;
 }
 
 export function isWorkbenchAppId(value: unknown): value is WorkbenchAppId {

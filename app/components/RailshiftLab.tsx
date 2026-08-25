@@ -56,6 +56,9 @@ type RunnerModel = {
   particles: Particle[];
 };
 
+/** Fixed-slot projection scratch: [x, y, scale, alpha]. */
+type Projection = [number, number, number, number];
+
 type CanvasMetrics = {
   context: CanvasRenderingContext2D;
   width: number;
@@ -65,8 +68,8 @@ type CanvasMetrics = {
   cobalt: string;
   signal: string;
   background: CanvasGradient;
-  projectionA: Float64Array;
-  projectionB: Float64Array;
+  projectionA: Projection;
+  projectionB: Projection;
 };
 
 type RunnerHud = {
@@ -176,7 +179,8 @@ function spawnEntity(
 }
 
 function chooseLane(model: RunnerModel): Lane {
-  return ([-1, 0, 1] as const)[Math.floor(random(model) * 3)];
+  const lanes = [-1, 0, 1] as const;
+  return lanes[Math.floor(random(model) * lanes.length)] ?? 0;
 }
 
 function chooseReachableSafeLane(model: RunnerModel): Lane {
@@ -387,8 +391,8 @@ function configureCanvas(
     cobalt,
     signal,
     background,
-    projectionA: new Float64Array(4),
-    projectionB: new Float64Array(4),
+    projectionA: [0, 0, 0, 0],
+    projectionB: [0, 0, 0, 0],
   };
 }
 

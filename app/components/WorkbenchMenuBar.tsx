@@ -166,6 +166,7 @@ export default function WorkbenchMenuBar({
             : enabled.length - 1
           : wrapIndex(currentEnabledIndex + direction, enabled.length);
       const itemIndex = enabled[nextEnabledIndex];
+      if (itemIndex === undefined) return;
 
       setActiveItemIndex(itemIndex);
       focusMenuItem(menu.id, itemIndex);
@@ -252,18 +253,20 @@ export default function WorkbenchMenuBar({
       case "Home": {
         event.preventDefault();
         const first = enabledItemIndices(menuIndex)[0];
-        if (first !== undefined) {
+        const homeMenu = menus[menuIndex];
+        if (first !== undefined && homeMenu) {
           setActiveItemIndex(first);
-          focusMenuItem(menus[menuIndex].id, first);
+          focusMenuItem(homeMenu.id, first);
         }
         break;
       }
       case "End": {
         event.preventDefault();
         const last = enabledItemIndices(menuIndex).at(-1);
-        if (last !== undefined) {
+        const endMenu = menus[menuIndex];
+        if (last !== undefined && endMenu) {
           setActiveItemIndex(last);
-          focusMenuItem(menus[menuIndex].id, last);
+          focusMenuItem(endMenu.id, last);
         }
         break;
       }

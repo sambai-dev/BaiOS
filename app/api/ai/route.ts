@@ -24,7 +24,8 @@ const rateLimitHits = new Map<string, number[]>();
 
 function isRateLimited(request: Request): boolean {
   const ip =
-    request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim() || "unknown";
+    request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim() ??
+    "unknown";
   const now = Date.now();
   const recent = (rateLimitHits.get(ip) ?? []).filter(
     (timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS,
@@ -66,7 +67,7 @@ function sanitizeMessages(input: unknown): ChatMessage[] | null {
     if (!content.trim()) continue;
     messages.push({ role: candidate.role, content });
   }
-  if (!messages.length || messages[0].role !== "user") return null;
+  if (!messages.length || messages[0]?.role !== "user") return null;
   return messages;
 }
 
@@ -142,7 +143,7 @@ async function readPayload(
   const contentType = request.headers
     .get("content-type")
     ?.split(";", 1)[0]
-    .trim()
+    ?.trim()
     .toLowerCase();
   if (contentType !== "application/json") {
     return { ok: false, message: "Expected application/json.", status: 415 };

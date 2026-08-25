@@ -151,10 +151,13 @@ export async function GET(request: Request) {
       throw new Error("CoinGecko returned no usable market rows.");
     }
 
+    // coins is non-empty (checked above); keep the invariant explicit for TS.
+    const firstCoin = coins[0];
+    if (!firstCoin) throw new Error("CoinGecko returned no usable market rows.");
     const sourceUpdatedAt = coins.reduce(
       (latest, coin) =>
         Date.parse(coin.lastUpdated) > Date.parse(latest) ? coin.lastUpdated : latest,
-      coins[0].lastUpdated,
+      firstCoin.lastUpdated,
     );
     const payload: MarketPayload = {
       currency,
