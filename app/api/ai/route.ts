@@ -6,10 +6,44 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free" as const;
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const MAX_INPUT_CHARS = 6000;
+const MAX_REQUEST_BYTES = 64_000;
 const MAX_TOKENS = 900;
+const UPSTREAM_TIMEOUT_MS = 55_000;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 12;
+
+/**
+ * Best-effort in-memory sliding-window limiter. The route already requires a
+ * same-origin browser context; this bounds scripted hammering that fakes the
+ * Origin header so one visitor cannot exhaust the shared upstream quota.
+ * Counters are per serverless instance, which is acceptable for mitigation.
+ */
+const rateLimitHits = new Map<string, number[]>();
+
+function isRateLimited(request: Request): boolean {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim() || "unknown";
+  const now = Date.now();
+  const recent = (rateLimitHits.get(ip) ?? []).filter(
+    (timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS,
+  );
+  if (recent.length >= RATE_LIMIT_MAX_REQUESTS) {
+    rateLimitHits.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  rateLimitHits.set(ip, recent);
+  if (rateLimitHits.size > 1_000) {
+    for (const [key, timestamps] of rateLimitHits) {
+      if (timestamps.every((timestamp) => now - timestamp >= RATE_LIMIT_WINDOW_MS)) {
+        rateLimitHits.delete(key);
+      }
+    }
+  }
+  return false;
+}
 
 type ChatMessage = {
   role: "system" | "user" | "assistant";
@@ -38,27 +72,136 @@ function sanitizeMessages(input: unknown): ChatMessage[] | null {
 
 function errorMessage(status: number): string {
   if (status === 402)
-    return "The free Nemotron tier is exhausted right now. Try again later.";
-  if (status === 429) return "Rate limited by the free tier. Give it a moment.";
+    return "The model quota is exhausted right now. Try again later.";
+  if (status === 429) return "The model is rate limited. Give it a moment.";
   if (status >= 500) return "Upstream model provider hiccup. Retry shortly.";
   return "The local AI service refused that request.";
 }
 
+function redactStreamMetadata(stream: ReadableStream<Uint8Array>) {
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let buffer = "";
+
+  function redactLine(line: string): string {
+    if (!line.startsWith("data:")) return line;
+    const data = line.slice(5).trim();
+    if (!data || data === "[DONE]") return line;
+
+    try {
+      const parsed = JSON.parse(data) as {
+        choices?: unknown;
+        usage?: unknown;
+      };
+      return `data: ${JSON.stringify({
+        ...(parsed.choices !== undefined ? { choices: parsed.choices } : {}),
+        ...(parsed.usage !== undefined ? { usage: parsed.usage } : {}),
+      })}`;
+    } catch {
+      return "data: {}";
+    }
+  }
+
+  return stream.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        buffer += decoder.decode(chunk, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          controller.enqueue(encoder.encode(`${redactLine(line)}\n`));
+        }
+      },
+      flush(controller) {
+        buffer += decoder.decode();
+        if (buffer) controller.enqueue(encoder.encode(redactLine(buffer)));
+      },
+    }),
+  );
+}
+
+function isSameOriginRequest(request: Request): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+
+  try {
+    if (new URL(origin).origin !== new URL(request.url).origin) return false;
+  } catch {
+    return false;
+  }
+
+  const fetchSite = request.headers.get("sec-fetch-site");
+  return !fetchSite || fetchSite === "same-origin";
+}
+
+async function readPayload(
+  request: Request,
+): Promise<
+  { ok: true; value: unknown } | { ok: false; message: string; status: number }
+> {
+  const contentType = request.headers
+    .get("content-type")
+    ?.split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+  if (contentType !== "application/json") {
+    return { ok: false, message: "Expected application/json.", status: 415 };
+  }
+
+  const contentLength = Number(request.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > MAX_REQUEST_BYTES) {
+    return { ok: false, message: "Request body is too large.", status: 413 };
+  }
+
+  let body: string;
+  try {
+    body = await request.text();
+  } catch {
+    return { ok: false, message: "Could not read request body.", status: 400 };
+  }
+  if (new TextEncoder().encode(body).byteLength > MAX_REQUEST_BYTES) {
+    return { ok: false, message: "Request body is too large.", status: 413 };
+  }
+
+  try {
+    return { ok: true, value: JSON.parse(body) as unknown };
+  } catch {
+    return { ok: false, message: "Invalid JSON body.", status: 400 };
+  }
+}
+
 export async function POST(request: Request) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
+  if (!isSameOriginRequest(request)) {
+    return NextResponse.json(
+      { error: "This endpoint only accepts same-origin requests." },
+      { status: 403 },
+    );
+  }
+
+  if (isRateLimited(request)) {
+    return NextResponse.json(
+      { error: "Too many model requests from this visitor. Wait a minute." },
+      { status: 429, headers: { "Retry-After": "60" } },
+    );
+  }
+
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
+  const model = process.env.OPENROUTER_MODEL?.trim();
+  if (!apiKey || !model) {
     return NextResponse.json(
       { error: "Local AI is not configured on this deployment." },
       { status: 503 },
     );
   }
 
-  let payload: unknown;
-  try {
-    payload = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  const payloadResult = await readPayload(request);
+  if (!payloadResult.ok) {
+    return NextResponse.json(
+      { error: payloadResult.message },
+      { status: payloadResult.status },
+    );
   }
+  const payload = payloadResult.value;
 
   const messages = sanitizeMessages(
     (payload as { messages?: unknown })?.messages,
@@ -75,6 +218,9 @@ export async function POST(request: Request) {
   try {
     const upstream = await fetch(OPENROUTER_URL, {
       method: "POST",
+      // Propagate client aborts (no orphaned billed generations) and bound
+      // a wedged upstream so the route cannot hang past maxDuration.
+      signal: AbortSignal.any([request.signal, AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)]),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
@@ -83,7 +229,7 @@ export async function POST(request: Request) {
         "X-Title": "Sam Bai Workbench Agent",
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         messages,
         max_tokens: MAX_TOKENS,
         stream,
@@ -91,6 +237,14 @@ export async function POST(request: Request) {
     });
 
     if (!upstream.ok || !upstream.body) {
+      // Release the unread error body so the socket returns to the pool,
+      // and log the status for production debugging without leaking detail.
+      try {
+        await upstream.body?.cancel();
+      } catch {
+        /* body already consumed or unusable */
+      }
+      console.error(`[api/ai] upstream responded with ${upstream.status}`);
       const detail = errorMessage(upstream.status);
       return NextResponse.json({ error: detail }, { status: upstream.status });
     }
@@ -103,19 +257,24 @@ export async function POST(request: Request) {
         data.choices?.[0]?.message?.content ??
         "(empty response from the model)";
       return NextResponse.json({
-        model: MODEL,
         content: content.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim(),
       });
     }
 
-    // Pass the SSE stream straight through; strip <think> blocks client-side.
-    return new Response(upstream.body, {
+    // Preserve token streaming while removing provider/model metadata. The
+    // client strips model reasoning blocks from the accumulated text.
+    return new Response(redactStreamMetadata(upstream.body), {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-store",
       },
     });
-  } catch {
+  } catch (caught) {
+    if ((caught as Error).name === "TimeoutError") {
+      console.error("[api/ai] upstream timed out");
+    } else {
+      console.error("[api/ai] upstream failure:", caught);
+    }
     return NextResponse.json(
       { error: "Could not reach the local AI provider." },
       { status: 502 },

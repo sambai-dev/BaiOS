@@ -68,9 +68,19 @@ function kindLabel(kind: FileNode["kind"]) {
   return `${kind.slice(0, 1).toUpperCase()}${kind.slice(1)}`;
 }
 
+// Stored timestamps are UTC ISO strings; display them in the NZ timezone
+// the rest of the OS is branded around, not as raw UTC calendar days.
+const archiveDateFormat = new Intl.DateTimeFormat("en-NZ", {
+  timeZone: "Pacific/Auckland",
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
 function formatDate(value: string) {
-  const [date] = value.split("T");
-  return date || "Local session";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "Local session";
+  return archiveDateFormat.format(parsed);
 }
 
 function makeLocalId(kind: CreationMode) {

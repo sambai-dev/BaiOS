@@ -138,6 +138,13 @@ type DragSession = {
   originY: number;
   nextX: number;
   nextY: number;
+  /** Snapped geometry to restore once the pointer moves past a real drag. */
+  pendingRestoreBounds?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null;
 };
 
 type ResizeSession = {
@@ -167,6 +174,19 @@ type ContextMenuState = {
 
 const DOCK_INSET = 84;
 const SNAP_EDGE = 28;
+/** Pointer travel required before a drag releases a snapped window. */
+const UNSNAP_DRAG_THRESHOLD_PX = 4;
+
+/** The whole OS is branded around NZT; stamps must not silently use UTC. */
+const WORKBENCH_TIME_ZONE = "Pacific/Auckland";
+const workbenchBackupDateFormat = new Intl.DateTimeFormat("en-CA", {
+  timeZone: WORKBENCH_TIME_ZONE,
+});
+const workbenchTimestampFormat = new Intl.DateTimeFormat("en-NZ", {
+  timeZone: WORKBENCH_TIME_ZONE,
+  dateStyle: "medium",
+  timeStyle: "short",
+});
 
 const stackRows = [
   ["Applications", "React · Next.js · TypeScript"],
@@ -1050,7 +1070,7 @@ export default function WorkbenchOSV3({
       const href = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = href;
-      anchor.download = `sam-workbench-${new Date().toISOString().slice(0, 10)}.json`;
+      anchor.download = `sam-workbench-${workbenchBackupDateFormat.format(new Date())}.json`;
       anchor.click();
       URL.revokeObjectURL(href);
       setNotice("Session backup exported with local Archive content.");
@@ -1101,6 +1121,7 @@ export default function WorkbenchOSV3({
 
   const acceptFreshStorage = useCallback(() => {
     const timestamp = Date.now();
+    const writtenRecoveryKeys: string[] = [];
     try {
       const storage = window.localStorage;
       const probeKey = `${WORKBENCH_COMMITTED_STATE_STORAGE_KEY}-probe-${timestamp}`;
@@ -1110,25 +1131,34 @@ export default function WorkbenchOSV3({
       }
       storage.removeItem(probeKey);
 
+      // Recovery copies land before the fresh commit; if anything below
+      // fails they are rolled back so repeated attempts cannot stack
+      // duplicate multi-megabyte blobs against an already-tight quota.
+      const stagedRecovery: Array<[key: string, value: string]> = [];
       const blocked = corruptStorageRef.current;
       if (blocked.committed) {
-        storage.setItem(
+        stagedRecovery.push([
           `${WORKBENCH_COMMITTED_STATE_STORAGE_KEY}-recovery-${timestamp}`,
           blocked.committed,
-        );
+        ]);
       }
       if (blocked.session) {
-        storage.setItem(
+        stagedRecovery.push([
           `${workbenchStorageKeys.session}-recovery-${timestamp}`,
           blocked.session,
-        );
+        ]);
       }
       if (blocked.files) {
-        storage.setItem(
+        stagedRecovery.push([
           `${WORKBENCH_FILES_STORAGE_KEY}-recovery-${timestamp}`,
           blocked.files,
-        );
+        ]);
       }
+      for (const [key, value] of stagedRecovery) {
+        storage.setItem(key, value);
+        writtenRecoveryKeys.push(key);
+      }
+
       const snapshot = {
         ...sessionRef.current,
         updatedAt: Date.now(),
@@ -1142,6 +1172,13 @@ export default function WorkbenchOSV3({
       setLastSaved(formatSavedTime(snapshot.updatedAt));
       setNotice("Unreadable local data was preserved under recovery keys. Fresh saving is active.");
     } catch {
+      for (const key of writtenRecoveryKeys) {
+        try {
+          window.localStorage.removeItem(key);
+        } catch {
+          // Best effort; a stranded copy is preferable to masking the error.
+        }
+      }
       setNotice("The browser could not preserve the unreadable data, so it remains untouched.");
     }
   }, [persistPair]);
@@ -1192,45 +1229,18 @@ export default function WorkbenchOSV3({
       );
       if (!original || original.maximized) return;
 
-      let result = focusManagedWindow(
+      const result = focusManagedWindow(
         current.windows,
         instanceId,
         zCounter.current,
       );
-      let target = result.windows.find(
+      const target = result.windows.find(
         (windowState) => windowState.instanceId === instanceId,
       );
       if (!target) return;
 
-      if (target.snap && target.restoreBounds) {
-        const restored = target.restoreBounds;
-        result = {
-          ...result,
-          windows: result.windows.map((windowState) =>
-            windowState.instanceId === instanceId
-              ? {
-                  ...windowState,
-                  ...restored,
-                  snap: null,
-                  restoreBounds: null,
-                }
-              : windowState,
-          ),
-        };
-        target = result.windows.find(
-          (windowState) => windowState.instanceId === instanceId,
-        );
-      }
-      if (!target) return;
-
-      commitWindowResult(result, target.workspaceId);
-      const element = windowRefs.current[instanceId];
-      if (element) {
-        element.style.left = `${target.x}px`;
-        element.style.top = `${target.y}px`;
-        element.style.width = `${target.width}px`;
-        element.style.height = `${target.height}px`;
-      }
+      // A snapped window only releases its geometry once the pointer
+      // actually drags; a bare focus click keeps the snap intact.
       dragSession.current = {
         instanceId,
         pointerId: event.pointerId,
@@ -1240,7 +1250,12 @@ export default function WorkbenchOSV3({
         originY: target.y,
         nextX: target.x,
         nextY: target.y,
+        pendingRestoreBounds:
+          target.snap && target.restoreBounds
+            ? { ...target.restoreBounds }
+            : null,
       };
+      commitWindowResult(result, target.workspaceId);
       event.currentTarget.setPointerCapture?.(event.pointerId);
       event.preventDefault();
     },
@@ -1311,11 +1326,41 @@ export default function WorkbenchOSV3({
 
       const dragging = dragSession.current;
       if (!dragging || dragging.pointerId !== event.pointerId) return;
-      const target = sessionRef.current.windows.find(
+      let target = sessionRef.current.windows.find(
         (windowState) => windowState.instanceId === dragging.instanceId,
       );
       const element = windowRefs.current[dragging.instanceId];
       if (!target || !element) return;
+
+      if (dragging.pendingRestoreBounds) {
+        const movedDistance = Math.hypot(
+          event.clientX - dragging.startX,
+          event.clientY - dragging.startY,
+        );
+        if (movedDistance < UNSNAP_DRAG_THRESHOLD_PX) {
+          return;
+        }
+        const restored = dragging.pendingRestoreBounds;
+        updateSession((latest) => ({
+          ...latest,
+          windows: latest.windows.map((windowState) =>
+            windowState.instanceId === dragging.instanceId
+              ? { ...windowState, ...restored, snap: null, restoreBounds: null }
+              : windowState,
+          ),
+        }));
+        target = { ...target, ...restored, snap: null, restoreBounds: null };
+        element.style.left = `${restored.x}px`;
+        element.style.top = `${restored.y}px`;
+        element.style.width = `${restored.width}px`;
+        element.style.height = `${restored.height}px`;
+        dragging.startX = event.clientX;
+        dragging.startY = event.clientY;
+        dragging.originX = restored.x;
+        dragging.originY = restored.y;
+        dragging.pendingRestoreBounds = null;
+      }
+
       dragging.nextX = clamp(
         dragging.originX + event.clientX - dragging.startX,
         0,
@@ -1354,7 +1399,14 @@ export default function WorkbenchOSV3({
           (windowState) => windowState.instanceId === dragging.instanceId,
         );
         const bounds = getDesktopBounds();
-        if (target && bounds && snapZoneRef.current && event.type !== "pointercancel") {
+        if (dragging.pendingRestoreBounds) {
+          // Bare click on a snapped title bar: keep the snapped geometry.
+        } else if (
+          target &&
+          bounds &&
+          snapZoneRef.current &&
+          event.type !== "pointercancel"
+        ) {
           commitWindowResult(
             snapWindow(
               current.windows,
@@ -1862,6 +1914,9 @@ export default function WorkbenchOSV3({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented) return;
+      // Ignore OS key autorepeat: held keys must not re-toggle the OS,
+      // re-run persistence, or spam shortcuts.
+      if (event.repeat) return;
 
       if (event.key === "Escape") {
         if (isPaletteOpen) {
@@ -1933,7 +1988,16 @@ export default function WorkbenchOSV3({
         return;
       }
       if (event.altKey) {
-        const workspace = workspaces[Number(event.key) - 1];
+        // Use the physical key code: on macOS, Option+digit produces a
+        // composed character in event.key ("¡", "™", "£"), which never
+        // maps back to a workspace index.
+        const digitMatch = /^Digit(\d)$/.exec(event.code);
+        const digit = digitMatch
+          ? Number(digitMatch[1])
+          : /^\d$/.test(event.key)
+            ? Number(event.key)
+            : NaN;
+        const workspace = workspaces[digit - 1];
         if (workspace) {
           event.preventDefault();
           switchWorkspace(workspace.id);
@@ -2231,10 +2295,7 @@ export default function WorkbenchOSV3({
         <SearchApp
           onSavedToArchive={(note) => {
             const outcome = createNote(files, ROOT_FILE_ID, note.title, {
-              content: `${note.body}\n\nSaved from Search · ${new Date()
-                .toISOString()
-                .slice(0, 16)
-                .replace("T", " ")}`,
+              content: `${note.body}\n\nSaved from Search · ${workbenchTimestampFormat.format(new Date())} NZT`,
             });
             if (outcome !== files) {
               replaceFiles(outcome);

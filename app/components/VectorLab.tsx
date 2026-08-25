@@ -35,7 +35,7 @@ export type VectorLabProps = {
 
 const AXIS_LABELS = ["X", "Y", "Z"] as const;
 
-const VECTOR_STORAGE_KEY = "sam-workbench-vector-v1";
+const VECTOR_STORAGE_BASE_KEY = "sam-workbench-vector-v1";
 
 function parseVectorDraft(draft: VectorDraft) {
   const invalid = draft.map((value) => {
@@ -199,6 +199,11 @@ function safeDomId(value: string) {
 export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
   const generatedId = useId();
   const domIdPrefix = `${safeDomId(idPrefix?.trim() || "vector-lab")}-${safeDomId(generatedId)}`;
+  // Vector is a multi-instance app; scope persistence per window instance so
+  // simultaneous instances cannot clobber each other's saved vectors.
+  const storageKey = idPrefix?.trim()
+    ? `${VECTOR_STORAGE_BASE_KEY}:${safeDomId(idPrefix.trim())}`
+    : VECTOR_STORAGE_BASE_KEY;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef<DragState>(null);
   // Client-only component (loaded with ssr: false), so window and
@@ -206,7 +211,7 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
   function readStoredDrafts(): { a?: VectorDraft; b?: VectorDraft } {
     try {
       const stored: unknown = JSON.parse(
-        window.localStorage.getItem(VECTOR_STORAGE_KEY) ?? "null",
+        window.localStorage.getItem(storageKey) ?? "null",
       );
       if (!stored || typeof stored !== "object") return {};
       const candidate = stored as { a?: unknown; b?: unknown };
@@ -226,7 +231,7 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
   function readStoredView(): ViewState | undefined {
     try {
       const stored: unknown = JSON.parse(
-        window.localStorage.getItem(VECTOR_STORAGE_KEY) ?? "null",
+        window.localStorage.getItem(storageKey) ?? "null",
       );
       if (!stored || typeof stored !== "object") return undefined;
       const candidate = (stored as { view?: unknown }).view as
@@ -281,13 +286,13 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
     if (!parsedA.vector || !parsedB.vector) return;
     try {
       window.localStorage.setItem(
-        VECTOR_STORAGE_KEY,
+        storageKey,
         JSON.stringify({ a: vectorADraft, b: vectorBDraft, view }),
       );
     } catch {
       // Storage may be unavailable; the session simply won't persist.
     }
-  }, [vectorADraft, vectorBDraft, view, parsedA.vector, parsedB.vector]);
+  }, [storageKey, vectorADraft, vectorBDraft, view, parsedA.vector, parsedB.vector]);
 
   useEffect(
     () => () => {

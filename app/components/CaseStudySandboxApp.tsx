@@ -31,14 +31,14 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
 
   // Trekky telemetry playback loop
   useEffect(() => {
-    if (activeTab !== "trekky" || !isPlaying) return;
+    if (activeTab !== "trekky" || !isPlaying || !isActive) return;
 
     const interval = setInterval(() => {
       setProgress((prev) => (prev >= 100 ? 0 : prev + 1));
     }, 120);
 
     return () => clearInterval(interval);
-  }, [activeTab, isPlaying]);
+  }, [activeTab, isPlaying, isActive]);
 
   // Spring physics simulation on Canvas
   useEffect(() => {

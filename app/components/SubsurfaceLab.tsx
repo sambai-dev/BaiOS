@@ -82,6 +82,11 @@ function configureCanvas(canvas: HTMLCanvasElement) {
   return { context, width, height, palette };
 }
 
+/** Shared by renderer and collider so the visible gap is always the real gap. */
+function gateGapHeight(height: number) {
+  return Math.max(92, height * 0.29);
+}
+
 function drawScene(
   canvas: HTMLCanvasElement,
   model: GameModel,
@@ -143,7 +148,7 @@ function drawScene(
 
   // Pressure gates: carbon columns with signal lamps marking the channel edge.
   const gateWidth = Math.max(24, width * 0.065);
-  const gapHeight = Math.max(92, height * 0.29);
+  const gapHeight = gateGapHeight(height);
   for (const gate of model.gates) {
     const gateX = gate.x * width;
     const gapCenter = gate.gap * height;
@@ -303,9 +308,14 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
         }
       }
 
+      // Match the renderer: the pixel gap has a 92px floor, so the
+      // normalized collider half-gap widens on short canvases. Without
+      // this, the kill zone extends past the drawn channel ("invisible
+      // walls" flanking every gate).
+      const surfaceHeight = Math.max(1, canvas.getBoundingClientRect().height);
       const collidingGate = model.gates.some((gate) => {
         const overlapsX = Math.abs(gate.x - 0.2) < 0.065;
-        const gapHalf = 0.145;
+        const gapHalf = gateGapHeight(surfaceHeight) / 2 / surfaceHeight;
         return overlapsX && (model.y < gate.gap - gapHalf || model.y > gate.gap + gapHalf);
       });
       if (model.y < 0.045 || model.y > 0.955 || collidingGate) {

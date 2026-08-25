@@ -703,24 +703,30 @@ export default function RailshiftLab({
   }, [prefersReducedMotion]);
 
   useEffect(() => {
-    let hydrationFrame = 0;
+    const hydrationFrames: number[] = [];
     try {
       const saved = Number(window.localStorage.getItem(BEST_SCORE_KEY));
       if (Number.isFinite(saved) && saved > 0) {
-        hydrationFrame = window.requestAnimationFrame(() => setBest(saved));
+        hydrationFrames.push(
+          window.requestAnimationFrame(() => setBest(saved)),
+        );
       }
       const savedDistance = Number(
         window.localStorage.getItem(BEST_DISTANCE_KEY),
       );
       if (Number.isFinite(savedDistance) && savedDistance > 0) {
-        hydrationFrame = window.requestAnimationFrame(() =>
-          setBestDistance(savedDistance),
+        hydrationFrames.push(
+          window.requestAnimationFrame(() => setBestDistance(savedDistance)),
         );
       }
     } catch {
       // Railshift remains playable when local storage is unavailable.
     }
-    return () => window.cancelAnimationFrame(hydrationFrame);
+    return () => {
+      for (const frame of hydrationFrames) {
+        window.cancelAnimationFrame(frame);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -952,6 +958,9 @@ export default function RailshiftLab({
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if ((event.target as HTMLElement).closest("button")) return;
+    // One gesture at a time: a second finger must not steal the tracked
+    // pointer or overwrite the first swipe's origin.
+    if (gestureRef.current.pointerId !== -1) return;
     gestureRef.current = {
       x: event.clientX,
       y: event.clientY,
@@ -1025,7 +1034,7 @@ export default function RailshiftLab({
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerCancel={() => {
-          gestureRef.current.pointerId = -1;
+          gestureRef.current = { x: 0, y: 0, pointerId: -1 };
         }}
       >
         <canvas ref={canvasRef} aria-hidden="true" />

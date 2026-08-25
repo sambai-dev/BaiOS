@@ -170,7 +170,8 @@ export async function GET(request: Request) {
         "Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
       },
     });
-  } catch {
+  } catch (caught) {
+    console.error("[api/crypto] upstream failure:", caught);
     const fallback = fallbackCache.get(currency);
     if (fallback) {
       return NextResponse.json(

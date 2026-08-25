@@ -20,7 +20,9 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
   const [result, setResult] = useState<SearchResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
-  const [savedIndex, setSavedIndex] = useState<number | null>(null);
+  const [savedIndexes, setSavedIndexes] = useState<ReadonlySet<number>>(
+    () => new Set(),
+  );
 
   const runSearch = useCallback(
     async (term: string) => {
@@ -31,7 +33,7 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
       setIsLoading(true);
       setErrorText(null);
       setResult(null);
-      setSavedIndex(null);
+      setSavedIndexes(new Set());
       try {
         const response = await fetch(
           `/api/search?q=${encodeURIComponent(trimmed)}`,
@@ -64,7 +66,7 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
         title,
         body: item.url ? `${item.text}\n\n${item.url}` : item.text,
       });
-      setSavedIndex(index);
+      setSavedIndexes((current) => new Set(current).add(index));
     },
     [onSavedToArchive, result],
   );
@@ -146,7 +148,7 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
                     )
                   }
                 >
-                  {savedIndex === -1 ? "Saved ✓" : "Save to Archive"}
+                  {savedIndexes.has(-1) ? "Saved ✓" : "Save to Archive"}
                 </button>
               </footer>
             </article>
@@ -162,7 +164,7 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
                     type="button"
                     onClick={() => saveToArchive(item, index)}
                   >
-                    {savedIndex === index ? "Saved ✓" : "Save"}
+                    {savedIndexes.has(index) ? "Saved ✓" : "Save"}
                   </button>
                 </div>
               ))}

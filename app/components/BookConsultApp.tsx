@@ -212,14 +212,27 @@ ${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural 
   };
 
   const openGmailDraft = () => {
-    playSound("chime");
+    // Gmail compose URLs fail silently beyond a few KB; trim the notes
+    // section so the brief always survives the URL round-trip.
+    const GMAIL_BODY_CHAR_BUDGET = 6_000;
+    let brief = scopeBriefMarkdown;
+    while (encodeURIComponent(brief).length > GMAIL_BODY_CHAR_BUDGET && brief.length > 200) {
+      brief = brief.slice(0, Math.ceil(brief.length / 2));
+    }
+    if (brief !== scopeBriefMarkdown) {
+      brief = `${brief.trimEnd()}\n\n…[truncated for email — use "Download brief" for the full version]`;
+    }
+
     const subject = encodeURIComponent(`Project Inquiry: ${ENGAGEMENT_MODELS[model].title}`);
-    const body = encodeURIComponent(scopeBriefMarkdown);
-    window.open(
+    const body = encodeURIComponent(brief);
+    const opened = window.open(
       `https://mail.google.com/mail/?view=cm&fs=1&to=sambai.codes%40gmail.com&su=${subject}&body=${body}`,
       "_blank",
       "noreferrer"
     );
+    // Only signal success when a compose tab actually opened (popup
+    // blockers return null).
+    playSound(opened ? "chime" : "delete");
   };
 
   return (

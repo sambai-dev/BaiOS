@@ -7,8 +7,24 @@
  * focus thuds, snapping clicks, and warm frequency chimes using oscillator synthesis.
  */
 
+const SOUND_STORAGE_KEY = "sam-workbench-sound-enabled";
+
 let audioCtx: AudioContext | null = null;
 let soundEnabled = false;
+let storageListenerAttached = false;
+
+/**
+ * Keeps the module-level flag in step with other tabs: without this, a tab
+ * that enabled sound earlier keeps playing after the user mutes elsewhere.
+ */
+function attachSoundStorageSync() {
+  if (storageListenerAttached || typeof window === "undefined") return;
+  storageListenerAttached = true;
+  window.addEventListener("storage", (event) => {
+    if (event.key !== null && event.key !== SOUND_STORAGE_KEY) return;
+    soundEnabled = isWorkbenchSoundEnabled();
+  });
+}
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -21,7 +37,9 @@ function getAudioContext(): AudioContext | null {
     }
   }
   if (audioCtx && audioCtx.state === "suspended") {
-    void audioCtx.resume();
+    // Programmatic playback outside a user gesture can leave the context
+    // suspended; swallow the rejection instead of logging one per tick.
+    audioCtx.resume().catch(() => {});
   }
   return audioCtx;
 }
@@ -32,7 +50,7 @@ export function setWorkbenchSoundEnabled(enabled: boolean) {
   soundEnabled = enabled;
   if (typeof window !== "undefined") {
     try {
-      localStorage.setItem("sam-workbench-sound-enabled", enabled ? "true" : "false");
+      localStorage.setItem(SOUND_STORAGE_KEY, enabled ? "true" : "false");
     } catch {
       // Ignore storage errors
     }
@@ -52,7 +70,7 @@ export function isWorkbenchSoundEnabled(): boolean {
   if (typeof window === "undefined") return false;
   try {
     return resolveSoundEnabledPreference(
-      localStorage.getItem("sam-workbench-sound-enabled"),
+      localStorage.getItem(SOUND_STORAGE_KEY),
     );
   } catch {
     return false;
@@ -60,6 +78,7 @@ export function isWorkbenchSoundEnabled(): boolean {
 }
 
 export function playSound(type: SoundEffectType) {
+  attachSoundStorageSync();
   // Honor either the in-session toggle or a persisted opt-in; both default OFF.
   if (!soundEnabled && !isWorkbenchSoundEnabled()) return;
 

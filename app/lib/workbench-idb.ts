@@ -31,17 +31,36 @@ function openDatabase(): Promise<IDBDatabase> {
   });
 }
 
+function runRequest<T>(
+  db: IDBDatabase,
+  mode: IDBTransactionMode,
+  operate: (store: IDBObjectStore) => IDBRequest,
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, mode);
+    const request = operate(transaction.objectStore(STORE_NAME));
+
+    transaction.oncomplete = () => resolve(request.result as T);
+    request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed"));
+    transaction.onabort = () =>
+      reject(transaction.error ?? new Error("IndexedDB transaction aborted"));
+  });
+}
+
+async function withDatabase<T>(operate: (db: IDBDatabase) => Promise<T>): Promise<T> {
+  const db = await openDatabase();
+  try {
+    return await operate(db);
+  } finally {
+    db.close();
+  }
+}
+
 export async function idbGet<T>(key: string): Promise<T | null> {
   try {
-    const db = await openDatabase();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, "readonly");
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.get(key);
-
-      request.onsuccess = () => resolve((request.result as T) ?? null);
-      request.onerror = () => reject(request.error);
-    });
+    return await withDatabase((db) =>
+      runRequest<T | null>(db, "readonly", (store) => store.get(key)),
+    ).then((result) => result ?? null);
   } catch {
     return null;
   }
@@ -49,15 +68,10 @@ export async function idbGet<T>(key: string): Promise<T | null> {
 
 export async function idbSet<T>(key: string, value: T): Promise<boolean> {
   try {
-    const db = await openDatabase();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, "readwrite");
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.put(value, key);
-
-      request.onsuccess = () => resolve(true);
-      request.onerror = () => reject(request.error);
-    });
+    await withDatabase((db) =>
+      runRequest<IDBValidKey>(db, "readwrite", (store) => store.put(value, key)),
+    );
+    return true;
   } catch {
     return false;
   }
@@ -65,15 +79,10 @@ export async function idbSet<T>(key: string, value: T): Promise<boolean> {
 
 export async function idbDelete(key: string): Promise<boolean> {
   try {
-    const db = await openDatabase();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, "readwrite");
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.delete(key);
-
-      request.onsuccess = () => resolve(true);
-      request.onerror = () => reject(request.error);
-    });
+    await withDatabase((db) =>
+      runRequest<undefined>(db, "readwrite", (store) => store.delete(key)),
+    );
+    return true;
   } catch {
     return false;
   }

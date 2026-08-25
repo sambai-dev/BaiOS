@@ -416,6 +416,40 @@ function acceptFilesMutation(files: WorkbenchFiles, candidate: WorkbenchFiles) {
   return validateWorkbenchFiles(candidate) ?? files;
 }
 
+/**
+ * Exact serialized footprint of an accepted filesystem, cached per object so
+ * content-only edits can enforce the envelope incrementally instead of
+ * re-serializing and re-parsing the whole archive on every keystroke.
+ */
+const fileSizeBudgets = new WeakMap<
+  WorkbenchFiles,
+  { chars: number; bytes: number }
+>();
+
+function measureSerializedFiles(
+  files: WorkbenchFiles,
+): { chars: number; bytes: number } | null {
+  try {
+    const serialized = JSON.stringify(files);
+    return {
+      chars: serialized.length,
+      bytes: new TextEncoder().encode(serialized).byteLength,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function fileSizeBudget(
+  files: WorkbenchFiles,
+): { chars: number; bytes: number } | null {
+  const cached = fileSizeBudgets.get(files);
+  if (cached) return cached;
+  const measured = measureSerializedFiles(files);
+  if (measured) fileSizeBudgets.set(files, measured);
+  return measured;
+}
+
 export function getFileNode(files: WorkbenchFiles, id: string) {
   return files.nodes.find((node) => node.id === id);
 }
@@ -535,10 +569,42 @@ export function editNote(
   if (!node || node.kind !== "note") return files;
   const nextContent = content.slice(0, MAX_NOTE_LENGTH);
   if (node.content === nextContent) return files;
-  return acceptFilesMutation(
-    files,
-    replaceNode(files, { ...node, content: nextContent, updatedAt: now }),
-  );
+
+  const nextNode: FileNode = { ...node, content: nextContent, updatedAt: now };
+
+  // Fast path for typing: body edits cannot alter ids, parents, or the
+  // hierarchy, so skip the full serialize-parse-validate cycle and enforce
+  // the envelope incrementally from the previously measured footprint.
+  // (A node's standalone serialization is byte-identical to its embedded
+  // representation, so per-node deltas are exact.)
+  const budget = fileSizeBudget(files);
+  if (budget) {
+    try {
+      const previousSerialized = JSON.stringify(node);
+      const nextSerialized = JSON.stringify(nextNode);
+      const candidateChars =
+        budget.chars - previousSerialized.length + nextSerialized.length;
+      const candidateBytes =
+        budget.bytes -
+        new TextEncoder().encode(previousSerialized).byteLength +
+        new TextEncoder().encode(nextSerialized).byteLength;
+      if (
+        candidateChars <= MAX_ARCHIVE_BYTES &&
+        candidateBytes <= MAX_ARCHIVE_BYTES
+      ) {
+        const candidate = replaceNode(files, nextNode);
+        fileSizeBudgets.set(candidate, {
+          chars: candidateChars,
+          bytes: candidateBytes,
+        });
+        return candidate;
+      }
+    } catch {
+      // Fall through to full validation below.
+    }
+  }
+
+  return acceptFilesMutation(files, replaceNode(files, nextNode));
 }
 
 export function moveToTrash(
@@ -892,7 +958,11 @@ export function parseWorkbenchFiles(serialized: string | null | undefined) {
       nodes.push(node);
     }
     if (!hasValidHierarchy(nodes)) return null;
-    return { version: WORKBENCH_FILES_VERSION, nodes } satisfies WorkbenchFiles;
+    const parsed = { version: WORKBENCH_FILES_VERSION, nodes } satisfies WorkbenchFiles;
+    // Seed the incremental size budget used by content-only edit fast paths.
+    const measured = measureSerializedFiles(parsed);
+    if (measured) fileSizeBudgets.set(parsed, measured);
+    return parsed;
   } catch {
     return null;
   }

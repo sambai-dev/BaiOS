@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from docx import Document
@@ -498,4 +499,8 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    try:
+        build()
+    except Exception as error:  # Surface a clean failure instead of a raw traceback.
+        print(f"resume build failed: {error}", file=sys.stderr)
+        raise SystemExit(1) from error

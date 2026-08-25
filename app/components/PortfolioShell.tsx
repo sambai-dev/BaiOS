@@ -187,6 +187,9 @@ export default function PortfolioShell() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Ignore OS key autorepeat so a held W cannot re-open the Workbench
+      // while the close animation is still running.
+      if (event.repeat) return;
       if (!isWorkbenchOpen && event.key.toLowerCase() === "w") {
         event.preventDefault();
         openWorkbench();

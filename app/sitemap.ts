@@ -9,7 +9,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: "https://www.sambai.dev",
-      lastModified: new Date(),
+      // No lastModified: a regenerated-but-unchanged page must not claim
+      // fresh modification on every weekly revalidation.
       changeFrequency: "weekly",
       priority: 1,
     },

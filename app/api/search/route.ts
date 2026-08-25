@@ -9,13 +9,50 @@ export const maxDuration = 30;
 const WIKI_SEARCH_URL = "https://en.wikipedia.org/w/api.php";
 const WIKI_SUMMARY_URL = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 const MAX_QUERY = 300;
+const UPSTREAM_TIMEOUT_MS = 8_000;
 const USER_AGENT =
   "sambai.dev-workbench-search/1.0 (https://www.sambai.dev; contact: sambai.codes@gmail.com)";
 
+const NAMED_HTML_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+};
+
+/**
+ * MediaWiki snippets arrive as HTML fragments containing escaped entities
+ * (e.g. "AT&amp;T"); without decoding they render literally in the UI.
+ */
+function decodeHtmlEntities(value: string): string {
+  return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, code: string) => {
+    if (code.startsWith("#x") || code.startsWith("#X")) {
+      const parsed = Number.parseInt(code.slice(2), 16);
+      return Number.isFinite(parsed) && parsed >= 0 && parsed <= 0x10ffff
+        ? String.fromCodePoint(parsed)
+        : match;
+    }
+    if (code.startsWith("#")) {
+      const parsed = Number.parseInt(code.slice(1), 10);
+      return Number.isFinite(parsed) && parsed >= 0 && parsed <= 0x10ffff
+        ? String.fromCodePoint(parsed)
+        : match;
+    }
+    return NAMED_HTML_ENTITIES[code] ?? match;
+  });
+}
+
 function clamp(value: unknown, max: number): string {
   if (typeof value !== "string") return "";
-  // Strip the <span class="searchmatch"> highlighting Wikipedia injects.
-  return value.replace(/<[^>]+>/g, "").slice(0, max);
+  // Strip the <span class="searchmatch"> highlighting Wikipedia injects,
+  // then decode entities before slicing so none are cut mid-sequence.
+  return decodeHtmlEntities(value.replace(/<[^>]+>/g, "")).slice(0, max);
+}
+
+function upstreamSignal(request: Request): AbortSignal {
+  return AbortSignal.any([request.signal, AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)]);
 }
 
 export async function GET(request: Request) {
@@ -35,6 +72,7 @@ export async function GET(request: Request) {
     })}`;
     const searchResponse = await fetch(searchUrl, {
       headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+      signal: upstreamSignal(request),
     });
     if (!searchResponse.ok) {
       return NextResponse.json(
@@ -70,6 +108,7 @@ export async function GET(request: Request) {
       `${WIKI_SUMMARY_URL}${encodeURIComponent(title)}?redirect=true`,
       {
         headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+        signal: upstreamSignal(request),
       },
     );
     if (summaryResponse.ok) {
@@ -93,7 +132,8 @@ export async function GET(request: Request) {
         )}`,
       })),
     });
-  } catch {
+  } catch (caught) {
+    console.error("[api/search] upstream failure:", caught);
     return NextResponse.json(
       { error: "Could not reach the search provider." },
       { status: 502 },

@@ -9,7 +9,7 @@ import { playSound } from "../lib/workbench-sound";
 type AgentPreset = "dashboard" | "rls" | "pipeline";
 type RunPhaseStatus = "pending" | "running" | "completed";
 
-const MODEL_BADGE = "nemotron-3-ultra · local route · free tier";
+const MODEL_BADGE = "private model · protected local route";
 
 const PRESETS: Record<AgentPreset, { title: string; prompt: string }> = {
   dashboard: {
@@ -43,7 +43,7 @@ const RUN_PHASES: Array<{ name: string; tool: string; detail: string }> = [
   {
     name: "Synthesize Output",
     tool: "generator",
-    detail: "Tokens streaming from nemotron-3-ultra.",
+    detail: "Tokens streaming from the private model route.",
   },
   {
     name: "Review & Clean",
@@ -140,17 +140,14 @@ export default function AgentWorkflowApp() {
           const visible = stripThinking(raw);
           setStreamedText(visible);
           setTokenCount(Math.ceil(visible.length / 4));
-          const progress = Math.min(visible.length / 24, RUN_PHASES.length - 1);
+          // Stay on the final phase while streaming; completion is granted
+          // only when the stream ends (below), not at ~72 chars of output.
+          const progress = Math.min(visible.length / 24, RUN_PHASES.length - 2);
           setCurrentPhaseIndex(Math.max(1, Math.floor(progress) + 1));
           if (visible.length % 96 < 4) playSound("keystroke");
         };
 
-        for (;;) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const events = buffer.split("\n\n");
-          buffer = events.pop() ?? "";
+        const handleEvents = (events: string[]) => {
           for (const event of events) {
             for (const line of event.split("\n")) {
               if (!line.startsWith("data:")) continue;
@@ -170,7 +167,22 @@ export default function AgentWorkflowApp() {
               }
             }
           }
+        };
+
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const events = buffer.split("\n\n");
+          buffer = events.pop() ?? "";
+          handleEvents(events);
         }
+
+        // Flush the tail: a final SSE event terminated by EOF rather than a
+        // blank line must not be dropped, or the last tokens disappear.
+        buffer += decoder.decode();
+        handleEvents(buffer.split("\n\n").slice(0, -1));
+        buffer = "";
 
         const visible = stripThinking(raw).trim();
         setStreamedText(visible || "(empty response from the model)");
@@ -219,7 +231,7 @@ export default function AgentWorkflowApp() {
         <div>
           <h2>Agent.</h2>
           <p>
-            Real inference on Nemotron 3 Ultra via this deployment&apos;s local
+            Server-side inference via this deployment&apos;s protected local
             route. Presets below are one-click prompts; or ask anything.
           </p>
         </div>

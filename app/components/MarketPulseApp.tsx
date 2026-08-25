@@ -221,6 +221,10 @@ export default function MarketPulseApp() {
 
   const changeCurrency = (nextCurrency: Currency) => {
     if (nextCurrency === currency) return;
+    // Price history is per-currency; stale entries from the old currency
+    // would make every row flash on the first payload after the switch.
+    previousPrices.current.clear();
+    setFlash({});
     setCurrency(nextCurrency);
     setLoadingLabel(`Switching to ${currencyLabels[nextCurrency]}`);
     setStatus("loading");
@@ -278,6 +282,11 @@ export default function MarketPulseApp() {
         </div>
       ) : selectedCoin && payload ? (
         <div className="pulse-workspace" aria-busy={status === "refreshing"}>
+          {status === "error" && error ? (
+            <p className="pulse-error" role="alert">
+              Refresh failed — showing the last successful snapshot. ({error})
+            </p>
+          ) : null}
           <section className="pulse-stage" aria-label={`${selectedCoin.name} market detail`}>
             <div className="pulse-quote">
               <div>
