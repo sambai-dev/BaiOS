@@ -366,7 +366,7 @@ export default function ControlCenterApp({
                           ? ` · ${session.minimizedWindows} min`
                           : ""
                       }`
-                    : "—"}
+                    : "N/A"}
                 </dd>
               </div>
               <div>

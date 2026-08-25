@@ -1,6 +1,6 @@
 /**
  * Pure Web Audio API haptic sound synthesizer for Workbench OS.
- * Zero external assets or network requests — generates sub-15ms mechanical relays,
+ * Zero external assets or network requests; generates sub-15ms mechanical relays,
  * focus thuds, snapping clicks, and warm frequency chimes using oscillator synthesis.
  */
 

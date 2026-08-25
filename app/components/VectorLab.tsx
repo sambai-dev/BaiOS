@@ -437,15 +437,15 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
           })}
         </div>
         <dl className="os-vector-results">
-          <div><dt>A · B</dt><dd>{results ? format(results.dot) : "—"}</dd></div>
-          <div><dt>A × B</dt><dd>{results ? `[${results.cross.map(format).join(", ")}]` : "—"}</dd></div>
-          <div><dt>Area</dt><dd>{results ? format(results.area) : "—"}</dd></div>
+          <div><dt>A · B</dt><dd>{results ? format(results.dot) : "N/A"}</dd></div>
+          <div><dt>A × B</dt><dd>{results ? `[${results.cross.map(format).join(", ")}]` : "N/A"}</dd></div>
+          <div><dt>Area</dt><dd>{results ? format(results.area) : "N/A"}</dd></div>
           <div>
             <dt>Angle</dt>
             <dd>
               {results && results.angle !== null
                 ? `${format((results.angle * 180) / Math.PI)}°`
-                : "—"}
+                : "N/A"}
             </dd>
           </div>
         </dl>

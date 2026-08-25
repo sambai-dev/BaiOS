@@ -219,7 +219,7 @@ const defaultNodes: readonly FileNode[] = [
     updatedAt: DEFAULT_TIMESTAMP,
     summary: "The operating method behind the workbench.",
     content:
-      "CLARIFY — Find the decision hiding under the requested feature.\n\nSHAPE — Turn ambiguity into a legible product surface and technical path.\n\nSHIP — Build the smallest complete version that can survive real use.\n\nLEARN — Use the result to make the next product decision less expensive.",
+      "CLARIFY: Find the decision hiding under the requested feature.\n\nSHAPE: Turn ambiguity into a legible product surface and technical path.\n\nSHIP: Build the smallest complete version that can survive real use.\n\nLEARN: Use the result to make the next product decision less expensive.",
   },
   {
     id: "shortcut-method",

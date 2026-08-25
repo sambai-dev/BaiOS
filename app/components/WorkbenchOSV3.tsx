@@ -531,7 +531,7 @@ export default function WorkbenchOSV3({
           nextWindows = opened.windows;
           nextActiveInstanceId = opened.activeInstanceId;
         } catch {
-          // Window capacity reached — fall back to the workspace switch alone.
+          // Window capacity reached, so fall back to the workspace switch alone.
         }
       }
       loadedSession = {
@@ -2237,7 +2237,7 @@ export default function WorkbenchOSV3({
               replaceFiles(outcome);
               setNotice(`Saved "${note.title}" to Archive → Notes.`);
             } else {
-              setNotice("Archive is full — could not save that note.");
+              setNotice("Archive is full; could not save that note.");
             }
           }}
         />

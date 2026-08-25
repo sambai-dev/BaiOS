@@ -93,6 +93,6 @@ The Workbench is entirely local to the current browser. It has no account, login
 2. Make the public path immediately legible; make personality optional and discoverable.
 3. Show software as manipulable systems, with interaction revealing how the work behaves.
 4. Use progressive disclosure so a fast-moving client gets clarity and a curious expert finds depth.
-5. Keep every claim and artifact truthful, and let specificity—not decoration—create personality.
+5. Keep every claim and artifact truthful, and let specificity, not decoration, create personality.
 6. Treat local data honestly: disclose its scope, provide backup and recovery, and never imply an account or remote service.
 7. Preserve each task across responsive modes; change the interaction model instead of shrinking desktop chrome until it fails.

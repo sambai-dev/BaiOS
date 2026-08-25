@@ -203,7 +203,7 @@ The system is flat by default. Grain, field color, one-pixel rules, and active-s
 
 ## Shapes
 
-The form language is square and mechanical. Panels, windows, controls, text fields, docks, menus, Atlas previews, and system search use zero corner radius. One-pixel rules and hard clipping define their silhouettes; the Workbench resize grip uses two diagonal rule marks in a 1.25rem square instead of an ornamental handle. Circles are limited to status dots, route marks, and plotted data—not container corners.
+The form language is square and mechanical. Panels, windows, controls, text fields, docks, menus, Atlas previews, and system search use zero corner radius. One-pixel rules and hard clipping define their silhouettes; the Workbench resize grip uses two diagonal rule marks in a 1.25rem square instead of an ornamental handle. Circles are limited to status dots, route marks, and plotted data, not container corners.
 
 **The Square Instrument Rule.** Controls should read as instruments set into a system, never as soft app-store cards or pills.
 
@@ -236,7 +236,7 @@ The aperture is a small live instrument, not a promotional card. On desktop it r
 
 ### Public Front Door
 
-The public surface is a single quiet composition: identity and the Workbench aperture share the top edge, the six-word statement “Sam designs and builds software.” holds the center, and one availability line plus two compact link groups anchor the bottom. Desktop uses a responsive `clamp(4rem, 10vw, 12rem)` horizontal inset and a reference-scale `clamp(4.75rem, 10vw, 11rem)` statement. Its two lines are intentionally separated by `clamp(2.5rem, 4.5vw, 5.5rem)` so the declaration reads as two calm beats rather than a compressed lockup. The statement is uninterrupted display text with no embedded controls; Workbench and Solynth Labs remain explicit destinations in the surrounding interface. Compact widths collapse the gutter, type, and line gap without changing the underlying hierarchy. The front door does not carry an explanatory deck, route labels, project taxonomy, or Workbench telemetry outside the aperture—those details belong one level deeper.
+The public surface is a single quiet composition: identity and the Workbench aperture share the top edge, the six-word statement “Sam designs and builds software.” holds the center, and one availability line plus two compact link groups anchor the bottom. Desktop uses a responsive `clamp(4rem, 10vw, 12rem)` horizontal inset and a reference-scale `clamp(4.75rem, 10vw, 11rem)` statement. Its two lines are intentionally separated by `clamp(2.5rem, 4.5vw, 5.5rem)` so the declaration reads as two calm beats rather than a compressed lockup. The statement is uninterrupted display text with no embedded controls; Workbench and Solynth Labs remain explicit destinations in the surrounding interface. Compact widths collapse the gutter, type, and line gap without changing the underlying hierarchy. The front door does not carry an explanatory deck, route labels, project taxonomy, or Workbench telemetry outside the aperture; those details belong one level deeper.
 
 ### Workbench Menu Bar
 
@@ -248,7 +248,7 @@ Windows use ivory content, carbon title bars, square clipping, structural shadow
 
 ### Workbench Dock
 
-The dock exposes all fifteen registered apps—Now, Stack, Method, Scratch, Console, Links, Pulse, Book, Sandbox, AI Lab, Subsurface, Railshift, Vector, Archive, and Control—with number shortcuts plus P for Pulse and R for Railshift and exact Closed, Suspended, Active, or Running status. Shift plus a shortcut or dock activation requests a new instance only for Scratch, Vector, and Archive. The dock shows multiple-instance count as a small signal badge and becomes horizontally scrollable before labels need to compress.
+The dock exposes all fifteen registered apps: Now, Stack, Method, Scratch, Console, Links, Pulse, Book, Sandbox, AI Lab, Subsurface, Railshift, Vector, Archive, and Control. It provides number shortcuts plus P for Pulse and R for Railshift and exact Closed, Suspended, Active, or Running status. Shift plus a shortcut or dock activation requests a new instance only for Scratch, Vector, and Archive. The dock shows multiple-instance count as a small signal badge and becomes horizontally scrollable before labels need to compress.
 
 ### System Search
 

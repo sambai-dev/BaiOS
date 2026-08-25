@@ -28,7 +28,7 @@ const azeretMono = Azeret_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.sambai.dev"),
   alternates: { canonical: "/" },
-  title: "Sam Bai — Founder, Solynth Labs",
+  title: "Sam Bai | Founder, Solynth Labs",
   description:
     "Sam Bai is the founder of Solynth Labs, a New Zealand software consultation and production company.",
   keywords: [
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "https://www.sambai.dev",
-    title: "Sam Bai — Founder, Solynth Labs",
+    title: "Sam Bai | Founder, Solynth Labs",
     description:
       "Software consultation, design engineering, and production from New Zealand.",
     siteName: "Sam Bai",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sam Bai — Founder, Solynth Labs",
+    title: "Sam Bai | Founder, Solynth Labs",
     description:
       "Software consultation, design engineering, and production from New Zealand.",
   },

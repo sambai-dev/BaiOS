@@ -1,8 +1,11 @@
-# Sam Bai — Portfolio & Workbench
+# BaiOS
 
-The personal portfolio of [Sam Bai](https://www.sambai.dev), founder of Solynth Labs — a sparse public front door backed by an original, fully local desktop-style environment called the **Workbench**.
+[![Release](https://img.shields.io/github/v/release/sambai-dev/BaiOS?display_name=tag)](https://github.com/sambai-dev/BaiOS/releases/latest)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](./LICENSE)
 
-Design language: **Quiet Junction** — carbon grain, monumental ivory type, themeable operational light, square rules. The full design system is documented in [`DESIGN.md`](./DESIGN.md); the product contract is [`PRODUCT.md`](./PRODUCT.md).
+**BaiOS** is [Sam Bai](https://www.sambai.dev)'s open-source personal operating surface: a sparse public front door backed by an original, fully local desktop-style environment called the **Workbench**.
+
+The name combines **Bai** with **OS**, with a visual nod to BIOS. Its design language is **Quiet Junction**: carbon grain, monumental ivory type, themeable operational light, and square rules. The full design system is documented in [`DESIGN.md`](./DESIGN.md); the product contract is [`PRODUCT.md`](./PRODUCT.md).
 
 ---
 
@@ -38,7 +41,7 @@ Requires Node.js 20+.
 | TypeScript    | 5.9     | Type safety                                |
 | Tailwind CSS  | v4      | Utility-first styling                      |
 | Framer Motion | 12.x    | Animations and transitions                 |
-| next/font     | —       | Archivo, Archivo Black, Azeret Mono        |
+| next/font     | Built in | Archivo, Archivo Black, Azeret Mono       |
 
 ---
 
@@ -58,14 +61,14 @@ https://www.sambai.dev/?workbench          # or ?app=pulse, ?workspace=field, ?o
 
 ### 2. Workbench (`WorkbenchOSV3`)
 
-An optional second-depth environment loaded dynamically (`ssr: false`) from the shell. It behaves like a small operating surface: draggable/resizable/snappable windows, a menu bar, system search, Atlas (window overview), three themes, and fifteen registered apps — all running entirely in the browser.
+An optional second-depth environment loaded dynamically (`ssr: false`) from the shell. It behaves like a small operating surface with draggable, resizable, and snappable windows, a menu bar, system search, Atlas (window overview), three themes, and fifteen registered apps, all running entirely in the browser.
 
 ---
 
 ## Project Structure
 
 ```
-portfolio-under-construction/
+BaiOS/
 ├── app/
 │   ├── api/crypto/route.ts         # CoinGecko proxy for the Pulse app (USD/NZD)
 │   ├── components/
@@ -73,15 +76,15 @@ portfolio-under-construction/
 │   │   ├── WorkbenchOSV3.tsx       # Workbench OS (windows, menus, Atlas, search)
 │   │   ├── WorkbenchMenuBar.tsx    # App-aware menu system
 │   │   ├── WorkbenchMissionControl.tsx
-│   │   ├── MarketPulseApp.tsx      # Pulse — crypto market monitor
-│   │   ├── BookConsultApp.tsx      # Book — consultation estimator
-│   │   ├── CaseStudySandboxApp.tsx # Sandbox — case study sandbox
-│   │   ├── AgentWorkflowApp.tsx    # Agent — AI workflow console
-│   │   ├── SubsurfaceLab.tsx       # Subsurface — input-gated arcade lab
-│   │   ├── RailshiftLab.tsx        # Railshift — three-lane signal runner
-│   │   ├── VectorLab.tsx           # Vector — 3D vector calculator
-│   │   ├── ArchiveApp.tsx          # Archive — writable local file system
-│   │   └── ControlCenterApp.tsx    # Control — theme/session/backup settings
+│   │   ├── MarketPulseApp.tsx      # Pulse: crypto market monitor
+│   │   ├── BookConsultApp.tsx      # Book: consultation estimator
+│   │   ├── CaseStudySandboxApp.tsx # Sandbox: case study sandbox
+│   │   ├── AgentWorkflowApp.tsx    # Agent: AI workflow console
+│   │   ├── SubsurfaceLab.tsx       # Subsurface: input-gated arcade lab
+│   │   ├── RailshiftLab.tsx        # Railshift: three-lane signal runner
+│   │   ├── VectorLab.tsx           # Vector: 3D vector calculator
+│   │   ├── ArchiveApp.tsx          # Archive: writable local file system
+│   │   └── ControlCenterApp.tsx    # Control: theme/session/backup settings
 │   ├── lib/
 │   │   ├── workbench-system.ts     # App registry, workspaces, themes, types
 │   │   ├── workbench-window-manager.ts
@@ -128,7 +131,7 @@ Now, Stack, Method, Scratch, Console, Links, Pulse, Book, Sandbox, Agent, Subsur
 
 Cobalt, Oxide, and Graphite change the Workbench route/depth/signal palette while preserving the carbon-and-ivory structure.
 
-### Persistence — local only
+### Persistence (local only)
 
 There is **no account, login, remote sync, filesystem service, or backend** for the Workbench. Session state (theme, workspace, window geometry, scratch, Method state, Archive contents) lives in browser-local state mirrored to IndexedDB. **Control** can export it as a versioned JSON backup, validate and import a backup, or restore defaults. Imports are size-limited and schema-checked; corrupt saved state is never silently overwritten.
 
@@ -148,7 +151,7 @@ Pointer interactions have keyboard equivalents throughout: menu bars use arrow-k
 
 ## Deployment
 
-Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) with default Next.js settings — no extra configuration required. The résumé PDF is served with a `no-store` cache header configured in `next.config.ts`.
+Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) with default Next.js settings, so no extra configuration is required. The résumé PDF is served with a `no-store` cache header configured in `next.config.ts`.
 
 ---
 
@@ -159,8 +162,14 @@ Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) with default Next.
 | `DESIGN.md` | Quiet Junction design tokens and component spec |
 | `PRODUCT.md`| Product purpose, positioning, and constraints   |
 
+## License
+
+BaiOS is free and open-source software licensed under the [GNU Affero General Public License v3.0](./LICENSE).
+
+You may use, study, modify, and redistribute this project under the terms of the AGPL-3.0. If you modify it and make it available over a network, you must also make the corresponding source code available under the same license. See [`LICENSE`](./LICENSE) for the complete terms.
+
 ## Troubleshooting
 
 - **Styles not loading?** Ensure `@import "tailwindcss"` is at the top of `app/styles/global.css` and restart the dev server after config changes.
 - **Textures not showing?** The carbon grain lives at `public/textures/carbon-grain.webp` and is referenced from `app/styles/global.css`.
-- **Workbench state lost?** State is browser-local by design — use Control → Export to keep a versioned JSON backup before clearing site data.
+- **Workbench state lost?** State is browser-local by design. Use Control → Export to keep a versioned JSON backup before clearing site data.

@@ -95,7 +95,7 @@ export default function BookConsultApp() {
         projectNotes: readString(candidate.projectNotes),
       };
     } catch {
-      /* corrupt or unavailable storage — start fresh */
+      /* corrupt or unavailable storage, so start fresh */
       return null;
     }
   }
@@ -134,7 +134,7 @@ export default function BookConsultApp() {
     try {
       window.localStorage.setItem(BOOK_DRAFT_KEY, JSON.stringify(draft));
     } catch {
-      /* storage full or blocked — estimator keeps working in-memory */
+      /* storage full or blocked; estimator keeps working in-memory */
     }
   }, [
     model,
