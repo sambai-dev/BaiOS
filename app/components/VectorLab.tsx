@@ -457,10 +457,10 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
             type="button"
             className="os-vector-random"
             onClick={() => {
-              const randomDraft = () =>
+              const randomDraft = (): VectorDraft =>
                 Array.from({ length: 3 }, () =>
                   String(Math.round((Math.random() * 6 - 3) * 10) / 10),
-                );
+                ) as VectorDraft;
               setVectorADraft(randomDraft());
               setVectorBDraft(randomDraft());
             }}

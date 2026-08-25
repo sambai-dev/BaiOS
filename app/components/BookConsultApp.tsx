@@ -6,7 +6,7 @@ import { playSound } from "../lib/workbench-sound";
 const BOOK_DRAFT_KEY = "sam-workbench-book-draft-v1";
 
 type BookDraft = {
-  model: string;
+  model: EngagementModel;
   selectedDeliverables: string[];
   timelineTarget: string;
   clientName: string;
@@ -67,51 +67,61 @@ const AVAILABLE_DELIVERABLES: DeliverableItem[] = [
 ];
 
 export default function BookConsultApp() {
-  const [model, setModel] = useState<EngagementModel>("sprint");
-  const [selectedDeliverables, setSelectedDeliverables] = useState<string[]>([
-    "del-next",
-    "del-ds",
-    "del-pg",
-    "del-ai",
-  ]);
-  const [timelineTarget, setTimelineTarget] = useState("Immediate (Within 2 weeks)");
-  const [clientName, setClientName] = useState("");
-  const [clientEmail, setClientEmail] = useState("");
-  const [projectNotes, setProjectNotes] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [draftRestored, setDraftRestored] = useState(false);
-  const [viewMode, setViewMode] = useState<"estimator" | "calendar">("estimator");
-
-  // Restore an in-progress brief across sessions.
-  useEffect(() => {
+  // Client-only component (loaded with ssr: false), so window and
+  // localStorage exist during the first render and can seed initial state.
+  function readStoredDraft(): Partial<BookDraft> | null {
     try {
       const raw = window.localStorage.getItem(BOOK_DRAFT_KEY);
-      if (!raw) return;
-      const draft = JSON.parse(raw) as Partial<BookDraft>;
-      if (typeof draft.model === "string") setModel(draft.model as EngagementModel);
-      if (Array.isArray(draft.selectedDeliverables))
-        setSelectedDeliverables(draft.selectedDeliverables.filter(
-          (id): id is string => typeof id === "string",
-        ));
-      if (typeof draft.timelineTarget === "string")
-        setTimelineTarget(draft.timelineTarget);
-      if (typeof draft.clientName === "string") setClientName(draft.clientName);
-      if (typeof draft.clientEmail === "string") setClientEmail(draft.clientEmail);
-      if (typeof draft.projectNotes === "string") setProjectNotes(draft.projectNotes);
-      if (
-        draft.clientName ||
-        draft.projectNotes ||
-        (Array.isArray(draft.selectedDeliverables) &&
-          draft.selectedDeliverables.length)
-      ) {
-        setDraftRestored(true);
-      }
+      if (!raw) return null;
+      const parsed: unknown = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return null;
+      const candidate = parsed as Record<string, unknown>;
+      const readString = (value: unknown) =>
+        typeof value === "string" ? value : undefined;
+      return {
+        model:
+          typeof candidate.model === "string" &&
+          candidate.model in ENGAGEMENT_MODELS
+            ? (candidate.model as EngagementModel)
+            : undefined,
+        selectedDeliverables: Array.isArray(candidate.selectedDeliverables)
+          ? candidate.selectedDeliverables.filter(
+              (id): id is string => typeof id === "string",
+            )
+          : undefined,
+        timelineTarget: readString(candidate.timelineTarget),
+        clientName: readString(candidate.clientName),
+        clientEmail: readString(candidate.clientEmail),
+        projectNotes: readString(candidate.projectNotes),
+      };
     } catch {
       /* corrupt or unavailable storage — start fresh */
+      return null;
     }
-  }, []);
+  }
 
-  // Persist on every change (debounced by React batching; payload is tiny).
+  const storedDraft = readStoredDraft();
+  const [model, setModel] = useState<EngagementModel>(
+    storedDraft?.model ?? "sprint",
+  );
+  const [selectedDeliverables, setSelectedDeliverables] = useState<string[]>(
+    storedDraft?.selectedDeliverables ?? [
+      "del-next",
+      "del-ds",
+      "del-pg",
+      "del-ai",
+    ],
+  );
+  const [timelineTarget, setTimelineTarget] = useState(
+    storedDraft?.timelineTarget ?? "Immediate (Within 2 weeks)",
+  );
+  const [clientName, setClientName] = useState(storedDraft?.clientName ?? "");
+  const [clientEmail, setClientEmail] = useState(storedDraft?.clientEmail ?? "");
+  const [projectNotes, setProjectNotes] = useState(storedDraft?.projectNotes ?? "");
+  const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<"estimator" | "calendar">("estimator");
+
+  // Persist on every change (payload is tiny).
   useEffect(() => {
     const draft: BookDraft = {
       model,
@@ -134,17 +144,6 @@ export default function BookConsultApp() {
     clientEmail,
     projectNotes,
   ]);
-
-  const downloadBrief = () => {
-    playSound("click");
-    const blob = new Blob([scopeBriefMarkdown], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = "solynth-scope-brief.md";
-    anchor.click();
-    URL.revokeObjectURL(url);
-  };
 
   const nameInputId = useId();
   const emailInputId = useId();
@@ -186,6 +185,17 @@ ${items || "• Custom full-stack architecture"}
 ${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural approach."}
 `;
   }, [model, timelineTarget, estimatedDays, clientName, clientEmail, selectedDeliverables, projectNotes]);
+
+  const downloadBrief = () => {
+    playSound("click");
+    const blob = new Blob([scopeBriefMarkdown], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "solynth-scope-brief.md";
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   const copyBriefToClipboard = async () => {
     playSound("snap");
