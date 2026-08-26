@@ -103,6 +103,14 @@ export default function ControlCenterApp({
 }: ControlCenterAppProps) {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [soundActive, setSoundActive] = useState(() => isWorkbenchSoundEnabled());
+
+  // Playback re-reads storage live, so keep the toggle in step when another
+  // tab (or a cleared store) changes the persisted preference.
+  useEffect(() => {
+    const syncSoundActive = () => setSoundActive(isWorkbenchSoundEnabled());
+    window.addEventListener("storage", syncSoundActive);
+    return () => window.removeEventListener("storage", syncSoundActive);
+  }, []);
   const instanceId = useId();
   const confirmationButtonRef = useRef<HTMLButtonElement>(null);
   const restoreButtonRef = useRef<HTMLButtonElement>(null);

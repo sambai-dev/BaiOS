@@ -28,6 +28,16 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
+  // Spring constants live in refs so tuning a slider updates the running
+  // simulation instead of tearing it down and teleporting the weight back
+  // to its start position. Only tab/visibility/impulse changes restart it.
+  const stiffnessRef = useRef(stiffness);
+  const dampingRef = useRef(damping);
+
+  useEffect(() => {
+    stiffnessRef.current = stiffness;
+    dampingRef.current = damping;
+  }, [stiffness, damping]);
 
   // Trekky telemetry playback loop
   useEffect(() => {
@@ -49,6 +59,17 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Match the other lab canvases: scale the backing store by devicePixelRatio
+    // so the plot stays crisp on HiDPI displays instead of stretching a
+    // fixed-size bitmap.
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    const viewWidth = Math.max(1, Math.round(rect.width));
+    const viewHeight = Math.max(1, Math.round(rect.height));
+    canvas.width = Math.round(viewWidth * pixelRatio);
+    canvas.height = Math.round(viewHeight * pixelRatio);
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
     let position = 0;
     let velocity = 0;
     const target = 1;
@@ -59,12 +80,13 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
       lastTime = time;
 
       // Spring formula: F = -k*(x - target) - d*v
-      const force = -stiffness * (position - target) - damping * velocity;
+      const force =
+        -stiffnessRef.current * (position - target) - dampingRef.current * velocity;
       velocity += force * dt;
       position += velocity * dt;
 
-      const width = canvas.width;
-      const height = canvas.height;
+      const width = viewWidth;
+      const height = viewHeight;
 
       ctx.clearRect(0, 0, width, height);
 
@@ -111,7 +133,7 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [activeTab, isActive, stiffness, damping, springTrigger]);
+  }, [activeTab, isActive, springTrigger]);
 
   return (
     <div className="sandbox-app">
@@ -364,7 +386,6 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
         </div>
       )}
 
-      {activeTab === "architecture"}
       {activeTab === "architecture" && (
         <div className="sandbox-body sandbox-arch-view">
           <div className="sandbox-stage">

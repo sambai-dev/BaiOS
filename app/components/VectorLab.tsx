@@ -281,17 +281,22 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
     };
   }, [parsedA.vector, parsedB.vector]);
 
-  // Persist drafts and camera once they settle into a valid shape.
+  // Persist drafts and camera once they settle into a valid shape. Writes are
+  // debounced: orbiting fires setView per pointermove (~120 Hz), and a
+  // synchronous setItem per frame janks the drag on slower machines.
   useEffect(() => {
     if (!parsedA.vector || !parsedB.vector) return;
-    try {
-      window.localStorage.setItem(
-        storageKey,
-        JSON.stringify({ a: vectorADraft, b: vectorBDraft, view }),
-      );
-    } catch {
-      // Storage may be unavailable; the session simply won't persist.
-    }
+    const timer = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(
+          storageKey,
+          JSON.stringify({ a: vectorADraft, b: vectorBDraft, view }),
+        );
+      } catch {
+        // Storage may be unavailable; the session simply won't persist.
+      }
+    }, 400);
+    return () => window.clearTimeout(timer);
   }, [storageKey, vectorADraft, vectorBDraft, view, parsedA.vector, parsedB.vector]);
 
   useEffect(

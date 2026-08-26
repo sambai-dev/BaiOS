@@ -22,10 +22,29 @@ const RATE_LIMIT_MAX_REQUESTS = 12;
  */
 const rateLimitHits = new Map<string, number[]>();
 
+/**
+ * Keys the limiter on platform-set connection headers rather than anything a
+ * browser script can freely choose. Vercel overwrites `x-forwarded-for` from
+ * the TCP connection, and `x-vercel-forwarded-for` always carries the IP that
+ * connected directly to Vercel even when a fronting proxy rewrites XFF, so it
+ * is preferred first.
+ */
+function rateLimitKey(request: Request): string {
+  const headers = request.headers;
+  const candidates = [
+    headers.get("x-vercel-forwarded-for"),
+    headers.get("x-real-ip"),
+    headers.get("x-forwarded-for"),
+  ];
+  for (const candidate of candidates) {
+    const first = candidate?.split(",", 1)[0]?.trim();
+    if (first) return first;
+  }
+  return "unknown";
+}
+
 function isRateLimited(request: Request): boolean {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim() ??
-    "unknown";
+  const ip = rateLimitKey(request);
   const now = Date.now();
   const recent = (rateLimitHits.get(ip) ?? []).filter(
     (timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS,
@@ -135,11 +154,43 @@ function isSameOriginRequest(request: Request): boolean {
   return !fetchSite || fetchSite === "same-origin";
 }
 
-async function readPayload(
+type ReadPayloadResult =
+  | { ok: true; value: unknown }
+  | { ok: false; message: string; status: number };
+
+/**
+ * Streams the body while counting bytes so a chunked request (no
+ * Content-Length header) is cut off at MAX_REQUEST_BYTES instead of being
+ * buffered into memory first.
+ */
+async function readBodyWithCap(
   request: Request,
-): Promise<
-  { ok: true; value: unknown } | { ok: false; message: string; status: number }
-> {
+): Promise<{ ok: true; body: string } | { ok: false; oversize: boolean }> {
+  const body = request.body;
+  if (!body) return { ok: true, body: "" };
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let text = "";
+  let bytes = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_REQUEST_BYTES) {
+        await reader.cancel().catch(() => {});
+        return { ok: false, oversize: true };
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+  } catch {
+    return { ok: false, oversize: false };
+  }
+  return { ok: true, body: text };
+}
+
+async function readPayload(request: Request): Promise<ReadPayloadResult> {
   const contentType = request.headers
     .get("content-type")
     ?.split(";", 1)[0]
@@ -149,23 +200,21 @@ async function readPayload(
     return { ok: false, message: "Expected application/json.", status: 415 };
   }
 
+  // Fast path: an honest Content-Length lets us reject before reading.
   const contentLength = Number(request.headers.get("content-length"));
   if (Number.isFinite(contentLength) && contentLength > MAX_REQUEST_BYTES) {
     return { ok: false, message: "Request body is too large.", status: 413 };
   }
 
-  let body: string;
-  try {
-    body = await request.text();
-  } catch {
-    return { ok: false, message: "Could not read request body.", status: 400 };
-  }
-  if (new TextEncoder().encode(body).byteLength > MAX_REQUEST_BYTES) {
-    return { ok: false, message: "Request body is too large.", status: 413 };
+  const read = await readBodyWithCap(request);
+  if (!read.ok) {
+    return read.oversize
+      ? { ok: false, message: "Request body is too large.", status: 413 }
+      : { ok: false, message: "Could not read request body.", status: 400 };
   }
 
   try {
-    return { ok: true, value: JSON.parse(body) as unknown };
+    return { ok: true, value: JSON.parse(read.body) as unknown };
   } catch {
     return { ok: false, message: "Invalid JSON body.", status: 400 };
   }

@@ -112,6 +112,9 @@ export default function ArchiveApp({
   const keepDeleteButtonRef = useRef<HTMLButtonElement>(null);
   const pendingFolderFocusRef = useRef<string | null>(null);
   const pendingRemovalFocusIndexRef = useRef<number | null>(null);
+  // Latches the archive-limit notice so a rejected keystroke stream reports
+  // once instead of pushing an aria-live message on every keypress.
+  const rejectionNoticeLatchedRef = useRef(false);
   const searchId = useId();
   const creationId = useId();
   const noteEditorId = useId();
@@ -161,9 +164,13 @@ export default function ArchiveApp({
     reportRejection = true,
   ) => {
     if (nextFiles === files) {
-      if (reportRejection) onMutationRejected?.(archiveLimitMessage);
+      if (reportRejection && !rejectionNoticeLatchedRef.current) {
+        rejectionNoticeLatchedRef.current = true;
+        onMutationRejected?.(archiveLimitMessage);
+      }
       return false;
     }
+    rejectionNoticeLatchedRef.current = false;
     onFilesChange(nextFiles);
     return true;
   };
@@ -191,6 +198,11 @@ export default function ArchiveApp({
     });
     return () => window.cancelAnimationFrame(frame);
   }, [confirmDeleteId]);
+
+  // Re-arm the rejection notice when the user works on a different item.
+  useEffect(() => {
+    rejectionNoticeLatchedRef.current = false;
+  }, [selectedId]);
 
   useEffect(() => {
     if (pendingFolderFocusRef.current !== resolvedFolderId) return;
@@ -338,9 +350,11 @@ export default function ArchiveApp({
         : createNote(files, resolvedFolderId, creationName, { id, now });
     if (commitFilesMutation(nextFiles)) {
       setSelectedId(id);
+      // Only a successful create dismisses the form; a rejected mutation
+      // (archive envelope full) keeps the typed name for a retry.
+      setCreationMode(null);
+      setCreationName("");
     }
-    setCreationMode(null);
-    setCreationName("");
   };
 
   const beginRename = (node: FileNode) => {
@@ -370,13 +384,21 @@ export default function ArchiveApp({
 
   const restoreSelected = () => {
     if (!selectedNode) return;
+    // Reuse the removal-focus flow: after the item leaves the trash list,
+    // keyboard focus lands on the adjacent row instead of dropping to <body>.
+    const restoredIndex = displayItems.findIndex(
+      (node) => node.id === selectedNode.id,
+    );
+    pendingRemovalFocusIndexRef.current = Math.max(0, restoredIndex);
     if (
-      commitFilesMutation(
+      !commitFilesMutation(
         restoreFromTrash(files, selectedNode.id, new Date().toISOString()),
       )
     ) {
-      setSelectedId(null);
+      pendingRemovalFocusIndexRef.current = null;
+      return;
     }
+    setSelectedId(null);
   };
 
   const deleteSelectedForever = () => {
@@ -561,7 +583,21 @@ export default function ArchiveApp({
                     type="button"
                     role="option"
                     aria-selected={selectedNode?.id === node.id}
-                    tabIndex={selectedNode ? (selectedNode.id === node.id ? 0 : -1) : index === 0 ? 0 : -1}
+                    tabIndex={
+                      // Roving tabindex: the tab stop follows the selection
+                      // only while it is actually in the visible list. A
+                      // selection resolved outside it (e.g. a fresh note that
+                      // does not match the active search query) would leave
+                      // zero tabbable options, so fall back to the first row.
+                      selectedNode &&
+                      displayItems.some((item) => item.id === selectedNode.id)
+                        ? selectedNode.id === node.id
+                          ? 0
+                          : -1
+                        : index === 0
+                          ? 0
+                          : -1
+                    }
                     onClick={() => {
                       setSelectedId(node.id);
                       setConfirmDeleteId(null);

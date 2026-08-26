@@ -3,6 +3,11 @@
 
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+export const maxDuration = 30;
+
+const UPSTREAM_TIMEOUT_MS = 8_000;
+
 const COIN_IDS = [
   "bitcoin",
   "ethereum",
@@ -108,6 +113,23 @@ function parseMarket(value: CoinGeckoMarket) {
   };
 }
 
+/**
+ * Bounds the upstream call so a stalled CoinGecko connection settles into the
+ * catch block (stale fallback / 503) instead of hanging the route indefinitely.
+ */
+async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`CoinGecko timed out after ${UPSTREAM_TIMEOUT_MS}ms.`)),
+      UPSTREAM_TIMEOUT_MS,
+    );
+  });
+  return Promise.race([fetch(url, init), timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
 export async function GET(request: Request) {
   const currency = parseCurrency(request);
   const query = new URLSearchParams({
@@ -122,7 +144,7 @@ export async function GET(request: Request) {
   const demoKey = process.env.COINGECKO_DEMO_API_KEY?.trim();
 
   try {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       `https://api.coingecko.com/api/v3/coins/markets?${query.toString()}`,
       {
         headers: {
@@ -134,6 +156,8 @@ export async function GET(request: Request) {
     );
 
     if (!response.ok) {
+      // Release the unread body so the pooled socket is not pinned until GC.
+      await response.body?.cancel().catch(() => {});
       throw new Error(`CoinGecko responded with ${response.status}.`);
     }
 

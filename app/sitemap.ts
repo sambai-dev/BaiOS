@@ -8,7 +8,9 @@ export const revalidate = 604800;
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://www.sambai.dev",
+      // Trailing slash matches the resolved canonical URL in layout.tsx so
+      // crawlers see one URL variant, not two.
+      url: "https://www.sambai.dev/",
       // No lastModified: a regenerated-but-unchanged page must not claim
       // fresh modification on every weekly revalidation.
       changeFrequency: "weekly",

@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { playSound } from "../lib/workbench-sound";
 
 type SearchResult = {
@@ -23,6 +23,16 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
   const [savedIndexes, setSavedIndexes] = useState<ReadonlySet<number>>(
     () => new Set(),
   );
+  const searchAbortRef = useRef<AbortController | null>(null);
+
+  // Closing the window mid-request cancels the fetch instead of letting it
+  // complete invisibly in the background.
+  useEffect(
+    () => () => {
+      searchAbortRef.current?.abort();
+    },
+    [],
+  );
 
   const runSearch = useCallback(
     async (term: string) => {
@@ -34,9 +44,12 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
       setErrorText(null);
       setResult(null);
       setSavedIndexes(new Set());
+      const controller = new AbortController();
+      searchAbortRef.current = controller;
       try {
         const response = await fetch(
           `/api/search?q=${encodeURIComponent(trimmed)}`,
+          { signal: controller.signal },
         );
         const data = (await response.json()) as SearchResult & {
           error?: string;
@@ -48,6 +61,7 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
         setResult(data);
         playSound("snap");
       } catch (caught) {
+        if ((caught as Error).name === "AbortError") return;
         setErrorText((caught as Error).message);
       } finally {
         setIsLoading(false);
@@ -59,9 +73,10 @@ export default function SearchApp({ onSavedToArchive }: { onSavedToArchive?: (no
   const saveToArchive = useCallback(
     (item: { text: string; url?: string }, index: number) => {
       playSound("click");
-      const title = `${result?.heading || result?.query || "Search"} · note ${
-        index + 1
-      }`;
+      // The main card passes the -1 sentinel; it is an abstract, not a
+      // numbered related link, so label it as one.
+      const suffix = index >= 0 ? `note ${index + 1}` : "abstract";
+      const title = `${result?.heading || result?.query || "Search"} · ${suffix}`;
       onSavedToArchive?.({
         title,
         body: item.url ? `${item.text}\n\n${item.url}` : item.text,

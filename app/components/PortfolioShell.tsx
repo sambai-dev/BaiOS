@@ -190,6 +190,16 @@ export default function PortfolioShell() {
       // Ignore OS key autorepeat so a held W cannot re-open the Workbench
       // while the close animation is still running.
       if (event.repeat) return;
+      // Never hijack modified shortcuts (Alt+W etc.) or typing surfaces.
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (target.isContentEditable ||
+          /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
+      ) {
+        return;
+      }
       if (!isWorkbenchOpen && event.key.toLowerCase() === "w") {
         event.preventDefault();
         openWorkbench();

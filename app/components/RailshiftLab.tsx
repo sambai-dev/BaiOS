@@ -924,6 +924,15 @@ export default function RailshiftLab({
   }, [playTone]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    // A focused child control (Resume/touch buttons) owns Enter and Space for
+    // native activation; intercepting them here would swallow clicks or fire
+    // the wrong move ("Duck" focused + Space must not jump).
+    if (
+      event.target instanceof HTMLElement &&
+      event.target.closest("button, a, input, select, textarea")
+    ) {
+      return;
+    }
     const key = event.key.toLowerCase();
     const handled = [
       "arrowleft",

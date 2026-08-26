@@ -274,15 +274,23 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
       setScore(finalScore);
       setStatus("crashed");
       setDivesPlayed((current) => current + 1);
-      setBest((current) => {
-        const next = Math.max(current, finalScore);
-        try {
-          window.localStorage.setItem(BEST_SCORE_KEY, String(next));
-        } catch {
-          // Best-score persistence is optional.
-        }
-        return next;
-      });
+      // Compare against the freshly stored best (not this instance's state):
+      // several lab windows can be mounted at once, and a stale local "best"
+      // would downgrade a higher score another instance just committed.
+      let storedBest = 0;
+      try {
+        const saved = Number(window.localStorage.getItem(BEST_SCORE_KEY));
+        if (Number.isFinite(saved) && saved > 0) storedBest = saved;
+      } catch {
+        // Storage read failed; the local best folds back in via setBest.
+      }
+      const nextBest = Math.max(storedBest, finalScore);
+      try {
+        window.localStorage.setItem(BEST_SCORE_KEY, String(nextBest));
+      } catch {
+        // Best-score persistence is optional.
+      }
+      setBest((current) => Math.max(current, nextBest));
     };
 
     const loop = (timestamp: number) => {

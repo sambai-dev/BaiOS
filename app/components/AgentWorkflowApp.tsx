@@ -65,9 +65,7 @@ export default function AgentWorkflowApp() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamedText, setStreamedText] = useState("");
   const [errorText, setErrorText] = useState<string | null>(null);
-  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(
-    RUN_PHASES.length,
-  );
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [tokenCount, setTokenCount] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
 
@@ -135,6 +133,10 @@ export default function AgentWorkflowApp() {
         const decoder = new TextDecoder();
         let buffer = "";
         let raw = "";
+        // One keystroke tick per 96 characters of visible output; measured
+        // against a high-water mark so a frozen visible length (while the
+        // model is inside <think>…</think>) never machine-guns the sound.
+        let keystrokeMark = 0;
 
         const consume = () => {
           const visible = stripThinking(raw);
@@ -142,9 +144,16 @@ export default function AgentWorkflowApp() {
           setTokenCount(Math.ceil(visible.length / 4));
           // Stay on the final phase while streaming; completion is granted
           // only when the stream ends (below), not at ~72 chars of output.
+          // Monotonic: closing a long <think> block shrinks the visible
+          // length and must not regress completed phase cards.
           const progress = Math.min(visible.length / 24, RUN_PHASES.length - 2);
-          setCurrentPhaseIndex(Math.max(1, Math.floor(progress) + 1));
-          if (visible.length % 96 < 4) playSound("keystroke");
+          setCurrentPhaseIndex((prev) =>
+            Math.max(prev, Math.max(1, Math.floor(progress) + 1)),
+          );
+          if (visible.length - keystrokeMark >= 96) {
+            keystrokeMark += 96;
+            playSound("keystroke");
+          }
         };
 
         const handleEvents = (events: string[]) => {
@@ -180,8 +189,10 @@ export default function AgentWorkflowApp() {
 
         // Flush the tail: a final SSE event terminated by EOF rather than a
         // blank line must not be dropped, or the last tokens disappear.
+        // Malformed fragments are already ignored inside handleEvents, so
+        // every remaining segment is safe to process.
         buffer += decoder.decode();
-        handleEvents(buffer.split("\n\n").slice(0, -1));
+        handleEvents(buffer.split("\n\n"));
         buffer = "";
 
         const visible = stripThinking(raw).trim();
@@ -196,6 +207,8 @@ export default function AgentWorkflowApp() {
           setErrorText((caught as Error).message);
           playSound("delete");
         }
+        // A failed or aborted run must not freeze mid-completion phase cards.
+        setCurrentPhaseIndex(0);
       } finally {
         stopClock();
         abortRef.current = null;

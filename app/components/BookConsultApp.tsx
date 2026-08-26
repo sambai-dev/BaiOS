@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { playSound } from "../lib/workbench-sound";
 
 const BOOK_DRAFT_KEY = "sam-workbench-book-draft-v1";
@@ -69,41 +69,59 @@ const AVAILABLE_DELIVERABLES: DeliverableItem[] = [
   { id: "del-mobile", label: "React Native / Expo iOS & Android", category: "mobile", timeDays: 5 },
 ];
 
+const TIMELINE_OPTIONS = [
+  "Immediate (Within 2 weeks)",
+  "Next Month (Within 30 days)",
+  "Upcoming Quarter",
+  "Flexible / Exploring Scope",
+] as const;
+
+function readStoredDraft(): Partial<BookDraft> | null {
+  try {
+    const raw = window.localStorage.getItem(BOOK_DRAFT_KEY);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    const candidate = parsed as Record<string, unknown>;
+    const readString = (value: unknown) =>
+      typeof value === "string" ? value : undefined;
+    return {
+      // Object.hasOwn (not `in`): inherited keys like "toString" would
+      // otherwise pass validation and resolve to undefined metadata.
+      model:
+        typeof candidate.model === "string" &&
+        Object.hasOwn(ENGAGEMENT_MODELS, candidate.model)
+          ? (candidate.model as EngagementModel)
+          : undefined,
+      selectedDeliverables: Array.isArray(candidate.selectedDeliverables)
+        ? candidate.selectedDeliverables.filter(
+            (id): id is string =>
+              typeof id === "string" &&
+              AVAILABLE_DELIVERABLES.some((item) => item.id === id),
+          )
+        : undefined,
+      timelineTarget:
+        typeof candidate.timelineTarget === "string" &&
+        (TIMELINE_OPTIONS as readonly string[]).includes(
+          candidate.timelineTarget,
+        )
+          ? candidate.timelineTarget
+          : undefined,
+      clientName: readString(candidate.clientName),
+      clientEmail: readString(candidate.clientEmail),
+      projectNotes: readString(candidate.projectNotes),
+    };
+  } catch {
+    /* corrupt or unavailable storage, so start fresh */
+    return null;
+  }
+}
+
 export default function BookConsultApp() {
   // Client-only component (loaded with ssr: false), so window and
   // localStorage exist during the first render and can seed initial state.
-  function readStoredDraft(): Partial<BookDraft> | null {
-    try {
-      const raw = window.localStorage.getItem(BOOK_DRAFT_KEY);
-      if (!raw) return null;
-      const parsed: unknown = JSON.parse(raw);
-      if (!parsed || typeof parsed !== "object") return null;
-      const candidate = parsed as Record<string, unknown>;
-      const readString = (value: unknown) =>
-        typeof value === "string" ? value : undefined;
-      return {
-        model:
-          typeof candidate.model === "string" &&
-          candidate.model in ENGAGEMENT_MODELS
-            ? (candidate.model as EngagementModel)
-            : undefined,
-        selectedDeliverables: Array.isArray(candidate.selectedDeliverables)
-          ? candidate.selectedDeliverables.filter(
-              (id): id is string => typeof id === "string",
-            )
-          : undefined,
-        timelineTarget: readString(candidate.timelineTarget),
-        clientName: readString(candidate.clientName),
-        clientEmail: readString(candidate.clientEmail),
-        projectNotes: readString(candidate.projectNotes),
-      };
-    } catch {
-      /* corrupt or unavailable storage, so start fresh */
-      return null;
-    }
-  }
-
-  const storedDraft = readStoredDraft();
+  // The lazy initializer reads storage exactly once, not on every render.
+  const [storedDraft] = useState<Partial<BookDraft> | null>(readStoredDraft);
   const [model, setModel] = useState<EngagementModel>(
     storedDraft?.model ?? "sprint",
   );
@@ -122,7 +140,18 @@ export default function BookConsultApp() {
   const [clientEmail, setClientEmail] = useState(storedDraft?.clientEmail ?? "");
   const [projectNotes, setProjectNotes] = useState(storedDraft?.projectNotes ?? "");
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
+  const copiedTimerRef = useRef<number | null>(null);
   const [viewMode, setViewMode] = useState<"estimator" | "calendar">("estimator");
+
+  useEffect(
+    () => () => {
+      if (copiedTimerRef.current !== null) {
+        window.clearTimeout(copiedTimerRef.current);
+      }
+    },
+    [],
+  );
 
   // Persist on every change (payload is tiny).
   useEffect(() => {
@@ -202,13 +231,25 @@ ${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural 
 
   const copyBriefToClipboard = async () => {
     playSound("snap");
+    let succeeded = false;
     try {
       await navigator.clipboard.writeText(scopeBriefMarkdown);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      succeeded = true;
     } catch {
-      setCopied(false);
+      succeeded = false;
     }
+    if (copiedTimerRef.current !== null) {
+      window.clearTimeout(copiedTimerRef.current);
+    }
+    const flashState = succeeded ? setCopied : setCopyFailed;
+    // Surface failure explicitly: on insecure contexts the Clipboard API is
+    // absent, and silent no-feedback looks identical to success.
+    flashState(true);
+    copiedTimerRef.current = window.setTimeout(() => {
+      copiedTimerRef.current = null;
+      setCopied(false);
+      setCopyFailed(false);
+    }, 2500);
   };
 
   const openGmailDraft = () => {
@@ -385,10 +426,11 @@ ${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural 
                     value={timelineTarget}
                     onChange={(e) => setTimelineTarget(e.target.value)}
                   >
-                    <option value="Immediate (Within 2 weeks)">Immediate (Within 2 weeks)</option>
-                    <option value="Next Month (Within 30 days)">Next Month (Within 30 days)</option>
-                    <option value="Upcoming Quarter">Upcoming Quarter</option>
-                    <option value="Flexible / Exploring Scope">Flexible / Exploring Scope</option>
+                    {TIMELINE_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="book-input-full">
@@ -440,7 +482,11 @@ ${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural 
                 className="book-cta-secondary"
                 onClick={copyBriefToClipboard}
               >
-                {copied ? "✓ Copied Scope Brief" : "Copy Formatted Brief"}
+                {copied
+                  ? "✓ Copied Scope Brief"
+                  : copyFailed
+                    ? "Copy blocked — use Download .md"
+                    : "Copy Formatted Brief"}
               </button>
               <button
                 type="button"

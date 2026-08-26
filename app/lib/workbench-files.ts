@@ -358,9 +358,17 @@ function cleanName(value: string, fallback: string) {
 }
 
 function latestTimestamp(files: WorkbenchFiles) {
+  // Compare instants numerically: string comparison only orders correctly
+  // when every timestamp shares one canonical format, and validated input may
+  // legitimately mix UTC ("Z") and offset ("-11:00") ISO forms.
   let latest = DEFAULT_TIMESTAMP;
+  let latestMs = -Infinity;
   for (const node of files.nodes) {
-    if (node.updatedAt > latest) latest = node.updatedAt;
+    const ms = Date.parse(node.updatedAt);
+    if (Number.isFinite(ms) && ms > latestMs) {
+      latestMs = ms;
+      latest = node.updatedAt;
+    }
   }
   return latest;
 }

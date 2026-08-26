@@ -32,6 +32,13 @@ export const MAX_WORKBENCH_COMMITTED_STATE_BYTES = MAX_WORKBENCH_STATE_BYTES;
 
 const MAX_LEGACY_VALUE_BYTES = 524_288;
 const MAX_WINDOW_COUNT = 60;
+/**
+ * Headroom before persisted z values are compacted back to 1..n. Every
+ * focus/open/minimize allocates highest+1, so without this the monotonic
+ * counter eventually crosses isStrictWindow's 100_000 validation cap and
+ * every save and export fails permanently.
+ */
+const WORKBENCH_Z_RENUMBER_THRESHOLD = 20_000;
 const LEGACY_APP_IDS = [
   "now",
   "stack",
@@ -129,6 +136,40 @@ function deriveLegacyStateRevision(serialized: string) {
   return `revision-legacy-${(hash >>> 0).toString(36)}`;
 }
 
+function fnv1a(serialized: string, basis: number) {
+  let hash = basis;
+  for (let index = 0; index < serialized.length; index += 1) {
+    hash ^= serialized.charCodeAt(index);
+    hash = Math.imul(hash, 16_777_619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+/**
+ * Revisions identify committed *content*, not write events: identical session
+ * and files state always derives the same revision. This lets redundant saves
+ * (boot refits, visibility flushes, hydration replays) produce byte-identical
+ * storage values that never fire cross-tab conflict signals, while any real
+ * edit still yields a fresh revision.
+ */
+export function deriveWorkbenchContentRevision(
+  session: WorkbenchSession,
+  files: WorkbenchFiles,
+): string {
+  const canonical = serializeWorkbenchCommittedState(
+    { ...session, updatedAt: 0 },
+    files,
+    {
+      revision: "revision-content-seed",
+      committedAt: "1970-01-01T00:00:00.000Z",
+    },
+  );
+  return `revision-state-${fnv1a(canonical, 2_166_136_261)}-${fnv1a(
+    canonical,
+    3_760_217_689,
+  )}`;
+}
+
 function hasValidBounds(value: unknown) {
   return (
     isRecord(value) &&
@@ -204,6 +245,28 @@ export function parseStrictWorkbenchSession(value: unknown): WorkbenchSession | 
   const instanceIds = new Set(windows.map((windowState) => windowState.instanceId));
   if (instanceIds.size !== windows.length) return null;
 
+  // Z values accrue monotonically across a durable session's lifetime and are
+  // persisted, so they must be compacted before they breach the parser's own
+  // 100_000 ceiling and permanently fail every save/export. Renumbering
+  // preserves relative stack order exactly, so this is invisible in the UI.
+  const maxZ = windows.reduce((highest, windowState) => Math.max(highest, windowState.z), 0);
+  let stacked = windows;
+  if (maxZ > WORKBENCH_Z_RENUMBER_THRESHOLD) {
+    const byStackOrder = windows.slice().sort(
+      (left, right) =>
+        left.z - right.z ||
+        left.createdAt - right.createdAt ||
+        (left.instanceId < right.instanceId ? -1 : left.instanceId > right.instanceId ? 1 : 0),
+    );
+    const renumbered = new Map(
+      byStackOrder.map((windowState, index) => [windowState.instanceId, index + 1]),
+    );
+    stacked = windows.map((windowState) => ({
+      ...windowState,
+      z: renumbered.get(windowState.instanceId) ?? windowState.z,
+    }));
+  }
+
   for (const workspaceId of workspaceIds) {
     const activeInstanceId = value.activeInstances[workspaceId];
     if (activeInstanceId !== null && typeof activeInstanceId !== "string") {
@@ -225,7 +288,7 @@ export function parseStrictWorkbenchSession(value: unknown): WorkbenchSession | 
 
   const parsed = parseWorkbenchSession(value);
   if (!parsed || parsed.windows.length !== windows.length) return null;
-  const sourceById = new Map(windows.map((windowState) => [windowState.instanceId, windowState]));
+  const sourceById = new Map(stacked.map((windowState) => [windowState.instanceId, windowState]));
 
   return {
     ...parsed,

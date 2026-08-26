@@ -43,7 +43,7 @@ The fifteen registered apps are Now, Stack, Method, Scratch, Console, Links, Pul
 
 Archive is writable within the current browser. Visitors can create folders and notes, edit and rename notes, move items to trash, restore them, and permanently delete them. The session preserves the selected theme, active workspace, window instances and geometry, open/minimized/maximized/snap state, per-window data, scratch content, Method state, and Archive contents. Control can export that state as a versioned JSON backup, validate and import a backup, or restore the default window layout.
 
-The Workbench is entirely local to the current browser. It has no account, login, remote sync, filesystem service, or backend; browser-local state, IndexedDB mirroring, and user-triggered JSON backup/restore are the persistence mechanisms. Product copy must never imply that Archive contents or session state are uploaded.
+The Workbench is entirely local to the current browser. It has no account, login, remote sync, filesystem service, or backend; browser-local state and user-triggered JSON backup/restore are the persistence mechanisms. Product copy must never imply that Archive contents or session state are uploaded.
 
 ## Capabilities and Constraints
 

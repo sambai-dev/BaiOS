@@ -27,7 +27,8 @@ const NAMED_HTML_ENTITIES: Record<string, string> = {
  * (e.g. "AT&amp;T"); without decoding they render literally in the UI.
  */
 function decodeHtmlEntities(value: string): string {
-  return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, code: string) => {
+  // Case-insensitive so uppercase numeric references ("&#X49;") decode too.
+  return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/gi, (match, code: string) => {
     if (code.startsWith("#x") || code.startsWith("#X")) {
       const parsed = Number.parseInt(code.slice(2), 16);
       return Number.isFinite(parsed) && parsed >= 0 && parsed <= 0x10ffff
@@ -49,6 +50,22 @@ function clamp(value: unknown, max: number): string {
   // Strip the <span class="searchmatch"> highlighting Wikipedia injects,
   // then decode entities before slicing so none are cut mid-sequence.
   return decodeHtmlEntities(value.replace(/<[^>]+>/g, "")).slice(0, max);
+}
+
+/**
+ * Upstream URLs are rendered into anchor hrefs by the client, so only
+ * well-formed https links may pass. Anything else (javascript:, data:,
+ * relative junk from a drifted upstream) collapses to "".
+ */
+function safeUrl(value: unknown, max: number): string {
+  const candidate = clamp(value, max);
+  if (!candidate) return "";
+  try {
+    const url = new URL(candidate);
+    return url.protocol === "https:" ? url.toString() : "";
+  } catch {
+    return "";
+  }
 }
 
 function upstreamSignal(request: Request): AbortSignal {
@@ -75,6 +92,7 @@ export async function GET(request: Request) {
       signal: upstreamSignal(request),
     });
     if (!searchResponse.ok) {
+      await searchResponse.body?.cancel().catch(() => {});
       return NextResponse.json(
         { error: "Upstream search provider unavailable." },
         { status: 502 },
@@ -114,6 +132,9 @@ export async function GET(request: Request) {
     );
     if (summaryResponse.ok) {
       summary = (await summaryResponse.json()) as typeof summary;
+    } else {
+      // Release the unread body so the pooled socket is not pinned until GC.
+      await summaryResponse.body?.cancel().catch(() => {});
     }
 
     return NextResponse.json({
@@ -122,7 +143,7 @@ export async function GET(request: Request) {
       abstract: {
         text: clamp(summary.extract, 1200),
         source: "Wikipedia",
-        url: clamp(summary.content_urls?.desktop?.page, 500),
+        url: safeUrl(summary.content_urls?.desktop?.page, 500),
       },
       answer: "",
       definition: { text: "", url: "" },
@@ -134,6 +155,18 @@ export async function GET(request: Request) {
       })),
     });
   } catch (caught) {
+    // A client disconnect (request.signal) means nobody is listening; only a
+    // genuine upstream timeout or failure deserves an error log/status.
+    if (caught instanceof Error && caught.name === "AbortError") {
+      return new Response(null, { status: 499 });
+    }
+    if (caught instanceof Error && caught.name === "TimeoutError") {
+      console.error("[api/search] upstream timed out");
+      return NextResponse.json(
+        { error: "The search provider took too long to respond." },
+        { status: 504 },
+      );
+    }
     console.error("[api/search] upstream failure:", caught);
     return NextResponse.json(
       { error: "Could not reach the search provider." },

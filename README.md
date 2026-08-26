@@ -90,7 +90,6 @@ BaiOS/
 │   │   ├── workbench-window-manager.ts
 │   │   ├── workbench-backup.ts     # Versioned JSON backup validate/import/export
 │   │   ├── workbench-files.ts      # Archive file system logic
-│   │   ├── workbench-idb.ts        # IndexedDB mirroring
 │   │   └── workbench-sound.ts      # Opt-in sound engine
 │   ├── styles/                     # global.css + per-app stylesheets (Tailwind v4)
 │   ├── layout.tsx                  # Metadata, JSON-LD, fonts
@@ -137,7 +136,7 @@ Cobalt, Oxide, and Graphite change the Workbench route/depth/signal palette whil
 
 ### Persistence (local only)
 
-There is **no account, login, remote sync, filesystem service, or backend** for the Workbench. Session state (theme, workspace, window geometry, scratch, Method state, Archive contents) lives in browser-local state mirrored to IndexedDB. **Control** can export it as a versioned JSON backup, validate and import a backup, or restore defaults. Imports are size-limited and schema-checked; corrupt saved state is never silently overwritten.
+There is **no account, login, remote sync, filesystem service, or backend** for the Workbench. Session state (theme, workspace, window geometry, scratch, Method state, Archive contents) lives in a single atomically committed browser-local (`localStorage`) envelope. **Control** can export it as a versioned JSON backup, validate and import a backup, or restore defaults. Imports are size-limited and schema-checked; corrupt saved state is never silently overwritten.
 
 ---
 

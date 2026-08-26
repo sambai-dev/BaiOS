@@ -13,20 +13,22 @@ export const contentType = "image/png";
 export default function OpenGraphImage() {
   return new ImageResponse(
     (
-      <div
-        style={{
-          alignItems: "stretch",
-          background: "#10100f",
-          color: "#f1f0e8",
-          display: "flex",
-          flexDirection: "column",
-          fontFamily: "Arial, sans-serif",
-          height: "100%",
-          justifyContent: "space-between",
-          padding: "56px 64px",
-          width: "100%",
-        }}
-      >
+        <div
+          style={{
+            alignItems: "stretch",
+            background: "#10100f",
+            color: "#f1f0e8",
+            display: "flex",
+            flexDirection: "column",
+            // No fontFamily declared on purpose: the Satori runtime cannot
+            // resolve system fonts like Arial, and naming one silently falls
+            // back to @vercel/og's bundled face while implying otherwise.
+            height: "100%",
+            justifyContent: "space-between",
+            padding: "56px 64px",
+            width: "100%",
+          }}
+        >
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span style={{ fontSize: 19, letterSpacing: "0.08em" }}>SAM BAI</span>
           <span style={{ color: "#98988e", fontSize: 19 }}>HAMILTON, NEW ZEALAND</span>

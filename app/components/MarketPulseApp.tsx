@@ -137,15 +137,21 @@ export default function MarketPulseApp() {
 
   const previousPrices = useRef<Map<string, number>>(new Map());
 
-  const fetchMarket = useCallback(async (signal: AbortSignal) => {
-    setStatus((current) => (current === "ready" ? "refreshing" : "loading"));
-    setError("");
+  const fetchMarket = useCallback(
+    async (lifecycleSignal: AbortSignal) => {
+      setStatus((current) => (current === "ready" ? "refreshing" : "loading"));
+      setError("");
 
-    try {
-      const response = await fetch(`/api/crypto?currency=${currency}`, {
-        cache: "no-store",
-        signal,
-      });
+      // Client-side deadline: the route now bounds CoinGecko upstream, but
+      // this keeps a stalled response from pinning the UI in loading forever.
+      const deadline = AbortSignal.timeout(12_000);
+      const signal = AbortSignal.any([lifecycleSignal, deadline]);
+
+      try {
+        const response = await fetch(`/api/crypto?currency=${currency}`, {
+          cache: "no-store",
+          signal,
+        });
       const result: unknown = await response.json();
       if (!response.ok) {
         const message =
@@ -177,12 +183,16 @@ export default function MarketPulseApp() {
       );
       setStatus("ready");
     } catch (caught) {
-      if (signal.aborted) return;
+      // Swallow only lifecycle aborts (unmount/refresh); a client deadline
+      // firing is a real failure the user must see.
+      if (lifecycleSignal.aborted) return;
       setStatus("error");
       setError(
-        caught instanceof Error
-          ? caught.message
-          : "Market data is unavailable right now.",
+        caught instanceof DOMException && caught.name === "TimeoutError"
+          ? "Market data took too long to respond. Try refreshing."
+          : caught instanceof Error
+            ? caught.message
+            : "Market data is unavailable right now.",
       );
     }
   }, [currency]);

@@ -451,11 +451,18 @@ function resolveDefaultPlacement(app: WorkbenchAppDefinition): DefaultPlacement 
   if (slot && viewWidth >= 900) {
     const cellWidth = desktopWidth / 3;
     const cellHeight = desktopHeight / 2;
+    // The strict persisted-state validators floor windows at
+    // DEFAULT_MIN_WIDTH/DEFAULT_MIN_HEIGHT; on ~900–1021px viewports the raw
+    // third-of-desktop tile dips below that floor, which would make every
+    // later save fail validation. Clamp so produced geometry is always
+    // persistable.
+    const width = Math.max(DEFAULT_MIN_WIDTH, cellWidth - TILE_GAP);
+    const height = Math.max(DEFAULT_MIN_HEIGHT, cellHeight - TILE_GAP);
     return {
       x: VIEWPORT_MARGIN + slot.col * cellWidth + TILE_GAP / 2,
       y: DESKTOP_TOP_OFFSET + slot.row * cellHeight + TILE_GAP / 2,
-      width: cellWidth - TILE_GAP,
-      height: cellHeight - TILE_GAP,
+      width,
+      height,
     };
   }
 
@@ -661,12 +668,18 @@ export function fitWindowsToBounds(
       };
     }
     if (windowState.snap === "left" || windowState.snap === "right") {
-      const split = safeBounds.width / 2;
+      // A bounds narrower than two minimum-width halves cannot host side-by-side
+      // snapped windows without dropping below the persisted-state width floor,
+      // so both sides degrade to full-width coverage instead.
+      const halfWidth =
+        safeBounds.width >= DEFAULT_MIN_WIDTH * 2
+          ? Math.floor(safeBounds.width / 2)
+          : safeBounds.width;
       return {
         ...cloneWindow(windowState),
-        x: windowState.snap === "left" ? 0 : split,
+        x: windowState.snap === "left" ? 0 : safeBounds.width - halfWidth,
         y: 0,
-        width: windowState.snap === "left" ? split : safeBounds.width - split,
+        width: halfWidth,
         height: safeBounds.height,
         restoreBounds,
       };
@@ -694,7 +707,13 @@ export function snapWindow(
   }
   const safeBounds = assertBounds(bounds);
   const allocation = allocateZ(windows, z);
-  const split = safeBounds.width / 2;
+  // Same floor guarantee as fitWindowsToBounds: below two minimum widths a
+  // side snap covers the full desktop rather than producing sub-minimum
+  // geometry that persisted-state validation would reject.
+  const halfWidth =
+    safeBounds.width >= DEFAULT_MIN_WIDTH * 2
+      ? Math.floor(safeBounds.width / 2)
+      : safeBounds.width;
   const snapped = windows.map((windowState) => {
     if (windowState.instanceId !== instanceId) return cloneWindow(windowState);
     const restoreBounds = windowState.restoreBounds ?? windowBounds(windowState);
@@ -715,9 +734,9 @@ export function snapWindow(
     }
     return {
       ...cloneWindow(windowState),
-      x: target === "left" ? 0 : split,
+      x: target === "left" ? 0 : safeBounds.width - halfWidth,
       y: 0,
-      width: target === "left" ? split : safeBounds.width - split,
+      width: halfWidth,
       height: safeBounds.height,
       z: allocation.assignedZ,
       open: true,

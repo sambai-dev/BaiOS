@@ -26,7 +26,7 @@ import WorkbenchMissionControl from "./WorkbenchMissionControl";
 import {
   MAX_WORKBENCH_BACKUP_BYTES,
   WORKBENCH_COMMITTED_STATE_STORAGE_KEY,
-  createWorkbenchStateRevision,
+  deriveWorkbenchContentRevision,
   migrateLegacyWorkbenchSession,
   parseWorkbenchBackup,
   parseWorkbenchCommittedState,
@@ -268,6 +268,7 @@ function formatSavedTime(timestamp: number | string) {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+    timeZone: WORKBENCH_TIME_ZONE,
   });
 }
 
@@ -381,7 +382,10 @@ export default function WorkbenchOSV3({
   const sessionRef = useRef(session);
   const filesRef = useRef(files);
   const committedRevisionRef = useRef<string | null>(null);
-  const storageConflictRef = useRef<WorkbenchCommittedStateEnvelope | null>(null);
+  // Render must read state, not a ref: button visibility inside the notice has
+  // no other re-render trigger if a future refactor mutates a ref alone.
+  const [storageConflictEnvelope, setStorageConflictEnvelope] =
+    useState<WorkbenchCommittedStateEnvelope | null>(null);
   const storageConflictPendingRef = useRef(false);
   const corruptStorageRef = useRef<{
     committed: string | null;
@@ -416,11 +420,12 @@ export default function WorkbenchOSV3({
   }, []);
 
   const markStorageConflict = useCallback((serialized: string | null) => {
-    storageConflictRef.current = parseWorkbenchCommittedState(serialized);
+    const incoming = parseWorkbenchCommittedState(serialized);
+    setStorageConflictEnvelope(incoming);
     storageConflictPendingRef.current = true;
     setHasStorageConflict(true);
     setNotice(
-      storageConflictRef.current
+      incoming
         ? "Another tab saved a different Workbench revision. Choose which version to keep."
         : "Another tab removed or replaced Workbench storage. Keep this tab to create a new committed revision.",
     );
@@ -461,6 +466,9 @@ export default function WorkbenchOSV3({
         const existingSerialized = storage.getItem(
           WORKBENCH_COMMITTED_STATE_STORAGE_KEY,
         );
+        // The revision derives from committed content (updatedAt excluded):
+        // an unchanged session/files pair always re-derives the same one.
+        const revision = deriveWorkbenchContentRevision(nextSession, nextFiles);
         if (!options.force) {
           const existing = parseWorkbenchCommittedState(existingSerialized);
           const expectedRevision = committedRevisionRef.current;
@@ -471,9 +479,17 @@ export default function WorkbenchOSV3({
             markStorageConflict(existingSerialized);
             return false;
           }
+          // The revision derives from committed content, so an unchanged
+          // session/files pair re-derives the live revision. Skipping the
+          // write keeps redundant saves (boot refits, visibility flushes)
+          // from firing storage events or churning quota in other tabs.
+          if (existing && existing.revision === revision) {
+            return true;
+          }
         }
 
-        const revision = createWorkbenchStateRevision();
+        // A real edit yields a fresh content-derived revision, which other
+        // tabs legitimately treat as divergence.
         const serialized = serializeWorkbenchCommittedState(nextSession, nextFiles, {
           revision,
         });
@@ -482,7 +498,7 @@ export default function WorkbenchOSV3({
           return false;
         }
         committedRevisionRef.current = revision;
-        storageConflictRef.current = null;
+        setStorageConflictEnvelope(null);
         storageConflictPendingRef.current = false;
         setHasStorageConflict(false);
         try {
@@ -511,7 +527,13 @@ export default function WorkbenchOSV3({
     return () => compactQuery.removeEventListener("change", syncCompactMode);
   }, []);
 
+  const hydrationDoneRef = useRef(false);
   useEffect(() => {
+    // Hydrate exactly once per mount. The shell clears `deepLink` to null the
+    // moment closing starts, and re-reading storage mid-exit would swap state
+    // identities and needlessly re-arm persistence while fading out.
+    if (hydrationDoneRef.current) return;
+    hydrationDoneRef.current = true;
     let loadedSession = createDefaultWorkbenchSession();
     let loadedFiles = createDefaultWorkbenchFiles();
     let restored = false;
@@ -897,6 +919,20 @@ export default function WorkbenchOSV3({
       const result = closeManagedWindow(current.windows, instanceId);
       commitWindowResult(result, target.workspaceId);
       focusManagedSurface(result.activeInstanceId);
+      // Retire the ?app= deep link once its last instance is gone; otherwise
+      // a plain reload force-reopens an app the user explicitly closed.
+      if (typeof window !== "undefined") {
+        const appStillOpen = result.windows.some(
+          (windowState) => windowState.appId === target.appId && windowState.open,
+        );
+        if (!appStillOpen) {
+          const url = new URL(window.location.href);
+          if (url.searchParams.get("app") === target.appId) {
+            url.searchParams.delete("app");
+            window.history.replaceState(null, "", url.toString());
+          }
+        }
+      }
     },
     [commitWindowResult, focusManagedSurface],
   );
@@ -1251,7 +1287,7 @@ export default function WorkbenchOSV3({
   }, [persistPair]);
 
   const loadOtherTabRevision = useCallback(() => {
-    const incoming = storageConflictRef.current;
+    const incoming = storageConflictEnvelope;
     if (!incoming) {
       setNotice("The other tab removed its committed state. Keep this tab to save a new revision.");
       return;
@@ -1259,13 +1295,13 @@ export default function WorkbenchOSV3({
     replaceSession(incoming.session);
     replaceFiles(incoming.files);
     committedRevisionRef.current = incoming.revision;
-    storageConflictRef.current = null;
+    setStorageConflictEnvelope(null);
     storageConflictPendingRef.current = false;
     setHasStorageConflict(false);
     setSessionStatus("restored");
     setLastSaved(formatSavedTime(incoming.session.updatedAt));
     setNotice("Loaded the Workbench revision saved by the other tab.");
-  }, [replaceFiles, replaceSession]);
+  }, [replaceFiles, replaceSession, storageConflictEnvelope]);
 
   const keepThisTabRevision = useCallback(() => {
     const snapshot = {
@@ -1290,6 +1326,9 @@ export default function WorkbenchOSV3({
       ) {
         return;
       }
+      // Single-gesture occupancy: a second concurrent pointer must not
+      // clobber the live drag session (its teardown would freeze geometry).
+      if (dragSession.current || resizeSession.current) return;
       const current = sessionRef.current;
       const original = current.windows.find(
         (windowState) => windowState.instanceId === instanceId,
@@ -1332,6 +1371,7 @@ export default function WorkbenchOSV3({
   const startResize = useCallback(
     (event: ReactPointerEvent<HTMLButtonElement>, instanceId: string) => {
       if (event.button !== 0 || isCompact) return;
+      if (dragSession.current || resizeSession.current) return;
       const current = sessionRef.current;
       const target = current.windows.find(
         (windowState) => windowState.instanceId === instanceId,
@@ -1517,10 +1557,21 @@ export default function WorkbenchOSV3({
         }));
       }
 
-      dragSession.current = null;
-      resizeSession.current = null;
-      snapZoneRef.current = null;
-      setSnapZone(null);
+      // Only the owning pointer tears its gesture down; a foreign pointer
+      // ending must not kill a surviving concurrent gesture.
+      if (!dragSession.current || dragSession.current.pointerId === event.pointerId) {
+        dragSession.current = null;
+      }
+      if (
+        !resizeSession.current ||
+        resizeSession.current.pointerId === event.pointerId
+      ) {
+        resizeSession.current = null;
+      }
+      if (!dragSession.current) {
+        snapZoneRef.current = null;
+        setSnapZone(null);
+      }
     };
 
     window.addEventListener("pointermove", handlePointerMove, { passive: false });
@@ -1995,7 +2046,9 @@ export default function WorkbenchOSV3({
         } else if (contextMenu) {
           event.preventDefault();
           setContextMenu(null);
-        } else {
+        } else if (!isTypingTarget(event.target)) {
+          // Esc inside a typing surface (scratchpad, console, inputs) belongs
+          // to that surface; it must not dismiss the whole Workbench.
           event.preventDefault();
           closePortfolio();
         }
@@ -2059,7 +2112,7 @@ export default function WorkbenchOSV3({
         // Use the physical key code: on macOS, Option+digit produces a
         // composed character in event.key ("¡", "™", "£"), which never
         // maps back to a workspace index.
-        const digitMatch = /^Digit(\d)$/.exec(event.code);
+        const digitMatch = /^(?:Digit|Numpad)(\d)$/.exec(event.code);
         const digit = digitMatch
           ? Number(digitMatch[1])
           : /^\d$/.test(event.key)
@@ -2363,10 +2416,14 @@ export default function WorkbenchOSV3({
       return (
         <SearchApp
           onSavedToArchive={(note) => {
-            const outcome = createNote(files, ROOT_FILE_ID, note.title, {
+            // filesRef (not the render-closed `files`): two saves fired in the
+            // same tick must chain off each other, not both branch from a
+            // stale tree and silently drop the first note.
+            const currentFiles = filesRef.current;
+            const outcome = createNote(currentFiles, ROOT_FILE_ID, note.title, {
               content: `${note.body}\n\nSaved from Search · ${workbenchTimestampFormat.format(new Date())} NZT`,
             });
-            if (outcome !== files) {
+            if (outcome !== currentFiles) {
               replaceFiles(outcome);
               setNotice(`Saved "${note.title}" to Archive → Notes.`);
             } else {
@@ -2683,7 +2740,7 @@ export default function WorkbenchOSV3({
             <span>{notice}</span>
             {hasStorageConflict ? (
               <>
-                {storageConflictRef.current ? (
+                {storageConflictEnvelope ? (
                   <button type="button" onClick={loadOtherTabRevision}>
                     Load other tab
                   </button>
@@ -2848,7 +2905,7 @@ export default function WorkbenchOSV3({
         <nav className="os-dock" aria-label="Workbench applications">
           <div className="os-dock-label">
             <span>{activeWorkspace.label}</span>
-            <span>Keys 1–0 · P · B · S · A · R</span>
+            <span>Keys 1–0 · P · B · S · A · R · D</span>
           </div>
           {workbenchApps.map((app) => {
             const instances = session.windows.filter(
@@ -3020,6 +3077,11 @@ export default function WorkbenchOSV3({
                     onKeyDown={(event) => {
                       if (event.key === "Escape") {
                         event.preventDefault();
+                        // Stop native bubbling: the window-level Escape
+                        // branch would otherwise run closePalette a second
+                        // time in the same tick, and its rAF would steal
+                        // focus back from the invoker to the overlay.
+                        event.stopPropagation();
                         closePalette();
                         return;
                       }
