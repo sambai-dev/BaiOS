@@ -29,9 +29,12 @@ function RollingClock({
 
   useEffect(() => {
     if (reducedMotion) {
+      // Late reduced-motion toggles snap straight to the live time.
       setDisplay(time);
+      setSettled(true);
       return;
     }
+    if (settled) return;
     const randomPair = () =>
       `${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`;
     const scramble = `${randomPair()}:${randomPair()}`;
@@ -44,8 +47,11 @@ function RollingClock({
       window.clearTimeout(first);
       window.clearTimeout(second);
     };
+    // `time` is intentionally excluded: re-scrambling on every clock tick
+    // would defeat the settle-once design, and the settled effect below
+    // keeps the display synced to fresh time values.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (settled) {
