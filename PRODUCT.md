@@ -8,7 +8,7 @@ web
 
 ## Users
 
-The primary audience is prospective B2B software clients and collaborators evaluating Sam Bai's judgment, range, and ability to move from an unclear software question to a working product. Hiring teams and peers are a secondary audience and should still be able to reach the résumé, GitHub, and LinkedIn without the portfolio presenting Sam primarily as a junior job seeker.
+The primary audience is prospective B2B software clients and collaborators evaluating Sam Bai's judgment, range, and ability to move from an unclear software question to a working product. Hiring teams and peers are a secondary audience and should still be able to reach the résumé, GitHub, and LinkedIn.
 
 ## Product Purpose
 
