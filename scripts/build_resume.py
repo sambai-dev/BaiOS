@@ -456,7 +456,7 @@ def build():
         num_id,
     )
 
-    add_section_heading(doc, "Open-source Contributions")
+    add_section_heading(doc, "Open Source Contributions")
     add_product_header(doc, "EdgarTools & Betaflight Configurator", "", "2026")
     add_bullet(
         doc,
