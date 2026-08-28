@@ -20,11 +20,11 @@ OUTPUT = ROOT / "output" / "docx" / "Sam_Bai_Product_Engineer_Resume_2026.docx"
 # compact_reference_guide with the named SF_Founding_Engineer_A4 override.
 # One font family, one column, explicit spacing, no tables, and no header/footer
 # content keep the document visually restrained and ATS-readable.
-FONT = "Segoe UI"
+FONT = "Arial"
 INK = RGBColor(0x11, 0x11, 0x11)
-MUTED = RGBColor(0x56, 0x5B, 0x61)
-LINK = RGBColor(0x17, 0x4E, 0x7A)
-RULE = "D6D9DD"
+MUTED = RGBColor(0x4A, 0x4A, 0x4A)
+LINK = RGBColor(0x20, 0x20, 0x20)
+RULE = "B9B9B9"
 
 PAGE_WIDTH = Mm(210)
 PAGE_HEIGHT = Mm(297)
@@ -113,7 +113,7 @@ def add_hyperlink(paragraph, text: str, url: str, *, size: float = 9.0):
         fonts.set(qn(key), FONT)
     run_props.append(fonts)
     color = OxmlElement("w:color")
-    color.set(qn("w:val"), "174E7A")
+    color.set(qn("w:val"), "202020")
     run_props.append(color)
     font_size = OxmlElement("w:sz")
     font_size.set(qn("w:val"), str(int(round(size * 2))))
@@ -213,11 +213,11 @@ def apply_bullet(paragraph, num_id: int):
 
 def add_section_heading(doc: Document, text: str):
     paragraph = doc.add_paragraph(style="Resume Section")
-    set_paragraph_spacing(paragraph, before=13.0, after=4.5, exact_line=12.0)
+    set_paragraph_spacing(paragraph, before=9.5, after=3.4, exact_line=11.0)
     paragraph.paragraph_format.keep_with_next = True
     set_run_font(
         paragraph.add_run(text.upper()),
-        size=9.5,
+        size=9.2,
         bold=True,
         color=INK,
         character_spacing=8,
@@ -226,50 +226,50 @@ def add_section_heading(doc: Document, text: str):
 
 def add_role_header(doc: Document, role: str, company: str, dates: str):
     paragraph = doc.add_paragraph(style="Resume Role")
-    set_paragraph_spacing(paragraph, before=0, after=2.5, exact_line=12.8)
+    set_paragraph_spacing(paragraph, before=0, after=1.8, exact_line=12.2)
     paragraph.paragraph_format.keep_with_next = True
     paragraph.paragraph_format.tab_stops.add_tab_stop(
         Inches(CONTENT_WIDTH_IN), WD_TAB_ALIGNMENT.RIGHT
     )
-    set_run_font(paragraph.add_run(role), size=10.7, bold=True)
-    set_run_font(paragraph.add_run(" | "), size=10.7, color=MUTED)
-    set_run_font(paragraph.add_run(company), size=10.7, bold=True)
-    set_run_font(paragraph.add_run("\t" + dates), size=9.3, bold=True, color=MUTED)
+    set_run_font(paragraph.add_run(role), size=10.3, bold=True)
+    set_run_font(paragraph.add_run(" | "), size=10.3, color=MUTED)
+    set_run_font(paragraph.add_run(company), size=10.3, bold=True)
+    set_run_font(paragraph.add_run("\t" + dates), size=9.0, bold=True, color=MUTED)
 
 
 def add_meta_line(doc: Document, text: str):
     paragraph = doc.add_paragraph(style="Resume Meta")
-    set_paragraph_spacing(paragraph, before=0, after=5.0, exact_line=11.2)
+    set_paragraph_spacing(paragraph, before=0, after=3.5, exact_line=10.8)
     paragraph.paragraph_format.keep_with_next = True
-    set_run_font(paragraph.add_run(text), size=9.2, color=MUTED)
+    set_run_font(paragraph.add_run(text), size=9.0, color=MUTED)
 
 
 def add_product_header(doc: Document, name: str, descriptor: str, dates: str):
     paragraph = doc.add_paragraph(style="Resume Product")
-    set_paragraph_spacing(paragraph, before=6.5, after=2.3, exact_line=12.0)
+    set_paragraph_spacing(paragraph, before=5.0, after=1.8, exact_line=11.5)
     paragraph.paragraph_format.keep_with_next = True
     paragraph.paragraph_format.tab_stops.add_tab_stop(
         Inches(CONTENT_WIDTH_IN), WD_TAB_ALIGNMENT.RIGHT
     )
-    set_run_font(paragraph.add_run(name.upper()), size=9.7, bold=True)
-    set_run_font(paragraph.add_run(" | " + descriptor), size=9.6, color=MUTED)
-    set_run_font(paragraph.add_run("\t" + dates), size=9.0, bold=True, color=MUTED)
+    set_run_font(paragraph.add_run(name.upper()), size=9.4, bold=True)
+    set_run_font(paragraph.add_run(" | " + descriptor), size=9.3, color=MUTED)
+    set_run_font(paragraph.add_run("\t" + dates), size=8.8, bold=True, color=MUTED)
 
 
 def add_bullet(doc: Document, text: str, num_id: int):
     paragraph = doc.add_paragraph(style="Resume Bullet")
-    set_paragraph_spacing(paragraph, before=0, after=3.6, exact_line=12.6)
+    set_paragraph_spacing(paragraph, before=0, after=2.3, exact_line=11.5)
     paragraph.paragraph_format.keep_together = True
     apply_bullet(paragraph, num_id)
-    set_run_font(paragraph.add_run(text), size=10.2)
+    set_run_font(paragraph.add_run(text), size=9.35)
 
 
 def add_skill_line(doc: Document, label: str, text: str):
     paragraph = doc.add_paragraph(style="Resume Detail")
-    set_paragraph_spacing(paragraph, before=0, after=2.2, exact_line=12.2)
+    set_paragraph_spacing(paragraph, before=0, after=1.5, exact_line=11.2)
     paragraph.paragraph_format.keep_together = True
-    set_run_font(paragraph.add_run(label + ": "), size=9.9, bold=True)
-    set_run_font(paragraph.add_run(text), size=9.9)
+    set_run_font(paragraph.add_run(label + ": "), size=9.2, bold=True)
+    set_run_font(paragraph.add_run(text), size=9.2)
 
 
 def add_education(doc: Document):
@@ -281,11 +281,11 @@ def add_education(doc: Document):
     )
     set_run_font(
         paragraph.add_run("Bachelor of Applied Information Technology (Software Engineering)"),
-        size=10.0,
+        size=9.4,
         bold=True,
     )
-    set_run_font(paragraph.add_run(" | Wintec"), size=10.0, color=MUTED)
-    set_run_font(paragraph.add_run("\t2024"), size=9.2, bold=True, color=MUTED)
+    set_run_font(paragraph.add_run(" | Wintec"), size=9.4, color=MUTED)
+    set_run_font(paragraph.add_run("\t2024"), size=8.9, bold=True, color=MUTED)
 
 
 def configure_styles(doc: Document):
@@ -294,11 +294,11 @@ def configure_styles(doc: Document):
     normal._element.rPr.rFonts.set(qn("w:ascii"), FONT)
     normal._element.rPr.rFonts.set(qn("w:hAnsi"), FONT)
     normal._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-    normal.font.size = Pt(10)
+    normal.font.size = Pt(9.35)
     normal.font.color.rgb = INK
     normal.paragraph_format.space_before = Pt(0)
     normal.paragraph_format.space_after = Pt(0)
-    normal.paragraph_format.line_spacing = Pt(11.8)
+    normal.paragraph_format.line_spacing = Pt(11.5)
 
     existing = {style.name for style in doc.styles}
     for name in (
@@ -317,7 +317,7 @@ def configure_styles(doc: Document):
         style._element.rPr.rFonts.set(qn("w:ascii"), FONT)
         style._element.rPr.rFonts.set(qn("w:hAnsi"), FONT)
         style._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
-        style.font.size = Pt(10)
+        style.font.size = Pt(9.35)
 
 
 def build():
@@ -336,11 +336,11 @@ def build():
 
     properties = doc.core_properties
     properties.title = "Sam Bai - Product Engineer Resume"
-    properties.subject = "One-page product engineering resume for Australia and New Zealand"
+    properties.subject = "One-page startup-focused product engineering resume"
     properties.author = "Sam Bai"
     properties.keywords = (
-        "Product Engineer, Full-Stack Engineer, Founding Engineer, TypeScript, React, "
-        "Next.js, PostgreSQL, AI systems, Australia, New Zealand"
+        "Product Engineer, Full Stack Engineer, Founding Engineer, TypeScript, React, "
+        "Next.js, PostgreSQL, AI systems, New Zealand"
     )
 
     num_id = add_real_bullet_numbering(doc)
@@ -348,42 +348,40 @@ def build():
     # memo_masthead adapted for an ATS-safe resume: identity, positioning and
     # contact details remain in the body, with a single restrained divider.
     name = doc.add_paragraph()
-    set_paragraph_spacing(name, before=0, after=0.5, exact_line=26.0)
-    set_run_font(name.add_run("SAM BAI"), size=24.0, bold=True)
+    set_paragraph_spacing(name, before=0, after=0.2, exact_line=23.0)
+    set_run_font(name.add_run("SAM BAI"), size=21.5, bold=True)
 
     title = doc.add_paragraph()
-    set_paragraph_spacing(title, before=0, after=2.3, exact_line=13.0)
+    set_paragraph_spacing(title, before=0, after=2.0, exact_line=13.0)
     set_run_font(
-        title.add_run("PRODUCT ENGINEER  |  0→1 PRODUCTS & PRODUCTION SYSTEMS"),
-        size=10.7,
+        title.add_run("PRODUCT ENGINEER"),
+        size=11.5,
         bold=True,
-        color=MUTED,
-        character_spacing=3,
+        color=INK,
+        character_spacing=2,
     )
 
     contact = doc.add_paragraph()
     set_paragraph_spacing(contact, before=0, after=0.5, exact_line=11.0)
-    set_run_font(contact.add_run("New Zealand"), size=9.0)
+    set_run_font(contact.add_run("Hamilton, New Zealand"), size=8.5)
     add_separator(contact)
-    set_run_font(contact.add_run("NZ Permanent Resident"), size=9.0)
+    set_run_font(contact.add_run("NZ Permanent Resident"), size=8.5)
     add_separator(contact)
-    set_run_font(contact.add_run("+64 27 460 4700"), size=9.0)
+    set_run_font(contact.add_run("+64 27 460 4700"), size=8.5)
     add_separator(contact)
     add_hyperlink(contact, "sambai.codes@gmail.com", "mailto:sambai.codes@gmail.com")
 
     links = doc.add_paragraph()
-    set_paragraph_spacing(links, before=0, after=8.0, exact_line=11.0)
+    set_paragraph_spacing(links, before=0, after=6.5, exact_line=10.8)
     add_hyperlink(links, "sambai.dev", "https://www.sambai.dev")
     add_separator(links)
     add_hyperlink(links, "github.com/sambai-dev", "https://github.com/sambai-dev")
     add_separator(links)
     add_hyperlink(
         links,
-        "linkedin.com/in/sam-bai-dev",
-        "https://www.linkedin.com/in/sam-bai-dev/",
+        "linkedin.com/in/sam-bai1/",
+        "https://www.linkedin.com/in/sam-bai1/",
     )
-    add_separator(links)
-    set_run_font(links.add_run("Open to Australia / NZ roles"), size=9.0, color=MUTED)
     set_bottom_border(links)
 
     add_section_heading(doc, "Experience")
@@ -395,99 +393,101 @@ def build():
     )
     add_meta_line(
         doc,
-        "Founded a New Zealand software company delivering client systems and owned products.",
+        "Founded and run a New Zealand software studio; lead product discovery, architecture, implementation, deployment and client support.",
     )
 
-    add_product_header(doc, "Rivet", "Construction operations platform - client delivery", "Jul 2026 - Present")
+    add_product_header(doc, "Rivet", "Construction operations PWA - client delivery", "Jul 2026 - Present")
     add_bullet(
         doc,
-        "Shipped a live, private programme and exception platform for a New Zealand residential building team, "
-        "unifying role-scoped director and project-manager workflows across web, packaged mobile, private calendar feeds and push notifications.",
+        "Built and deployed a private construction-operations PWA for a New Zealand residential builder, joining project, task, exception, approval, calendar and notification workflows for the director and project managers.",
         num_id,
     )
     add_bullet(
         doc,
-        "Engineered conflict-safe local-first sync with IndexedDB outboxes, ETag pulls, scoped authentication, "
-        "idempotent receipts, advisory locks and transactional Neon/Drizzle writes; served by Hono on Cloudflare Workers.",
+        "Designed server-authoritative schedule proposals that recalculate before apply, reject stale changes and write dates, audit records and notification effects atomically in PostgreSQL.",
         num_id,
     )
     add_bullet(
         doc,
-        "Built a working-calendar-aware schedule proposal engine that recalculates at apply time, rejects stale changes "
-        "and atomically writes dates, audit events, attention items and notifications.",
-        num_id,
-    )
-    add_bullet(
-        doc,
-        "Protected coordinated releases with migrations, paired API/web smoke tests and automatic web rollback; "
-        "the current code passes 958 unit tests, with release gates for PostgreSQL, accessibility and two-seat sync.",
+        "Implemented scoped authentication and conflict-aware browser sync with IndexedDB outboxes, version checks and transactional Hono APIs on Cloudflare Workers.",
         num_id,
     )
 
-    add_product_header(doc, "Trekky", "AI job-search operating system - owned product", "Jan 2026 - Present")
+    add_product_header(doc, "Trekky", "Job-search workspace - owned product", "Jan 2026 - Present")
     add_bullet(
         doc,
-        "Built and operate a live Next.js/React/TypeScript product across web, PWA, an MV3 extension and authenticated "
-        "MCP, covering discovery, tracking, contacts, follow-ups, AI apply kits, analytics and Google sync.",
+        "Built and operate a live Next.js/TypeScript product for job discovery, application tracking, contacts, AI preparation, outcome analytics and review-first automation.",
         num_id,
     )
     add_bullet(
         doc,
-        "Architected atomic scheduled agent jobs with leases, recovery and retries, plus nine-source ingestion across "
-        "NZ, Australia, the US and Singapore with SHA-256 canonical deduplication and provenance.",
+        "Added account-scoped MCP access, a Chrome MV3 capture extension and multi-source ingestion across NZ, Australia, the US and Singapore with canonical deduplication and provenance.",
         num_id,
     )
     add_bullet(
         doc,
-        "Kept application automation review-first so users submit; cut the dashboard gzip bundle 31.7% (341 KB to "
-        "233 KB) through route-level lazy loading and maintained 767 passing tests across 139 files.",
+        "Cut default dashboard JavaScript from 341 KB to 233 KB gzip through route-level lazy loading.",
         num_id,
     )
 
-    add_section_heading(doc, "Selected Systems")
-    add_product_header(doc, "Clearfold", "Pre-production digital-asset operations & applied AI", "2026")
+    add_section_heading(doc, "Selected Engineering")
+    add_product_header(doc, "Clearfold", "Pre-production digital-asset operations", "2026")
     add_bullet(
         doc,
-        "Built deterministic TypeScript ledger, portfolio and risk packages that enforce balanced entries, idempotent "
-        "effects and reversals, evidence-linked NAV/P&L and versioned risk policies on React/Vite, Hono and Neon/Drizzle.",
+        "Built exact-decimal TypeScript libraries for double-entry ledger rules, FIFO lots, portfolio valuation and versioned risk evaluation, with idempotency and reversal invariants.",
         num_id,
     )
     add_bullet(
         doc,
-        "Implemented an evidence-first Gemini assistant with persisted cited conversations, private hybrid retrieval "
-        "using pgvector plus lexical fallback, and version-bound change proposals; 1,237 tests pass across 150 files.",
+        "Implemented a private Gemini assistant with cited conversation history and pgvector retrieval, with lexical fallback when embeddings are unavailable.",
         num_id,
     )
 
-    add_product_header(doc, "Workbench", "Browser-native product interface", "Dec 2025 - Present")
+    add_product_header(doc, "BaiOS Workbench", "Open-source browser interface", "Dec 2025 - Present")
     add_bullet(
         doc,
-        "Shipped sambai.dev as an 11-app, three-workspace Workbench with multi-instance windows, focus and z-order, "
-        "drag, resize, maximise, snap and a responsive compact mode.",
+        "Built and deployed sambai.dev as a 15-app, three-workspace Workbench with multi-instance windows, drag, resize, snap, Atlas navigation and a searchable local archive.",
         num_id,
     )
     add_bullet(
         doc,
-        "Engineered typed local-first state with versioned atomic commits, revision-conflict detection, schema-validated "
-        "backup/import and legacy migration, plus an in-browser archive with search, trash and restore.",
+        "Designed atomically committed browser-local state, cross-tab revision-conflict handling and schema-validated backup/import without implying remote sync.",
+        num_id,
+    )
+
+    add_section_heading(doc, "Open Source")
+    add_product_header(doc, "EdgarTools & Betaflight Configurator", "Open-source contributions", "2026")
+    add_bullet(
+        doc,
+        "Built Blackbox MP4/WebM video export for Betaflight Configurator using WebCodecs, with overlay compositing, progress/ETA, cancellation and streaming saves; PR #5468 is under review for 2026.12.",
+        num_id,
+    )
+    add_bullet(
+        doc,
+        "Worked through the upstream issue, CI and maintainer review to merge a load-dependent Vitest teardown-race fix for Betaflight Configurator's 2026.12 milestone.",
+        num_id,
+    )
+    add_bullet(
+        doc,
+        "Repaired legacy SEC 13F TXT parsing so checksum-valid CUSIPs survive column drift; accepted upstream and released in EdgarTools v5.53.0.",
         num_id,
     )
 
     add_section_heading(doc, "Technical Skills")
     add_skill_line(
         doc,
-        "Product stack",
-        "TypeScript, React, Next.js, Node.js, Vite, Hono, tRPC, Tailwind CSS",
+        "Languages & product",
+        "TypeScript, JavaScript, Python, SQL, React, Next.js, Node.js, Vite, Hono, Tailwind CSS, TanStack Query, Router, Table and Virtual",
     )
     add_skill_line(
         doc,
         "Data & systems",
-        "PostgreSQL, MongoDB, Redis, Drizzle, local-first sync, workers/queues, RBAC, MCP, hybrid retrieval",
+        "PostgreSQL (Neon), MongoDB Atlas, Mongoose, Redis, Drizzle ORM, IndexedDB/Dexie, role/capability authorisation, workers/queues, MCP, vector/lexical retrieval",
     )
     add_skill_line(
         doc,
         "Cloud & quality",
-        "Cloudflare Workers, R2, Hyperdrive, Vercel, GitHub Actions, Vitest, Playwright, Capacitor, Flutter",
+        "Cloudflare Workers, R2, Hyperdrive, Vercel, GitHub Actions, Vitest, Playwright",
     )
 
     add_section_heading(doc, "Education")
