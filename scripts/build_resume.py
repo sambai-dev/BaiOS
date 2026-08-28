@@ -476,7 +476,7 @@ def build():
     add_section_heading(doc, "Technical Skills")
     add_skill_line(
         doc,
-        "Languages & product",
+        "Languages & frameworks",
         "TypeScript, JavaScript, Python, SQL, React, Next.js, Node.js, Vite, Hono, Tailwind CSS, TanStack Query, Router, Table and Virtual",
     )
     add_skill_line(
