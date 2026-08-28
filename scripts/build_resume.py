@@ -252,7 +252,8 @@ def add_product_header(doc: Document, name: str, descriptor: str, dates: str):
         Inches(CONTENT_WIDTH_IN), WD_TAB_ALIGNMENT.RIGHT
     )
     set_run_font(paragraph.add_run(name.upper()), size=9.4, bold=True)
-    set_run_font(paragraph.add_run(" | " + descriptor), size=9.3, color=MUTED)
+    if descriptor:
+        set_run_font(paragraph.add_run(" | " + descriptor), size=9.3, color=MUTED)
     set_run_font(paragraph.add_run("\t" + dates), size=8.8, bold=True, color=MUTED)
 
 
@@ -396,7 +397,7 @@ def build():
         "Founded and run a New Zealand software studio; lead product discovery, architecture, implementation, deployment and client support.",
     )
 
-    add_product_header(doc, "Rivet", "Construction operations PWA - client delivery", "Jul 2026 - Present")
+    add_product_header(doc, "Rivet", "Construction operations - client project", "Jul 2026 - Present")
     add_bullet(
         doc,
         "Built and deployed a private construction-operations PWA for a New Zealand residential builder, joining project, task, exception, approval, calendar and notification workflows for the director and project managers.",
@@ -413,7 +414,7 @@ def build():
         num_id,
     )
 
-    add_product_header(doc, "Trekky", "Job-search workspace - owned product", "Jan 2026 - Present")
+    add_product_header(doc, "Trekky", "Job-search product", "Jan 2026 - Present")
     add_bullet(
         doc,
         "Built and operate a live Next.js/TypeScript product for job discovery, application tracking, contacts, AI preparation, outcome analytics and review-first automation.",
@@ -421,7 +422,7 @@ def build():
     )
     add_bullet(
         doc,
-        "Added account-scoped MCP access, a Chrome MV3 capture extension and multi-source ingestion across NZ, Australia, the US and Singapore with canonical deduplication and provenance.",
+        "Added account-scoped MCP access, a Chrome MV3 capture extension and multi-source ingestion across NZ, Australia, the US and Singapore with duplicate detection and source history.",
         num_id,
     )
     add_bullet(
@@ -430,7 +431,7 @@ def build():
         num_id,
     )
 
-    add_section_heading(doc, "Selected Engineering")
+    add_section_heading(doc, "Selected Projects")
     add_product_header(doc, "Clearfold", "Pre-production digital-asset operations", "2026")
     add_bullet(
         doc,
@@ -455,8 +456,8 @@ def build():
         num_id,
     )
 
-    add_section_heading(doc, "Open Source")
-    add_product_header(doc, "EdgarTools & Betaflight Configurator", "Open-source contributions", "2026")
+    add_section_heading(doc, "Open-source Contributions")
+    add_product_header(doc, "EdgarTools & Betaflight Configurator", "", "2026")
     add_bullet(
         doc,
         "Built Blackbox MP4/WebM video export for Betaflight Configurator using WebCodecs, with overlay compositing, progress/ETA, cancellation and streaming saves; PR #5468 is under review for 2026.12.",
@@ -464,7 +465,7 @@ def build():
     )
     add_bullet(
         doc,
-        "Worked through the upstream issue, CI and maintainer review to merge a load-dependent Vitest teardown-race fix for Betaflight Configurator's 2026.12 milestone.",
+        "Resolved a load-dependent Vitest teardown race through upstream CI and maintainer review; merged for Betaflight Configurator 2026.12.",
         num_id,
     )
     add_bullet(
@@ -486,7 +487,7 @@ def build():
     )
     add_skill_line(
         doc,
-        "Cloud & quality",
+        "Cloud & testing",
         "Cloudflare Workers, R2, Hyperdrive, Vercel, GitHub Actions, Vitest, Playwright",
     )
 
