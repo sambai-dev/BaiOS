@@ -31,7 +31,7 @@ npm run build
 npm run start
 ```
 
-Requires Node.js `^20.19.0` or `>=22.12.0`. This range satisfies the locked Next.js and Vite/Vitest toolchain and is also declared in `package.json`.
+Requires Node.js 24, matching `.nvmrc`, `package.json`, and the Vercel project runtime.
 
 ---
 

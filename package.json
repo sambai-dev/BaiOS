@@ -4,7 +4,7 @@
   "private": true,
   "license": "SEE LICENSE IN NOTICE.md",
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
