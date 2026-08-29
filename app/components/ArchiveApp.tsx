@@ -19,15 +19,11 @@ import {
   createFolder,
   createNote,
   editNote,
-  getFileNode,
-  getNodePath,
-  isNodeInTrash,
-  listChildren,
+  indexWorkbenchFiles,
   moveToTrash,
   permanentlyDelete,
   renameNode,
   restoreFromTrash,
-  searchFiles,
 } from "../lib/workbench-files";
 import "../styles/archive-app.css";
 
@@ -56,6 +52,7 @@ const locationIds = [
 
 const archiveLimitMessage =
   "Archive is at its safe local limit. Delete an item or shorten a note before adding more.";
+const ARCHIVE_RENDER_BATCH = 200;
 
 function isContainer(node: FileNode | undefined) {
   return node?.kind === "root" || node?.kind === "folder" || node?.kind === "trash";
@@ -68,6 +65,14 @@ function kindLabel(kind: FileNode["kind"]) {
   return `${kind.slice(0, 1).toUpperCase()}${kind.slice(1)}`;
 }
 
+function normalizeRenameValue(value: string) {
+  return value
+    .replace(/[\u0000-\u001f\u007f]/g, "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 80);
+}
+
 // Stored timestamps are UTC ISO strings; display them in the NZ timezone
 // the rest of the OS is branded around, not as raw UTC calendar days.
 const archiveDateFormat = new Intl.DateTimeFormat("en-NZ", {
@@ -75,6 +80,10 @@ const archiveDateFormat = new Intl.DateTimeFormat("en-NZ", {
   day: "2-digit",
   month: "short",
   year: "numeric",
+});
+const archiveCompactNumberFormat = new Intl.NumberFormat("en-NZ", {
+  notation: "compact",
+  maximumFractionDigits: 1,
 });
 
 function formatDate(value: string) {
@@ -105,13 +114,19 @@ export default function ArchiveApp({
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [renderedItemLimit, setRenderedItemLimit] = useState(
+    ARCHIVE_RENDER_BATCH,
+  );
   const [folderFocusRequest, setFolderFocusRequest] = useState(0);
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const deleteDialogRef = useRef<HTMLDivElement>(null);
   const deleteReturnFocusRef = useRef<HTMLElement | null>(null);
+  const confirmDeleteButtonRef = useRef<HTMLButtonElement>(null);
   const keepDeleteButtonRef = useRef<HTMLButtonElement>(null);
   const pendingFolderFocusRef = useRef<string | null>(null);
   const pendingRemovalFocusIndexRef = useRef<number | null>(null);
+  const pendingProgressiveFocusIndexRef = useRef<number | null>(null);
   // Latches the archive-limit notice so a rejected keystroke stream reports
   // once instead of pushing an aria-live message on every keypress.
   const rejectionNoticeLatchedRef = useRef(false);
@@ -122,28 +137,44 @@ export default function ArchiveApp({
   const deleteDialogTitleId = useId();
   const deleteDialogDescriptionId = useId();
 
-  const requestedFolder = getFileNode(files, currentFolderId);
+  const fileIndex = indexWorkbenchFiles(files);
+  const requestedFolder = fileIndex.getNode(currentFolderId);
   const currentFolder = isContainer(requestedFolder)
     ? requestedFolder
-    : getFileNode(files, ROOT_FILE_ID);
+    : fileIndex.getNode(ROOT_FILE_ID);
   const resolvedFolderId = currentFolder?.id ?? ROOT_FILE_ID;
   const isTrashView =
-    resolvedFolderId === TRASH_FILE_ID || isNodeInTrash(files, resolvedFolderId);
+    resolvedFolderId === TRASH_FILE_ID ||
+    fileIndex.isNodeInTrash(resolvedFolderId);
   const normalizedQuery = query.trim();
 
   const displayItems = (() => {
-    if (!normalizedQuery) return listChildren(files, resolvedFolderId);
-    const results = searchFiles(files, normalizedQuery, { includeTrash: isTrashView });
+    if (!normalizedQuery) return fileIndex.listChildren(resolvedFolderId);
+    const results = fileIndex.search(normalizedQuery, {
+      includeTrash: isTrashView,
+    });
     return isTrashView
-      ? results.filter((node) => isNodeInTrash(files, node.id))
+      ? results.filter((node) => fileIndex.isNodeInTrash(node.id))
       : results;
   })();
 
+  const renderedItems = displayItems.slice(0, renderedItemLimit);
+  const renderedItemIds = new Set(renderedItems.map((node) => node.id));
+  const renderedItemIndex = new Map(
+    renderedItems.map((node, index) => [node.id, index]),
+  );
+  const renderedItemCount = renderedItems.length;
+  const hasMoreItems = renderedItems.length < displayItems.length;
+
   const selectedNode = selectedId
-    ? displayItems.find((node) => node.id === selectedId) ?? getFileNode(files, selectedId)
+    ? fileIndex.getNode(selectedId)
     : undefined;
+  const deleteTargetNode = confirmDeleteId
+    ? fileIndex.getNode(confirmDeleteId)
+    : undefined;
+  const isDeleteDialogOpen = Boolean(deleteTargetNode);
   const selectedIsTrashed = selectedNode
-    ? isNodeInTrash(files, selectedNode.id)
+    ? fileIndex.isNodeInTrash(selectedNode.id)
     : false;
   const selectedCanRestore = Boolean(
     selectedNode &&
@@ -152,9 +183,11 @@ export default function ArchiveApp({
       selectedNode.parentId === TRASH_FILE_ID &&
       selectedNode.trashed,
   );
-  const breadcrumb = currentFolder ? getNodePath(files, currentFolder.id) : [];
+  const breadcrumb = currentFolder
+    ? fileIndex.getNodePath(currentFolder.id)
+    : [];
   const locations = locationIds
-    .map((id) => getFileNode(files, id))
+    .map((id) => fileIndex.getNode(id))
     .filter((node): node is FileNode => Boolean(node));
   const canCreate =
     !isTrashView && (currentFolder?.kind === "root" || currentFolder?.kind === "folder");
@@ -179,9 +212,7 @@ export default function ArchiveApp({
     nextFiles: WorkbenchFiles,
     removedNodeId: string,
   ) => {
-    const removedIndex = displayItems.findIndex(
-      (node) => node.id === removedNodeId,
-    );
+    const removedIndex = renderedItemIndex.get(removedNodeId) ?? 0;
     pendingRemovalFocusIndexRef.current = Math.max(0, removedIndex);
     if (!commitFilesMutation(nextFiles)) {
       pendingRemovalFocusIndexRef.current = null;
@@ -192,12 +223,26 @@ export default function ArchiveApp({
   };
 
   useEffect(() => {
-    if (!confirmDeleteId) return;
+    if (!isDeleteDialogOpen) return;
     const frame = window.requestAnimationFrame(() => {
       keepDeleteButtonRef.current?.focus({ preventScroll: true });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [confirmDeleteId]);
+  }, [isDeleteDialogOpen]);
+
+  useEffect(() => {
+    const requestedIndex = pendingProgressiveFocusIndexRef.current;
+    if (requestedIndex === null || requestedIndex >= renderedItemCount) return;
+    pendingProgressiveFocusIndexRef.current = null;
+    const frame = window.requestAnimationFrame(() => {
+      const requestedItem = itemRefs.current[requestedIndex];
+      if (!requestedItem?.isConnected) return;
+      const nodeId = requestedItem.dataset.archiveNodeId;
+      if (nodeId) setSelectedId(nodeId);
+      requestedItem.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [renderedItemCount]);
 
   // Re-arm the rejection notice when the user works on a different item.
   useEffect(() => {
@@ -245,7 +290,7 @@ export default function ArchiveApp({
   }, [files]);
 
   const navigateTo = (folderId: string) => {
-    const target = getFileNode(files, folderId);
+    const target = fileIndex.getNode(folderId);
     if (!isContainer(target)) return;
     pendingFolderFocusRef.current = folderId;
     setFolderFocusRequest((request) => request + 1);
@@ -253,6 +298,8 @@ export default function ArchiveApp({
     setConfirmDeleteId(null);
     setRenameId(null);
     setQuery("");
+    pendingProgressiveFocusIndexRef.current = null;
+    setRenderedItemLimit(ARCHIVE_RENDER_BATCH);
     onFolderChange(folderId);
   };
 
@@ -267,36 +314,89 @@ export default function ArchiveApp({
   };
 
   const focusItem = (index: number) => {
-    const safeIndex = Math.max(0, Math.min(displayItems.length - 1, index));
-    const node = displayItems[safeIndex];
+    const safeIndex = Math.max(0, Math.min(renderedItems.length - 1, index));
+    const node = renderedItems[safeIndex];
     if (!node) return;
     setSelectedId(node.id);
     itemRefs.current[safeIndex]?.focus();
   };
 
+  const revealAndFocusItem = (index: number, requestedLimit: number) => {
+    const safeIndex = Math.max(0, Math.min(displayItems.length - 1, index));
+    if (safeIndex < renderedItems.length) {
+      focusItem(safeIndex);
+      return;
+    }
+    pendingProgressiveFocusIndexRef.current = safeIndex;
+    setRenderedItemLimit(
+      Math.min(
+        displayItems.length,
+        Math.max(renderedItemLimit, requestedLimit, safeIndex + 1),
+      ),
+    );
+  };
+
   const beginDeleteConfirmation = (nodeId: string) => {
-    deleteReturnFocusRef.current =
+    const returnTarget =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
+    deleteReturnFocusRef.current = returnTarget;
+    // Move focus out before the next render makes the surrounding surface
+    // inert and aria-hidden; Chrome otherwise rejects hiding a focused child.
+    returnTarget?.blur();
     setConfirmDeleteId(nodeId);
   };
 
   const cancelDeleteConfirmation = () => {
     const returnTarget = deleteReturnFocusRef.current;
+    deleteReturnFocusRef.current = null;
     setConfirmDeleteId(null);
     window.requestAnimationFrame(() => {
       if (returnTarget?.isConnected) {
         returnTarget.focus({ preventScroll: true });
         return;
       }
-      const selectedIndex = displayItems.findIndex(
-        (node) => node.id === selectedId,
-      );
+      const selectedIndex = selectedId
+        ? renderedItemIndex.get(selectedId) ?? -1
+        : -1;
       const fallbackItem =
         selectedIndex >= 0 ? itemRefs.current[selectedIndex] : null;
       (fallbackItem ?? searchInputRef.current)?.focus({ preventScroll: true });
     });
+  };
+
+  const handleDeleteDialogKeyDown = (
+    event: ReactKeyboardEvent<HTMLDivElement>,
+  ) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      cancelDeleteConfirmation();
+      return;
+    }
+    if (event.key !== "Tab") return;
+
+    const firstControl = confirmDeleteButtonRef.current;
+    const lastControl = keepDeleteButtonRef.current;
+    if (!firstControl || !lastControl) {
+      event.preventDefault();
+      deleteDialogRef.current?.focus({ preventScroll: true });
+      return;
+    }
+
+    const activeElement = document.activeElement;
+    const focusIsOutsideDialog = !deleteDialogRef.current?.contains(activeElement);
+    if (event.shiftKey && (activeElement === firstControl || focusIsOutsideDialog)) {
+      event.preventDefault();
+      lastControl.focus();
+    } else if (
+      !event.shiftKey &&
+      (activeElement === lastControl || focusIsOutsideDialog)
+    ) {
+      event.preventDefault();
+      firstControl.focus();
+    }
   };
 
   const handleItemKeyDown = (
@@ -305,14 +405,22 @@ export default function ArchiveApp({
     index: number,
   ) => {
     let nextIndex = index;
+    let nextRenderedLimit = renderedItemLimit;
     if (event.key === "ArrowDown" || event.key === "ArrowRight") {
-      nextIndex = (index + 1) % displayItems.length;
+      nextIndex = Math.min(displayItems.length - 1, index + 1);
+      if (nextIndex >= renderedItems.length) {
+        nextRenderedLimit = Math.min(
+          displayItems.length,
+          renderedItemLimit + ARCHIVE_RENDER_BATCH,
+        );
+      }
     } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
-      nextIndex = (index - 1 + displayItems.length) % displayItems.length;
+      nextIndex = Math.max(0, index - 1);
     } else if (event.key === "Home") {
       nextIndex = 0;
     } else if (event.key === "End") {
       nextIndex = displayItems.length - 1;
+      nextRenderedLimit = displayItems.length;
     } else if (event.key === "Enter") {
       event.preventDefault();
       openNode(node);
@@ -324,7 +432,7 @@ export default function ArchiveApp({
       return;
     } else if (event.key === "Delete" && node.kind !== "root" && node.kind !== "trash") {
       event.preventDefault();
-      if (isNodeInTrash(files, node.id)) beginDeleteConfirmation(node.id);
+      if (fileIndex.isNodeInTrash(node.id)) beginDeleteConfirmation(node.id);
       else {
         commitRemovalMutation(
           moveToTrash(files, node.id, new Date().toISOString()),
@@ -336,7 +444,7 @@ export default function ArchiveApp({
       return;
     }
     event.preventDefault();
-    focusItem(nextIndex);
+    revealAndFocusItem(nextIndex, nextRenderedLimit);
   };
 
   const handleCreate = (event: FormEvent<HTMLFormElement>) => {
@@ -365,13 +473,33 @@ export default function ArchiveApp({
 
   const handleRename = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedNode || selectedNode.id !== renameId || !renameValue.trim()) return;
-    commitFilesMutation(
-      renameNode(files, selectedNode.id, renameValue, new Date().toISOString()),
-      renameValue.trim() !== selectedNode.name,
+    if (!selectedNode || selectedNode.id !== renameId) return;
+    const normalizedName = normalizeRenameValue(renameValue);
+    if (!normalizedName) return;
+    if (normalizedName === selectedNode.name) {
+      setRenameId(null);
+      setRenameValue("");
+      return;
+    }
+    const renamedFiles = renameNode(
+      files,
+      selectedNode.id,
+      renameValue,
+      new Date().toISOString(),
     );
+    if (!commitFilesMutation(renamedFiles)) return;
     setRenameId(null);
     setRenameValue("");
+  };
+
+  const showNextItems = () => {
+    const firstNewItemIndex = renderedItems.length;
+    const nextLimit = Math.min(
+      displayItems.length,
+      renderedItemLimit + ARCHIVE_RENDER_BATCH,
+    );
+    pendingProgressiveFocusIndexRef.current = firstNewItemIndex;
+    setRenderedItemLimit(nextLimit);
   };
 
   const moveSelectedToTrash = () => {
@@ -386,9 +514,7 @@ export default function ArchiveApp({
     if (!selectedNode) return;
     // Reuse the removal-focus flow: after the item leaves the trash list,
     // keyboard focus lands on the adjacent row instead of dropping to <body>.
-    const restoredIndex = displayItems.findIndex(
-      (node) => node.id === selectedNode.id,
-    );
+    const restoredIndex = renderedItemIndex.get(selectedNode.id) ?? 0;
     pendingRemovalFocusIndexRef.current = Math.max(0, restoredIndex);
     if (
       !commitFilesMutation(
@@ -402,11 +528,11 @@ export default function ArchiveApp({
   };
 
   const deleteSelectedForever = () => {
-    if (!selectedNode || confirmDeleteId !== selectedNode.id) return;
+    if (!deleteTargetNode || confirmDeleteId !== deleteTargetNode.id) return;
     if (
       !commitRemovalMutation(
-        permanentlyDelete(files, selectedNode.id),
-        selectedNode.id,
+        permanentlyDelete(files, deleteTargetNode.id),
+        deleteTargetNode.id,
       )
     ) {
       return;
@@ -417,7 +543,12 @@ export default function ArchiveApp({
 
   return (
     <div className="archive-app">
-      <header className="archive-titlebar">
+      <div
+        className="archive-surface"
+        aria-hidden={isDeleteDialogOpen ? true : undefined}
+        inert={isDeleteDialogOpen ? true : undefined}
+      >
+        <header className="archive-titlebar">
         <div>
           <span>Local volume / 01</span>
           <strong>Archive</strong>
@@ -432,12 +563,14 @@ export default function ArchiveApp({
             onChange={(event) => {
               setQuery(event.target.value);
               setSelectedId(null);
+              pendingProgressiveFocusIndexRef.current = null;
+              setRenderedItemLimit(ARCHIVE_RENDER_BATCH);
             }}
             placeholder="Files, notes, systems"
             autoComplete="off"
           />
         </label>
-      </header>
+        </header>
 
       <div className="archive-shell">
         <aside className="archive-locations" aria-label="Archive locations">
@@ -474,7 +607,11 @@ export default function ArchiveApp({
                 </span>
               ))}
             </nav>
-            <div className="archive-toolbar" aria-label="Archive controls">
+            <div
+              className="archive-toolbar"
+              role="group"
+              aria-label="Archive controls"
+            >
               <button
                 type="button"
                 disabled={!canCreate}
@@ -495,7 +632,11 @@ export default function ArchiveApp({
               >
                 New folder
               </button>
-              <span className="archive-view-switch" aria-label="View mode">
+              <span
+                className="archive-view-switch"
+                role="group"
+                aria-label="View mode"
+              >
                 <button
                   type="button"
                   aria-pressed={viewMode === "list"}
@@ -540,80 +681,107 @@ export default function ArchiveApp({
             </form>
           ) : null}
 
-          <div className="archive-browser-status" role="status" aria-live="polite">
+          <div
+            className="archive-browser-status"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             <span>{normalizedQuery ? `Search / ${normalizedQuery}` : currentFolder?.name}</span>
             <span>
               {displayItems.length} {displayItems.length === 1 ? "item" : "items"}
+              {hasMoreItems ? ` · ${renderedItems.length} shown` : ""}
               {" · "}
-              {new Intl.NumberFormat("en-NZ", {
-                notation: "compact",
-                maximumFractionDigits: 1,
-              }).format(
-                files.nodes
-                  .filter((node) => node.kind === "note")
-                  .reduce(
-                    (sum, node) =>
-                      sum + (node.kind === "note" ? node.content.length : 0),
-                    0,
-                  ),
-              )}{" "}
+              {archiveCompactNumberFormat.format(fileIndex.noteCharacterCount)}{" "}
               chars stored
             </span>
           </div>
 
           {displayItems.length ? (
-            <div
-              className="archive-items"
-              data-view={viewMode}
-              role="listbox"
-              aria-label={normalizedQuery ? "Archive search results" : "Folder contents"}
-            >
-              {displayItems.map((node, index) => {
-                const path = getNodePath(files, node.id);
-                const context = normalizedQuery
-                  ? path.slice(0, -1).map((item) => item.kind === "root" ? "Archive" : item.name).join(" / ")
-                  : node.summary;
-                return (
-                  <button
-                    key={node.id}
-                    data-archive-node-id={node.id}
-                    ref={(element) => {
-                      itemRefs.current[index] = element;
-                    }}
-                    type="button"
-                    role="option"
-                    aria-selected={selectedNode?.id === node.id}
-                    tabIndex={
-                      // Roving tabindex: the tab stop follows the selection
-                      // only while it is actually in the visible list. A
-                      // selection resolved outside it (e.g. a fresh note that
-                      // does not match the active search query) would leave
-                      // zero tabbable options, so fall back to the first row.
-                      selectedNode &&
-                      displayItems.some((item) => item.id === selectedNode.id)
-                        ? selectedNode.id === node.id
-                          ? 0
-                          : -1
-                        : index === 0
-                          ? 0
-                          : -1
-                    }
-                    onClick={() => {
-                      setSelectedId(node.id);
-                      setConfirmDeleteId(null);
-                    }}
-                    onDoubleClick={() => openNode(node)}
-                    onKeyDown={(event) => handleItemKeyDown(event, node, index)}
-                  >
-                    <span className="archive-node-mark" data-kind={node.kind} aria-hidden="true" />
-                    <span className="archive-item-copy">
-                      <strong>{node.name}</strong>
-                      <small>{context || kindLabel(node.kind)}</small>
-                    </span>
-                    <span className="archive-item-kind">{kindLabel(node.kind)}</span>
-                  </button>
-                );
-              })}
+            <div className="archive-results">
+              <div
+                className="archive-items"
+                data-view={viewMode}
+                role="listbox"
+                aria-label={
+                  normalizedQuery ? "Archive search results" : "Folder contents"
+                }
+              >
+                {renderedItems.map((node, index) => {
+                  const path = fileIndex.getNodePath(node.id);
+                  const context = normalizedQuery
+                    ? path
+                        .slice(0, -1)
+                        .map((item) =>
+                          item.kind === "root" ? "Archive" : item.name,
+                        )
+                        .join(" / ")
+                    : node.summary;
+                  return (
+                    <button
+                      key={node.id}
+                      data-archive-node-id={node.id}
+                      ref={(element) => {
+                        itemRefs.current[index] = element;
+                      }}
+                      type="button"
+                      role="option"
+                      aria-selected={selectedNode?.id === node.id}
+                      aria-posinset={index + 1}
+                      aria-setsize={displayItems.length}
+                      tabIndex={
+                        // Roving tabindex follows a visible selection. A
+                        // selection outside this progressive batch leaves the
+                        // first rendered option as the listbox entry point.
+                        selectedNode && renderedItemIds.has(selectedNode.id)
+                          ? selectedNode.id === node.id
+                            ? 0
+                            : -1
+                          : index === 0
+                            ? 0
+                            : -1
+                      }
+                      onClick={() => {
+                        setSelectedId(node.id);
+                        setConfirmDeleteId(null);
+                      }}
+                      onDoubleClick={() => openNode(node)}
+                      onKeyDown={(event) => handleItemKeyDown(event, node, index)}
+                    >
+                      <span
+                        className="archive-node-mark"
+                        data-kind={node.kind}
+                        aria-hidden="true"
+                      />
+                      <span className="archive-item-copy">
+                        <strong>{node.name}</strong>
+                        <small>{context || kindLabel(node.kind)}</small>
+                      </span>
+                      <span className="archive-item-kind">
+                        {kindLabel(node.kind)}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {hasMoreItems ? (
+                <button
+                  type="button"
+                  className="archive-load-more"
+                  onClick={showNextItems}
+                >
+                  <span>
+                    Show next{" "}
+                    {Math.min(
+                      ARCHIVE_RENDER_BATCH,
+                      displayItems.length - renderedItems.length,
+                    )}
+                  </span>
+                  <span className="archive-load-more-count">
+                    {displayItems.length - renderedItems.length} remaining
+                  </span>
+                </button>
+              ) : null}
             </div>
           ) : (
             <div className="archive-empty">
@@ -662,12 +830,19 @@ export default function ArchiveApp({
                 </div>
                 <div>
                   <dt>Path</dt>
-                  <dd>{getNodePath(files, selectedNode.id).map((node) => node.kind === "root" ? "Archive" : node.name).join(" / ")}</dd>
+                  <dd>
+                    {fileIndex
+                      .getNodePath(selectedNode.id)
+                      .map((node) =>
+                        node.kind === "root" ? "Archive" : node.name,
+                      )
+                      .join(" / ")}
+                  </dd>
                 </div>
                 {selectedNode.kind === "folder" ? (
                   <div>
                     <dt>Contains</dt>
-                    <dd>{listChildren(files, selectedNode.id).length} items</dd>
+                    <dd>{fileIndex.listChildren(selectedNode.id).length} items</dd>
                   </div>
                 ) : null}
                 {selectedNode.kind === "app" ? (
@@ -736,42 +911,11 @@ export default function ArchiveApp({
                     className="is-destructive"
                     onClick={() => beginDeleteConfirmation(selectedNode.id)}
                   >
-                    Delete forever
+                    Delete permanently
                   </button>
                 ) : null}
               </div>
 
-              {confirmDeleteId === selectedNode.id ? (
-                <div
-                  className="archive-delete-confirm"
-                  role="alertdialog"
-                  aria-labelledby={deleteDialogTitleId}
-                  aria-describedby={deleteDialogDescriptionId}
-                  onKeyDown={(event) => {
-                    if (event.key !== "Escape") return;
-                    event.preventDefault();
-                    event.stopPropagation();
-                    cancelDeleteConfirmation();
-                  }}
-                >
-                  <p id={deleteDialogTitleId}>
-                    Delete “{selectedNode.name}” and anything inside it permanently?
-                  </p>
-                  <p id={deleteDialogDescriptionId}>
-                    This removes the local item immediately and cannot be undone.
-                  </p>
-                  <div>
-                    <button type="button" onClick={deleteSelectedForever}>Confirm delete</button>
-                    <button
-                      ref={keepDeleteButtonRef}
-                      type="button"
-                      onClick={cancelDeleteConfirmation}
-                    >
-                      Keep item
-                    </button>
-                  </div>
-                </div>
-              ) : null}
             </>
           ) : (
             <div className="archive-preview-empty">
@@ -781,17 +925,59 @@ export default function ArchiveApp({
               <dl>
                 <div><dt>Enter</dt><dd>Open</dd></div>
                 <div><dt>F2</dt><dd>Rename</dd></div>
-                <div><dt>Delete</dt><dd>Move to trash</dd></div>
+                <div>
+                  <dt>Delete</dt>
+                  <dd>{isTrashView ? "Delete permanently" : "Move to trash"}</dd>
+                </div>
               </dl>
             </div>
           )}
         </aside>
       </div>
 
-      <footer className="archive-local-note">
-        <span className="archive-local-indicator" aria-hidden="true" />
-        This archive lives only in this browser. Nothing is uploaded.
-      </footer>
+        <footer className="archive-local-note">
+          <span className="archive-local-indicator" aria-hidden="true" />
+          This archive lives only in this browser. Nothing is uploaded.
+        </footer>
+      </div>
+
+      {deleteTargetNode ? (
+        <div className="archive-delete-backdrop">
+          <div
+            ref={deleteDialogRef}
+            className="archive-delete-confirm"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby={deleteDialogTitleId}
+            aria-describedby={deleteDialogDescriptionId}
+            tabIndex={-1}
+            onKeyDown={handleDeleteDialogKeyDown}
+          >
+            <p id={deleteDialogTitleId}>
+              Permanently delete “{deleteTargetNode.name}” and anything inside it?
+            </p>
+            <p id={deleteDialogDescriptionId}>
+              This removes the local item immediately and cannot be undone.
+            </p>
+            <div>
+              <button
+                ref={confirmDeleteButtonRef}
+                type="button"
+                onClick={deleteSelectedForever}
+              >
+                Delete permanently
+              </button>
+              <button
+                ref={keepDeleteButtonRef}
+                type="button"
+                onClick={cancelDeleteConfirmation}
+              >
+                Keep item
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

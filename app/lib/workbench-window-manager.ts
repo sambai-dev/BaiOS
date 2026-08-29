@@ -47,6 +47,8 @@ const DEFAULT_MIN_HEIGHT = 190;
 const DEFAULT_CASCADE_OFFSET = 24;
 const MAX_CASCADE_SLOTS = 8;
 const MAX_WINDOW_INSTANCES = 60;
+/** Keep live window layers below the fixed dock/menu layer band. */
+const LIVE_Z_COMPACTION_THRESHOLD = 64;
 
 function assertWindows(windows: readonly WorkbenchWindow[]): void {
   if (!Array.isArray(windows)) {
@@ -158,11 +160,9 @@ function clamp(value: number, minimum: number, maximum: number): number {
 }
 
 function compareWindowStack(left: WorkbenchWindow, right: WorkbenchWindow): number {
-  return (
-    left.z - right.z ||
-    left.createdAt - right.createdAt ||
-    compareText(left.instanceId, right.instanceId)
-  );
+  // Array order is the persisted tie-breaker for equal layers. Rendering uses
+  // the same stable z-only ordering, so activation and visual stacking agree.
+  return left.z - right.z;
 }
 
 function compareText(left: string, right: string): number {
@@ -192,17 +192,50 @@ function highestZ(windows: readonly WorkbenchWindow[]): number {
   return windows.reduce((highest, windowState) => Math.max(highest, windowState.z), 0);
 }
 
+function compactWindowLayers(windows: readonly WorkbenchWindow[]): WorkbenchWindow[] {
+  const compactedZByInstance = new Map(
+    windows
+      .map((windowState, arrayIndex) => ({ windowState, arrayIndex }))
+      .sort(
+        (left, right) =>
+          left.windowState.z - right.windowState.z ||
+          // Rendering uses stable array order for equal layers, so retain that
+          // exact front-to-back relationship while assigning unique layers.
+          left.arrayIndex - right.arrayIndex,
+      )
+      .map(({ windowState }, stackIndex) => [
+        windowState.instanceId,
+        stackIndex + 1,
+      ] as const),
+  );
+
+  return windows.map((windowState) => ({
+    ...cloneWindow(windowState),
+    z: compactedZByInstance.get(windowState.instanceId) ?? windowState.z,
+  }));
+}
+
 function allocateZ(
   windows: readonly WorkbenchWindow[],
   requestedZ?: number,
-): { assignedZ: number; nextZ: number } {
+): { windows: WorkbenchWindow[]; assignedZ: number; nextZ: number } {
   if (requestedZ !== undefined && !Number.isFinite(requestedZ)) {
     throw new RangeError("The requested z-index must be finite.");
   }
   const currentHighest = Math.ceil(highestZ(windows));
   const requested = requestedZ === undefined ? currentHighest + 1 : Math.ceil(requestedZ);
-  const assignedZ = Math.max(1, currentHighest + 1, requested);
-  return { assignedZ, nextZ: assignedZ + 1 };
+  const proposedZ = Math.max(1, currentHighest + 1, requested);
+  if (proposedZ > LIVE_Z_COMPACTION_THRESHOLD) {
+    const compacted = compactWindowLayers(windows);
+    const assignedZ = Math.ceil(highestZ(compacted)) + 1;
+    return { windows: compacted, assignedZ, nextZ: assignedZ + 1 };
+  }
+
+  return {
+    windows: windows.map(cloneWindow),
+    assignedZ: proposedZ,
+    nextZ: proposedZ + 1,
+  };
 }
 
 function nextLogicalCreatedAt(windows: readonly WorkbenchWindow[]): number {
@@ -305,9 +338,9 @@ export function focusWindow(
   z?: number,
 ): WindowManagerResult {
   assertWindows(windows);
-  const target = requireWindow(windows, instanceId);
   const allocation = allocateZ(windows, z);
-  const nextWindows = windows.map((windowState) =>
+  const target = requireWindow(allocation.windows, instanceId);
+  const nextWindows = allocation.windows.map((windowState) =>
     windowState.instanceId === instanceId
       ? {
           ...cloneWindow(windowState),
@@ -394,7 +427,7 @@ export function openAppWindow(
   };
 
   return result(
-    [...windows.map(cloneWindow), createdWindow],
+    [...allocation.windows, createdWindow],
     instanceId,
     allocation.nextZ,
   );
@@ -466,11 +499,13 @@ function resolveDefaultPlacement(app: WorkbenchAppDefinition): DefaultPlacement 
     };
   }
 
-  const width = Math.min(desktopWidth * 0.78, 1180);
-  const height = Math.min(desktopHeight * 0.84, 760);
+  // Centered windows share the same persisted-state floor as tiled windows.
+  // Compact CSS handles viewports narrower than that durable geometry.
+  const width = clamp(desktopWidth * 0.78, DEFAULT_MIN_WIDTH, 1180);
+  const height = clamp(desktopHeight * 0.84, DEFAULT_MIN_HEIGHT, 760);
   return {
-    x: VIEWPORT_MARGIN + (desktopWidth - width) / 2,
-    y: DESKTOP_TOP_OFFSET + (desktopHeight - height) / 2,
+    x: Math.max(0, VIEWPORT_MARGIN + (desktopWidth - width) / 2),
+    y: Math.max(0, DESKTOP_TOP_OFFSET + (desktopHeight - height) / 2),
     width,
     height,
   };
@@ -529,15 +564,19 @@ export function toggleMaximize(
   z?: number,
 ): WindowManagerResult {
   assertWindows(windows);
-  const target = requireWindow(windows, instanceId);
   const allocation = allocateZ(windows, z);
+  const target = requireWindow(allocation.windows, instanceId);
   const leavingMaximized = target.maximized;
   const restoredBounds = target.restoreBounds;
-  const nextWindows = windows.map((windowState) =>
+  const restoreTarget =
+    leavingMaximized && !restoredBounds
+      ? resolveDefaultPlacement(getWorkbenchApp(target.appId))
+      : restoredBounds;
+  const nextWindows = allocation.windows.map((windowState) =>
     windowState.instanceId === instanceId
       ? {
           ...cloneWindow(windowState),
-          ...(leavingMaximized && restoredBounds ? restoredBounds : {}),
+          ...(leavingMaximized && restoreTarget ? restoreTarget : {}),
           open: true,
           minimized: false,
           maximized: !leavingMaximized,
@@ -714,7 +753,7 @@ export function snapWindow(
     safeBounds.width >= DEFAULT_MIN_WIDTH * 2
       ? Math.floor(safeBounds.width / 2)
       : safeBounds.width;
-  const snapped = windows.map((windowState) => {
+  const snapped = allocation.windows.map((windowState) => {
     if (windowState.instanceId !== instanceId) return cloneWindow(windowState);
     const restoreBounds = windowState.restoreBounds ?? windowBounds(windowState);
     if (target === "top") {

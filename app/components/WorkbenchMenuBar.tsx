@@ -30,6 +30,7 @@ export type WorkbenchMenu = {
 
 export type WorkbenchMenuBarProps = {
   activeAppLabel: string;
+  backgroundInert?: boolean;
   time: string;
   workspaceLabel: string;
   menus: WorkbenchMenu[];
@@ -57,6 +58,7 @@ function safeId(value: string) {
 
 export default function WorkbenchMenuBar({
   activeAppLabel,
+  backgroundInert = false,
   time,
   workspaceLabel,
   menus,
@@ -318,7 +320,12 @@ export default function WorkbenchMenuBar({
   }, [closeMenu, openMenuIndex, placeMenu]);
 
   return (
-    <header className="workbench-menu-bar" ref={barRef}>
+    <header
+      className="workbench-menu-bar"
+      ref={barRef}
+      aria-hidden={backgroundInert || undefined}
+      inert={backgroundInert || undefined}
+    >
       <div className="wmb-leading">
         <span className="wmb-mark" aria-hidden="true">S/B</span>
         <div className="wmb-context" aria-live="polite">
@@ -341,9 +348,17 @@ export default function WorkbenchMenuBar({
                     className={isOpen ? "is-open" : undefined}
                     type="button"
                     role="menuitem"
+                    aria-label={menu.label}
                     aria-haspopup="menu"
                     aria-expanded={isOpen}
-                    aria-controls={menuId}
+                    aria-controls={isOpen ? menuId : undefined}
+                    data-compact-label={
+                      menu.id === "workbench"
+                        ? "WB"
+                        : menu.id === "window"
+                          ? "WIN"
+                          : menu.label
+                    }
                     tabIndex={focusedMenuIndex === menuIndex ? 0 : -1}
                     onClick={() => {
                       if (isOpen) closeMenu(true);
@@ -355,7 +370,7 @@ export default function WorkbenchMenuBar({
                       if (openMenuIndex !== null && !isOpen) openMenu(menuIndex);
                     }}
                   >
-                    {menu.label}
+                    <span className="wmb-menu-label">{menu.label}</span>
                   </button>
                 </div>
               );
@@ -364,8 +379,8 @@ export default function WorkbenchMenuBar({
         </nav>
       </div>
 
-      <div className="wmb-system" aria-label="System controls">
-        <div className="wmb-system-data" aria-label={`${workspaceLabel}, ${time}`}>
+      <div className="wmb-system" role="group" aria-label="System controls">
+        <div className="wmb-system-data">
           <span className="wmb-workspace"><i aria-hidden="true" />{workspaceLabel}</span>
           <time>{time}</time>
         </div>
@@ -377,8 +392,12 @@ export default function WorkbenchMenuBar({
         >
           <span className="wmb-control-label">Atlas</span><kbd>F3</kbd>
         </button>
-        <button type="button" aria-keyshortcuts="/" onClick={onOpenSearch}>
-          <span className="wmb-control-label">Search</span><kbd>/</kbd>
+        <button
+          type="button"
+          aria-keyshortcuts="Control+K Meta+K"
+          onClick={onOpenSearch}
+        >
+          <span className="wmb-control-label">Search</span><kbd>Ctrl K</kbd>
         </button>
         <button
           ref={portfolioButtonRef}

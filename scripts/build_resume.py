@@ -447,7 +447,7 @@ def build():
     add_product_header(doc, "BaiOS Workbench", "Open-source browser interface", "Dec 2025 - Present")
     add_bullet(
         doc,
-        "Built and deployed sambai.dev as a 15-app, three-workspace Workbench with multi-instance windows, drag, resize, snap, Atlas navigation and a searchable local archive.",
+        "Built and deployed sambai.dev as a 16-app, three-workspace Workbench with multi-instance windows, drag, resize, snap, Atlas navigation and a searchable local archive.",
         num_id,
     )
     add_bullet(
@@ -460,7 +460,7 @@ def build():
     add_product_header(doc, "EdgarTools & Betaflight Configurator", "", "2026")
     add_bullet(
         doc,
-        "Built Blackbox MP4/WebM video export for Betaflight Configurator using WebCodecs, with overlay compositing, progress/ETA, cancellation and streaming saves; PR #5468 is under review for 2026.12.",
+        "Built Blackbox MP4/WebM video export for Betaflight Configurator using WebCodecs, with overlay compositing, progress/ETA, cancellation and streaming saves; merged as PR #5468 for 2026.12.",
         num_id,
     )
     add_bullet(

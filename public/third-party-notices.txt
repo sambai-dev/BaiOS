@@ -1,0 +1,84 @@
+BAIOS THIRD-PARTY NOTICES
+
+This deployed notice identifies third-party software, fonts, services, and
+content used by BaiOS. The controlling terms are the license files and notices
+distributed by each upstream project. The canonical project inventory is:
+
+https://github.com/sambai-dev/BaiOS/blob/main/THIRD_PARTY_NOTICES.md
+
+
+DIRECT JAVASCRIPT DEPENDENCIES
+
+Next.js 16.3.3                         MIT
+React 19.2.8                          MIT
+React DOM 19.2.8                      MIT
+Framer Motion 12.23.25                MIT
+Tailwind CSS 4.1.17                   MIT
+@tailwindcss/postcss 4.1.17           MIT
+TypeScript 5.9.3                      Apache-2.0
+ESLint 9.39.1                         MIT
+eslint-config-next 16.3.3             MIT
+Vitest 4.1.11                         MIT
+@types/node 20.19.25                  MIT
+@types/react 19.2.18                  MIT
+@types/react-dom 19.2.5               MIT
+
+Exact transitive versions and declared license identifiers are recorded in the
+project's package-lock.json. Platform-selected production packages can include:
+
+Sharp 0.35.4                          Apache-2.0
+@img/sharp-libvips-* 1.3.3            LGPL-3.0-or-later
+@img/sharp-* native packages 0.35.4   See the selected package metadata
+
+Upstream sources and controlling notices:
+https://github.com/vercel/next.js
+https://github.com/facebook/react
+https://github.com/motiondivision/motion
+https://github.com/lovell/sharp
+https://github.com/libvips/libvips
+
+
+RESUME BUILD TOOLING
+
+python-docx 1.2.0                     MIT
+
+This development-only direct dependency is pinned in requirements-resume.txt.
+
+
+FONTS
+
+Archivo
+Copyright 2020 The Archivo Project Authors
+
+Archivo Black
+Copyright 2017 The Archivo Black Project Authors
+
+Azeret Mono
+Copyright 2021 The Azeret Project Authors
+
+These fonts are distributed under the SIL Open Font License 1.1. The copyright
+notices and full license text are deployed at:
+
+/licenses/FONTS-OFL-1.1.txt
+https://openfontlicense.org/open-font-license-official-text/
+
+
+EXTERNAL SERVICES AND CONTENT
+
+CoinGecko provides cryptocurrency market data.
+OpenRouter processes optional AI requests using the deployment's configured
+model provider.
+Wikimedia APIs provide Wikipedia search results and article summaries.
+
+Wikipedia article text is available under Creative Commons
+Attribution-ShareAlike 4.0 International and, unless a page states otherwise,
+the GNU Free Documentation License. Each result in BaiOS links to its source
+article. Reuse must preserve the applicable attribution and license information
+and indicate modifications where required.
+
+https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use/en#7._Licensing_of_Content
+https://creativecommons.org/licenses/by-sa/4.0/
+https://www.gnu.org/licenses/fdl-1.3.html
+
+Third-party names and marks belong to their respective owners. Inclusion does
+not imply endorsement.

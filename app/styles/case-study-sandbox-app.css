@@ -5,55 +5,69 @@
 .sandbox-app {
   display: grid;
   height: 100%;
-  min-height: 100%;
-  grid-template-rows: auto minmax(0, 1fr);
-  overflow: hidden;
+  min-height: 0;
+  grid-template-rows: auto minmax(15rem, 1fr);
+  overflow: auto;
+  overscroll-behavior: contain;
   color: var(--carbon);
   background: var(--ivory);
 }
 
 .sandbox-header {
   display: flex;
-  min-height: 5.4rem;
+  min-height: 6.25rem;
   align-items: end;
   justify-content: space-between;
   gap: 1.2rem;
-  padding: 1rem 1.15rem 0.85rem;
+  padding: 1rem 1.2rem 0.95rem;
   border-bottom: 1px solid var(--rule-dark);
+}
+
+.sandbox-header-index {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--cobalt-deep);
+  font-family: var(--font-data), monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .sandbox-header h2 {
   margin: 0;
   font-family: var(--font-display), sans-serif;
-  font-size: clamp(1.8rem, 3.8vw, 3.2rem);
+  font-size: clamp(1.85rem, 4.2cqi, 3.45rem);
   font-weight: 400;
   line-height: 0.9;
   letter-spacing: -0.035em;
 }
 
 .sandbox-header p {
-  max-width: 36rem;
-  margin: 0.45rem 0 0;
+  max-width: 34rem;
+  margin: 0.5rem 0 0;
   color: #46463f;
   font-size: 0.76rem;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .sandbox-tabs {
   display: flex;
+  flex: 0 0 auto;
 }
 
 .sandbox-tabs button {
-  min-height: 2.2rem;
-  padding: 0 0.85rem;
+  min-width: 6.25rem;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
   color: var(--carbon);
   background: transparent;
   border: 1px solid var(--rule-dark);
   cursor: pointer;
   font-family: var(--font-data), monospace;
   font-size: 0.58rem;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
-  transition: background 160ms ease, color 160ms ease;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
 }
 
 .sandbox-tabs button + button {
@@ -62,16 +76,41 @@
 
 .sandbox-tabs button[aria-selected="true"],
 .sandbox-tabs button:hover {
-  color: white;
+  color: var(--text-on-route);
   background: var(--cobalt);
   border-color: var(--cobalt);
 }
 
+.sandbox-tabs button:focus-visible,
+.sandbox-flow-track button:focus-visible,
+.sandbox-layer-grid button:focus-visible,
+.sandbox-presets button:focus-visible,
+.sandbox-cta-pulse:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
 .sandbox-body {
   display: grid;
-  min-height: 0;
-  grid-template-columns: minmax(0, 1.45fr) minmax(17rem, 0.75fr);
+  min-height: 15rem;
+  grid-template-columns: minmax(0, 1.5fr) minmax(17rem, 0.72fr);
   overflow: hidden;
+}
+
+.sandbox-body[hidden] {
+  display: none;
+}
+
+.sandbox-stage:focus-visible {
+  outline: 3px solid var(--carbon);
+  outline-offset: -3px;
+  box-shadow: none;
+}
+
+.sandbox-sidebar:focus-visible {
+  outline: 3px solid var(--ivory);
+  outline-offset: -3px;
+  box-shadow: none;
 }
 
 .sandbox-stage {
@@ -79,108 +118,175 @@
   min-height: 0;
   padding: 1.25rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
   border-right: 1px solid var(--rule-dark);
 }
 
-.sandbox-tag {
+.sandbox-tag,
+.sandbox-detail-label {
   display: inline-block;
   color: var(--cobalt-deep);
   font-family: var(--font-data), monospace;
   font-size: 0.52rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .sandbox-panel-head h3 {
-  margin: 0.35rem 0 0;
+  max-width: 33rem;
+  margin: 0.38rem 0 0;
   font-family: var(--font-display), sans-serif;
-  font-size: 1.45rem;
+  font-size: clamp(1.4rem, 3cqi, 2.05rem);
   font-weight: 400;
-  line-height: 1.15;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 
 .sandbox-panel-head p {
-  margin: 0.35rem 0 1.15rem;
+  max-width: 42rem;
+  margin: 0.5rem 0 1.15rem;
   color: #4b4b44;
   font-size: 0.78rem;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
-.sandbox-telemetry-cluster {
-  padding: 1rem;
+.sandbox-flow-shell,
+.sandbox-architecture-shell {
+  margin-bottom: 1rem;
   background: white;
   border: 1px solid var(--rule-dark);
-  margin-bottom: 1.1rem;
 }
 
-.sandbox-telemetry-chart {
+.sandbox-flow-track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--rule-dark);
+}
+
+.sandbox-flow-track li + li {
+  border-left: 1px solid var(--rule-dark);
+}
+
+.sandbox-flow-track button {
+  display: grid;
   width: 100%;
-  height: 9.5rem;
-  background: rgba(17, 17, 15, 0.02);
-  border: 1px solid var(--rule-dark);
-  margin-bottom: 0.85rem;
+  min-height: 4.5rem;
+  align-content: space-between;
+  padding: 0.7rem;
+  color: var(--carbon);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
 }
 
-.sandbox-elevation-svg {
-  width: 100%;
-  height: 100%;
+.sandbox-flow-track button span,
+.sandbox-layer-grid button span {
+  color: var(--cobalt-deep);
+  font-family: var(--font-data), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
 }
 
-.sandbox-scrubber-row {
+.sandbox-flow-track button strong,
+.sandbox-layer-grid button strong {
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.sandbox-flow-track button:hover,
+.sandbox-flow-track button[aria-pressed="true"],
+.sandbox-layer-grid button:hover,
+.sandbox-layer-grid button[aria-pressed="true"] {
+  color: var(--text-on-route);
+  background: var(--cobalt);
+}
+
+.sandbox-flow-track button:hover span,
+.sandbox-layer-grid button:hover span {
+  color: var(--signal);
+}
+
+.sandbox-flow-track button[aria-pressed="true"] span,
+.sandbox-layer-grid button[aria-pressed="true"] span {
+  color: var(--text-on-route);
+  font-weight: 700;
+}
+
+.sandbox-flow-detail {
+  display: grid;
+  min-height: 7.5rem;
+  grid-template-columns: minmax(0, 1.3fr) minmax(12rem, 0.7fr);
+  align-items: stretch;
+}
+
+.sandbox-flow-detail > div {
+  padding: 1rem;
+}
+
+.sandbox-flow-detail p,
+.sandbox-layer-detail p {
+  margin: 0.45rem 0 0;
+  color: #3f3f39;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.sandbox-proof-note {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-}
-
-.sandbox-scrubber-row input[type="range"] {
-  flex: 1;
-}
-
-.sandbox-btn-ctrl {
-  min-height: 2rem;
-  padding: 0 0.75rem;
-  color: var(--carbon);
-  background: transparent;
-  border: 1px solid var(--rule-dark);
-  cursor: pointer;
+  margin: 0 !important;
+  padding: 1rem;
+  color: var(--ivory) !important;
+  background: var(--carbon);
   font-family: var(--font-data), monospace;
-  font-size: 0.55rem;
-  text-transform: uppercase;
+  font-size: 0.61rem !important;
+  line-height: 1.55 !important;
 }
 
-.sandbox-btn-ctrl.is-active,
-.sandbox-btn-ctrl:hover {
-  color: white;
-  background: var(--cobalt);
-  border-color: var(--cobalt);
-}
-
-.sandbox-metrics-grid {
+.sandbox-facts-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.55rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
   margin: 0;
-  padding: 0.85rem 0 0;
-  border-top: 1px solid var(--rule-dark);
+  border: 1px solid var(--rule-dark);
 }
 
-.sandbox-metrics-grid dt {
+.sandbox-facts-grid > div {
+  min-width: 0;
+  padding: 0.8rem;
+}
+
+.sandbox-facts-grid > div + div {
+  border-left: 1px solid var(--rule-dark);
+}
+
+.sandbox-facts-grid dt,
+.sandbox-sidebar-facts dt {
   color: #55554e;
   font-family: var(--font-data), monospace;
-  font-size: 0.5rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-.sandbox-metrics-grid dd {
-  margin: 0.25rem 0 0;
-  font-size: 0.85rem;
-  font-weight: 600;
+.sandbox-facts-grid dd,
+.sandbox-sidebar-facts dd {
+  margin: 0.3rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.35;
 }
 
 .sandbox-sidebar {
   padding: 1.25rem;
-  background: var(--carbon);
-  color: var(--ivory);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  color: var(--ivory);
+  background: var(--carbon);
 }
 
 .sandbox-sidebar .sandbox-tag {
@@ -188,86 +294,232 @@
 }
 
 .sandbox-sidebar h4 {
-  margin: 0.4rem 0 0.85rem;
+  max-width: 18rem;
+  margin: 0.45rem 0 0.9rem;
+  color: var(--ivory);
   font-family: var(--font-display), sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 400;
-  color: white;
+  line-height: 1.05;
 }
 
 .sandbox-sidebar p {
   color: var(--ivory-muted);
-  font-size: 0.78rem;
-  line-height: 1.5;
+  font-size: 0.76rem;
+  line-height: 1.55;
 }
 
 .sandbox-bullet-list {
   margin: 0;
-  padding-left: 1.1rem;
+  padding: 0;
   color: var(--ivory-muted);
-  font-size: 0.75rem;
-  line-height: 1.6;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  list-style: none;
+}
+
+.sandbox-bullet-list li {
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--rule-light);
+}
+
+.sandbox-bullet-list li:last-child {
+  border-bottom: 1px solid var(--rule-light);
 }
 
 .sandbox-bullet-list strong {
-  color: white;
+  color: var(--ivory);
+}
+
+.sandbox-sidebar-note {
+  margin: 1rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--signal);
+  font-family: var(--font-data), monospace;
+  font-size: 0.61rem !important;
+}
+
+.sandbox-architecture-status {
+  display: grid;
+  grid-template-columns: auto minmax(1rem, 1fr) auto minmax(1rem, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid var(--rule-dark);
+  font-family: var(--font-data), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.sandbox-architecture-status i {
+  display: block;
+  height: 1px;
+  background: var(--cobalt);
+}
+
+.sandbox-layer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--rule-dark);
+}
+
+.sandbox-layer-grid button {
+  display: grid;
+  min-height: 4.25rem;
+  align-content: space-between;
+  padding: 0.7rem;
+  color: var(--carbon);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.sandbox-layer-grid button + button {
+  border-left: 1px solid var(--rule-dark);
+}
+
+.sandbox-layer-detail {
+  min-height: 7.5rem;
+  padding: 1rem;
+}
+
+.sandbox-layer-detail h4 {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+}
+
+.sandbox-sidebar-facts {
+  margin: 1rem 0 0;
+  border-top: 1px solid var(--rule-light);
+}
+
+.sandbox-sidebar-facts > div {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+.sandbox-sidebar-facts dt {
+  color: var(--signal);
+}
+
+.sandbox-sidebar-facts dd {
+  color: var(--ivory);
 }
 
 .sandbox-canvas-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
   padding: 1rem;
   background: white;
   border: 1px solid var(--rule-dark);
-  margin-bottom: 1.1rem;
-  display: flex;
-  justify-content: center;
 }
 
 .sandbox-spring-canvas {
   width: 100%;
-  max-width: 500px;
+  max-width: 560px;
   height: 180px;
-  background: rgba(17, 17, 15, 0.02);
+  color: var(--carbon);
+  background: color-mix(in srgb, var(--carbon) 2%, transparent);
+}
+
+.sandbox-canvas-state {
+  position: absolute;
+  right: 1.35rem;
+  bottom: 1.3rem;
+  padding: 0.25rem 0.4rem;
+  color: var(--ivory);
+  background: var(--carbon);
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .sandbox-controls-cluster {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 0.85rem;
   align-items: end;
+}
+
+.sandbox-presets {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.sandbox-presets button {
+  min-height: 2.75rem;
+  padding: 0.3rem 0.75rem;
+  color: var(--carbon);
+  background: transparent;
+  border: 1px solid var(--rule-dark);
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.sandbox-presets button + button {
+  border-left: 0;
+}
+
+.sandbox-presets button[aria-pressed="true"] {
+  color: var(--text-on-route);
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+}
+
+.sandbox-presets button:hover:not([aria-pressed="true"]) {
+  color: var(--cobalt-deep);
+  border-color: var(--cobalt);
 }
 
 .sandbox-slider-control label {
   color: #55554e;
   font-family: var(--font-data), monospace;
   font-size: 0.52rem;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
 }
 
 .sandbox-slider-head {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
 }
 
-.sandbox-slider-head span {
+.sandbox-slider-head output {
   font-family: var(--font-data), monospace;
-  font-size: 0.6rem;
-  font-weight: 600;
+  font-size: 0.62rem;
+  font-weight: 650;
 }
 
 .sandbox-slider-control input[type="range"] {
   width: 100%;
+  min-height: 2.75rem;
+  margin: 0;
+  accent-color: var(--cobalt);
+  cursor: pointer;
 }
 
 .sandbox-cta-pulse {
-  min-height: 2.2rem;
-  padding: 0 0.95rem;
-  color: white;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  color: var(--text-on-route);
   background: var(--cobalt);
   border: 1px solid var(--cobalt);
   cursor: pointer;
   font-family: var(--font-data), monospace;
   font-size: 0.58rem;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
   transition: background 160ms ease;
 }
@@ -276,83 +528,197 @@
   background: var(--cobalt-deep);
 }
 
-.sandbox-arch-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
+@container workbench-app (max-width: 760px) {
+  .sandbox-header {
+    display: grid;
+    align-items: start;
+  }
 
-.sandbox-arch-card {
-  padding: 0.95rem;
-  background: white;
-  border: 1px solid var(--rule-dark);
-}
+  .sandbox-tabs {
+    width: 100%;
+  }
 
-.sandbox-arch-layer {
-  display: block;
-  color: var(--cobalt-deep);
-  font-family: var(--font-data), monospace;
-  font-size: 0.5rem;
-  text-transform: uppercase;
-}
+  .sandbox-tabs button {
+    flex: 1;
+    min-width: 0;
+  }
 
-.sandbox-arch-card h4 {
-  margin: 0.35rem 0 0;
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.sandbox-arch-card p {
-  margin: 0.35rem 0 0;
-  color: #4b4b44;
-  font-size: 0.72rem;
-  line-height: 1.4;
-}
-
-@media (max-width: 760px) {
   .sandbox-body {
     display: block;
     overflow-y: auto;
   }
+
+  .sandbox-body[hidden] {
+    display: none;
+  }
+
   .sandbox-stage {
+    overflow: visible;
     border-right: 0;
     border-bottom: 1px solid var(--rule-dark);
   }
-  .sandbox-metrics-grid,
-  .sandbox-controls-cluster,
-  .sandbox-arch-grid {
+
+  .sandbox-flow-track,
+  .sandbox-layer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sandbox-flow-track li:nth-child(3),
+  .sandbox-layer-grid button:nth-child(3) {
+    border-left: 0;
+  }
+
+  .sandbox-flow-track li:nth-child(n + 3),
+  .sandbox-layer-grid button:nth-child(n + 3) {
+    border-top: 1px solid var(--rule-dark);
+  }
+
+  .sandbox-flow-detail {
     grid-template-columns: 1fr;
+  }
+
+  .sandbox-facts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sandbox-facts-grid > div + div {
+    border-top: 1px solid var(--rule-dark);
+    border-left: 0;
+  }
+
+  .sandbox-controls-cluster {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sandbox-cta-pulse {
+    grid-column: 1 / -1;
+  }
+
+  .sandbox-slider-control input {
+    font-size: 1rem;
   }
 }
 
-/* --- Spring preset chips --- */
+@container workbench-app (max-width: 480px) {
+  .sandbox-header,
+  .sandbox-stage,
+  .sandbox-sidebar {
+    padding-right: 0.85rem;
+    padding-left: 0.85rem;
+  }
 
-.sandbox-presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+  .sandbox-tabs {
+    overflow-x: auto;
+  }
+
+  .sandbox-tabs button {
+    flex: 0 0 auto;
+    min-width: 6.25rem;
+  }
+
+  .sandbox-flow-track,
+  .sandbox-layer-grid,
+  .sandbox-controls-cluster {
+    grid-template-columns: 1fr;
+  }
+
+  .sandbox-flow-track li + li,
+  .sandbox-layer-grid button + button {
+    border-top: 1px solid var(--rule-dark);
+    border-left: 0;
+  }
+
+  .sandbox-layer-grid button:nth-child(3) {
+    border-top: 1px solid var(--rule-dark);
+  }
+
+  .sandbox-architecture-status {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .sandbox-architecture-status span:nth-of-type(2),
+  .sandbox-architecture-status i:nth-of-type(2) {
+    display: none;
+  }
+
+  .sandbox-slider-control,
+  .sandbox-cta-pulse {
+    grid-column: 1;
+  }
+
+  .sandbox-presets button {
+    flex: 1 0 50%;
+  }
+
+  .sandbox-presets button:nth-child(3) {
+    border-left: 1px solid var(--rule-dark);
+  }
 }
 
-.sandbox-presets button {
-  padding: 0.3rem 0.6rem;
-  color: var(--ivory-muted);
-  background: transparent;
-  border: 1px solid var(--rule-light);
-  cursor: pointer;
-  font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+@container workbench-app (max-height: 420px) {
+  .sandbox-app {
+    display: block;
+    overflow-y: auto;
+  }
+
+  .sandbox-header {
+    min-height: 0;
+    align-items: start;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .sandbox-header-index {
+    margin-bottom: 0.25rem;
+  }
+
+  .sandbox-body {
+    display: block;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .sandbox-stage,
+  .sandbox-sidebar {
+    overflow: visible;
+  }
 }
 
-.sandbox-presets button[aria-pressed="true"] {
-  color: var(--carbon);
-  background: var(--cobalt, #4c5ce5);
-  border-color: var(--cobalt, #4c5ce5);
+/* Viewport fallback for browsers without size-container query support. The
+ * base 15rem body track keeps an independently resized window reachable too. */
+@media (max-height: 420px) {
+  .sandbox-app {
+    display: block;
+    overflow-y: auto;
+  }
+
+  .sandbox-header {
+    min-height: 0;
+    align-items: start;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .sandbox-header-index {
+    margin-bottom: 0.25rem;
+  }
+
+  .sandbox-body {
+    display: block;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .sandbox-stage,
+  .sandbox-sidebar {
+    overflow: visible;
+  }
 }
 
-.sandbox-presets button:hover:not([aria-pressed="true"]) {
-  color: var(--ivory);
-  border-color: var(--ivory-muted);
+@media (prefers-reduced-motion: reduce) {
+  .sandbox-tabs button,
+  .sandbox-presets button,
+  .sandbox-cta-pulse {
+    transition: none;
+  }
 }

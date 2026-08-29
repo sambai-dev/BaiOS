@@ -3,12 +3,19 @@
  */
 
 .archive-app {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--carbon);
+  background: var(--ivory);
+}
+
+.archive-surface {
   display: grid;
   height: 100%;
   min-height: 0;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  color: var(--carbon);
-  background: var(--ivory);
 }
 
 .archive-app button,
@@ -56,7 +63,7 @@
 .archive-titlebar strong {
   font-family: var(--font-display), sans-serif;
   font-size: 1.55rem;
-  font-weight: 560;
+  font-weight: 400;
   letter-spacing: -0.035em;
 }
 
@@ -84,7 +91,8 @@
   border: 0;
   outline: 0;
   font-family: var(--font-data), monospace;
-  font-size: 0.65rem;
+  font-size: 1rem;
+  line-height: 1.25;
 }
 
 .archive-search input::placeholder {
@@ -313,7 +321,8 @@
   border: 1px solid var(--carbon);
   outline: 0;
   font-family: var(--font-data), monospace;
-  font-size: 0.62rem;
+  font-size: 1rem;
+  line-height: 1.25;
 }
 
 .archive-create input:focus,
@@ -338,10 +347,51 @@
   white-space: nowrap;
 }
 
+.archive-results {
+  display: grid;
+  min-height: 0;
+  grid-row: 4;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
 .archive-items {
   min-height: 0;
   overflow: auto;
   content-visibility: auto;
+}
+
+.archive-load-more {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  min-height: 2.55rem;
+  padding: 0.55rem 0.7rem;
+  color: var(--ivory);
+  background: var(--carbon);
+  border: 0;
+  border-top: 1px solid var(--rule-light);
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.025em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.archive-load-more-count {
+  color: var(--signal);
+}
+
+.archive-load-more:hover,
+.archive-load-more:focus-visible {
+  color: white;
+  background: var(--cobalt);
+}
+
+.archive-load-more:hover .archive-load-more-count,
+.archive-load-more:focus-visible .archive-load-more-count {
+  color: white;
 }
 
 .archive-items button {
@@ -522,6 +572,7 @@
 
 .archive-empty {
   display: grid;
+  grid-row: 4;
   place-items: center;
   align-content: center;
   gap: 0.6rem;
@@ -578,7 +629,7 @@
   overflow-wrap: anywhere;
   font-family: var(--font-display), sans-serif;
   font-size: 1.35rem;
-  font-weight: 560;
+  font-weight: 400;
   line-height: 1;
   letter-spacing: -0.035em;
 }
@@ -658,7 +709,7 @@
   outline: 0;
   resize: vertical;
   font-family: var(--font-body), sans-serif;
-  font-size: 0.75rem;
+  font-size: 1rem;
   line-height: 1.5;
 }
 
@@ -695,10 +746,24 @@
 }
 
 .archive-delete-confirm {
-  margin-top: 0.75rem;
-  padding: 0.7rem;
+  width: min(28rem, 100%);
+  max-height: 100%;
+  padding: 0.9rem;
+  overflow: auto;
   color: white;
   background: #982a1d;
+  border: 1px solid var(--carbon);
+  box-shadow: 0.75rem 0.75rem 0 rgba(18, 18, 18, 0.3);
+}
+
+.archive-delete-backdrop {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 4vw, 2rem);
+  background: rgba(18, 18, 18, 0.66);
 }
 
 .archive-delete-confirm p {
@@ -761,7 +826,17 @@
   border: 1px solid var(--ivory);
 }
 
-@media (max-width: 840px) {
+.archive-app :is(button, input, textarea):focus-visible {
+  outline: 3px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.archive-items button:focus-visible,
+.archive-load-more:focus-visible {
+  outline-offset: -3px;
+}
+
+@container workbench-app (max-width: 840px) {
   .archive-shell {
     grid-template-columns: 7.5rem minmax(0, 1fr);
     grid-template-rows: minmax(18rem, 1fr) auto;
@@ -786,7 +861,7 @@
   }
 }
 
-@media (max-width: 580px) {
+@container workbench-app (max-width: 580px) {
   .archive-titlebar {
     grid-template-columns: 1fr;
     gap: 0.45rem;
@@ -887,6 +962,7 @@
   .archive-rename button,
   .archive-preview-actions button,
   .archive-delete-confirm button,
+  .archive-load-more,
   .archive-create input,
   .archive-rename input {
     min-height: 2.75rem;

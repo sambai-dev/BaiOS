@@ -28,10 +28,12 @@ export type WorkspaceId = (typeof workspaceIds)[number];
 export const themeIds = ["cobalt", "oxide", "graphite"] as const;
 export type WorkbenchThemeId = (typeof themeIds)[number];
 
+/** Allows persisted window positions across 8K and multi-display desktops. */
+export const WORKBENCH_COORDINATE_LIMIT = 32_768;
+
 export type WorkbenchAppDefinition = {
   id: WorkbenchAppId;
   label: string;
-  shortcut: string;
   summary: string;
   keywords: string[];
   supportsMultiple: boolean;
@@ -128,19 +130,17 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "now",
     label: "Now",
-    shortcut: "1",
     summary: "Current operating context.",
     keywords: ["current", "solynth", "trekky", "consulting"],
     supportsMultiple: false,
-    defaultWidth: 395,
-    defaultHeight: 335,
-    defaultX: 24,
-    defaultY: 20,
+    defaultWidth: 540,
+    defaultHeight: 500,
+    defaultX: 48,
+    defaultY: 36,
   },
   {
     id: "stack",
     label: "Stack",
-    shortcut: "2",
     summary: "Production systems and tooling.",
     keywords: ["react", "next", "typescript", "cloudflare", "mobile"],
     supportsMultiple: false,
@@ -152,7 +152,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "method",
     label: "Method",
-    shortcut: "3",
     summary: "Clarify, shape, ship, and learn.",
     keywords: ["process", "product", "decision", "delivery"],
     supportsMultiple: false,
@@ -164,7 +163,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "scratch",
     label: "Scratch",
-    shortcut: "4",
     summary: "A local browser notebook.",
     keywords: ["note", "text", "idea", "draft"],
     supportsMultiple: true,
@@ -176,7 +174,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "console",
     label: "Console",
-    shortcut: "5",
     summary: "A command surface for the system.",
     keywords: ["terminal", "command", "help", "system"],
     supportsMultiple: false,
@@ -188,7 +185,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "links",
     label: "Links",
-    shortcut: "6",
     summary: "Company, product, and contact routes.",
     keywords: ["email", "github", "linkedin", "resume"],
     supportsMultiple: false,
@@ -200,7 +196,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "pulse",
     label: "Pulse",
-    shortcut: "P",
     summary: "A CoinGecko-powered 24-hour crypto market monitor.",
     keywords: ["crypto", "bitcoin", "ethereum", "price", "market", "coingecko"],
     supportsMultiple: false,
@@ -211,10 +206,21 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "book",
-    label: "Book",
-    shortcut: "B",
-    summary: "B2B scope estimator & consultation booking.",
-    keywords: ["book", "consult", "scope", "estimate", "sprint", "retainer", "cal"],
+    label: "Brief",
+    summary: "Prepare a factual project enquiry with service area, focus, timing, and context.",
+    keywords: [
+      "project brief",
+      "book",
+      "consult",
+      "consultation",
+      "scope",
+      "enquiry",
+      "contact",
+      "service area",
+      "product direction",
+      "architecture",
+      "ai workflow",
+    ],
     supportsMultiple: false,
     defaultWidth: 760,
     defaultHeight: 480,
@@ -223,10 +229,19 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "sandbox",
-    label: "Sandbox",
-    shortcut: "S",
-    summary: "Interactive systems teardown & case studies.",
-    keywords: ["sandbox", "case study", "trekky", "solynth", "architecture", "telemetry", "metrics"],
+    label: "Systems",
+    summary: "Documented product systems and an interactive motion simulation.",
+    keywords: [
+      "systems",
+      "sandbox",
+      "case study",
+      "trekky",
+      "workbench",
+      "architecture",
+      "motion",
+      "simulation",
+      "product",
+    ],
     supportsMultiple: false,
     defaultWidth: 780,
     defaultHeight: 500,
@@ -236,9 +251,17 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "agent",
     label: "Agent",
-    shortcut: "A",
-    summary: "AI workflow orchestrator & prompt-to-UI terminal.",
-    keywords: ["ai", "agent", "workflow", "prompt", "llm", "tokens", "streaming"],
+    summary: "Model-stream interface with transparent request lifecycle.",
+    keywords: [
+      "agent",
+      "ai",
+      "model",
+      "stream",
+      "prompt",
+      "server route",
+      "interface",
+      "lifecycle",
+    ],
     supportsMultiple: false,
     defaultWidth: 760,
     defaultHeight: 480,
@@ -248,7 +271,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "lab",
     label: "Subsurface",
-    shortcut: "7",
     summary: "A live depth-control experiment.",
     keywords: ["game", "canvas", "depth", "sonar"],
     supportsMultiple: false,
@@ -260,7 +282,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "railshift",
     label: "Railshift",
-    shortcut: "R",
     summary: "A high-speed three-lane signal runner.",
     keywords: ["game", "runner", "rail", "arcade", "canvas", "score"],
     supportsMultiple: false,
@@ -272,7 +293,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "vector",
     label: "Vector",
-    shortcut: "8",
     summary: "A spatial vector calculator.",
     keywords: ["3d", "calculator", "math", "canvas"],
     supportsMultiple: true,
@@ -284,7 +304,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "archive",
     label: "Archive",
-    shortcut: "9",
     summary: "A writable local filesystem.",
     keywords: ["files", "folders", "notes", "documents", "local archive"],
     supportsMultiple: true,
@@ -296,9 +315,8 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "search",
     label: "Search",
-    shortcut: "d",
-    summary: "Instant answers with save-to-Archive notes.",
-    keywords: ["search", "lookup", "answers", "wikipedia", "ddg", "find"],
+    summary: "Wikipedia-backed lookup with a save-to-Archive handoff.",
+    keywords: ["search", "lookup", "summary", "wikipedia", "archive", "find"],
     supportsMultiple: false,
     defaultWidth: 640,
     defaultHeight: 470,
@@ -308,7 +326,6 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "control",
     label: "Control",
-    shortcut: "0",
     summary: "Theme, workspace, and session controls.",
     keywords: ["settings", "theme", "session", "workspace", "restore"],
     supportsMultiple: false,
@@ -385,22 +402,15 @@ export function createWindowInstance(
 export function createDefaultWorkbenchSession(): WorkbenchSession {
   const now = Date.now();
   const windows: WorkbenchWindow[] = [
-    createWindowInstance("now", "build", 3, 0, "build-now"),
-    createWindowInstance("stack", "build", 5, 0, "build-stack"),
-    createWindowInstance("console", "build", 4, 0, "build-console"),
-    createWindowInstance("archive", "field", 3, 0, "field-archive"),
-    createWindowInstance("vector", "field", 4, 0, "field-vector"),
-    createWindowInstance("pulse", "field", 5, 0, "field-pulse"),
-    createWindowInstance("archive", "notes", 3, 0, "notes-archive"),
-    createWindowInstance("scratch", "notes", 4, 0, "notes-scratch"),
+    createWindowInstance("now", "build", 1, 0, "build-now"),
   ];
   return {
     version: 3,
     activeWorkspaceId: "build",
     activeInstances: {
-      build: "build-stack",
-      field: "field-pulse",
-      notes: "notes-scratch",
+      build: "build-now",
+      field: null,
+      notes: null,
     },
     themeId: "cobalt",
     windows,
@@ -439,15 +449,37 @@ function parseWindow(value: unknown): WorkbenchWindow | null {
     typeof input === "number" && Number.isFinite(input)
       ? Math.min(Math.max(input, min), max)
       : fallback;
+  const maximized = candidate.maximized === true;
+  const snap =
+    !maximized && (candidate.snap === "left" || candidate.snap === "right")
+      ? candidate.snap
+      : null;
   const restoreBounds =
     candidate.restoreBounds && typeof candidate.restoreBounds === "object"
       ? {
-          x: numberOr(candidate.restoreBounds.x, app.defaultX, -3_000, 3_000),
-          y: numberOr(candidate.restoreBounds.y, app.defaultY, -3_000, 3_000),
+          x: numberOr(
+            candidate.restoreBounds.x,
+            app.defaultX,
+            -WORKBENCH_COORDINATE_LIMIT,
+            WORKBENCH_COORDINATE_LIMIT,
+          ),
+          y: numberOr(
+            candidate.restoreBounds.y,
+            app.defaultY,
+            -WORKBENCH_COORDINATE_LIMIT,
+            WORKBENCH_COORDINATE_LIMIT,
+          ),
           width: numberOr(candidate.restoreBounds.width, app.defaultWidth, 320, 3_000),
           height: numberOr(candidate.restoreBounds.height, app.defaultHeight, 190, 2_000),
         }
-      : null;
+      : maximized || snap
+        ? {
+            x: app.defaultX,
+            y: app.defaultY,
+            width: app.defaultWidth,
+            height: app.defaultHeight,
+          }
+        : null;
   const dataEntries = candidate.data ? Object.entries(candidate.data) : [];
   if (
     dataEntries.length > 30 ||
@@ -469,15 +501,25 @@ function parseWindow(value: unknown): WorkbenchWindow | null {
     appId: candidate.appId,
     title: typeof candidate.title === "string" ? candidate.title : app.label,
     workspaceId: candidate.workspaceId,
-    x: numberOr(candidate.x, app.defaultX, -3_000, 3_000),
-    y: numberOr(candidate.y, app.defaultY, -3_000, 3_000),
+    x: numberOr(
+      candidate.x,
+      app.defaultX,
+      -WORKBENCH_COORDINATE_LIMIT,
+      WORKBENCH_COORDINATE_LIMIT,
+    ),
+    y: numberOr(
+      candidate.y,
+      app.defaultY,
+      -WORKBENCH_COORDINATE_LIMIT,
+      WORKBENCH_COORDINATE_LIMIT,
+    ),
     width: numberOr(candidate.width, app.defaultWidth, 320, 3_000),
     height: numberOr(candidate.height, app.defaultHeight, 190, 2_000),
     z: numberOr(candidate.z, 1, 1, 100_000),
     open: candidate.open !== false,
     minimized: candidate.minimized === true,
-    maximized: candidate.maximized === true,
-    snap: candidate.snap === "left" || candidate.snap === "right" ? candidate.snap : null,
+    maximized,
+    snap,
     restoreBounds,
     data: Object.fromEntries(dataEntries) as Record<string, string>,
     createdAt: numberOr(candidate.createdAt, Date.now(), 0, Number.MAX_SAFE_INTEGER),

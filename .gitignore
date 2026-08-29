@@ -34,6 +34,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -44,5 +45,6 @@ next-env.d.ts
 
 # local build/QA artifacts (not for the public repo)
 /tmp/
+/artifacts/
 /.impeccable/
 /output/

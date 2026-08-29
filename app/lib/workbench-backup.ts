@@ -2,8 +2,7 @@
 // Attribution and additional terms: see NOTICE.md.
 
 import {
-  createDefaultWorkbenchSession,
-  createWindowInstance,
+  WORKBENCH_COORDINATE_LIMIT,
   isWorkbenchAppId,
   isWorkbenchThemeId,
   isWorkspaceId,
@@ -33,12 +32,11 @@ export const MAX_WORKBENCH_COMMITTED_STATE_BYTES = MAX_WORKBENCH_STATE_BYTES;
 const MAX_LEGACY_VALUE_BYTES = 524_288;
 const MAX_WINDOW_COUNT = 60;
 /**
- * Headroom before persisted z values are compacted back to 1..n. Every
- * focus/open/minimize allocates highest+1, so without this the monotonic
- * counter eventually crosses isStrictWindow's 100_000 validation cap and
- * every save and export fails permanently.
+ * Persisted window layers stay below the fixed dock/menu band, which begins at
+ * z-index 90. With at most 60 windows, compaction to 1..n preserves ordering
+ * while retaining headroom for subsequent focus operations.
  */
-const WORKBENCH_Z_RENUMBER_THRESHOLD = 20_000;
+const WORKBENCH_Z_RENUMBER_THRESHOLD = 64;
 const LEGACY_APP_IDS = [
   "now",
   "stack",
@@ -51,7 +49,29 @@ const LEGACY_APP_IDS = [
 ] as const satisfies readonly WorkbenchAppId[];
 
 type LegacyAppId = (typeof LEGACY_APP_IDS)[number];
+type LegacyMigrationAppId = LegacyAppId | "archive" | "pulse";
 type StorageReader = Pick<Storage, "getItem">;
+
+type LegacyMigrationWindowSpec = Readonly<
+  Pick<WorkbenchWindow, "title" | "x" | "y" | "width" | "height">
+>;
+
+/**
+ * Frozen geometry and titles from the v3 layout that first consumed v1 state.
+ * Migration must not drift when the live app registry is renamed or redesigned.
+ */
+const LEGACY_MIGRATION_WINDOW_SPECS = {
+  now: { title: "Now", x: 24, y: 20, width: 395, height: 335 },
+  stack: { title: "Stack", x: 434, y: 20, width: 400, height: 355 },
+  method: { title: "Method", x: 24, y: 400, width: 395, height: 205 },
+  scratch: { title: "Scratch", x: 434, y: 400, width: 395, height: 205 },
+  console: { title: "Console", x: 850, y: 400, width: 400, height: 205 },
+  links: { title: "Links", x: 850, y: 20, width: 390, height: 300 },
+  lab: { title: "Subsurface", x: 300, y: 70, width: 650, height: 430 },
+  vector: { title: "Vector", x: 265, y: 48, width: 720, height: 450 },
+  archive: { title: "Archive", x: 260, y: 44, width: 760, height: 470 },
+  pulse: { title: "Pulse", x: 250, y: 40, width: 760, height: 460 },
+} as const satisfies Record<LegacyMigrationAppId, LegacyMigrationWindowSpec>;
 
 type LegacyWindow = {
   id: LegacyAppId;
@@ -64,6 +84,69 @@ type LegacyWindow = {
   minimized: boolean;
   maximized: boolean;
 };
+
+function createLegacyMigrationWindow(
+  appId: LegacyMigrationAppId,
+  workspaceId: WorkspaceId,
+  z: number,
+  instanceId: string,
+  createdAt: number,
+): WorkbenchWindow {
+  const spec = LEGACY_MIGRATION_WINDOW_SPECS[appId];
+  return {
+    instanceId,
+    appId,
+    title: spec.title,
+    workspaceId,
+    x: spec.x,
+    y: spec.y,
+    width: spec.width,
+    height: spec.height,
+    z,
+    open: true,
+    minimized: false,
+    maximized: false,
+    snap: null,
+    restoreBounds: null,
+    data: {},
+    createdAt,
+  };
+}
+
+/**
+ * Historical v3 baseline used only while translating v1 browser state. Keep
+ * this separate from the intentionally narrow first-visit seed: migration
+ * previously merged legacy geometry into these eight windows, and dropping
+ * them would silently rewrite an existing visitor's workspace.
+ */
+function createLegacyMigrationBaseSession(): WorkbenchSession {
+  const now = Date.now();
+  const windows: WorkbenchWindow[] = [
+    createLegacyMigrationWindow("now", "build", 3, "build-now", now),
+    createLegacyMigrationWindow("stack", "build", 5, "build-stack", now),
+    createLegacyMigrationWindow("console", "build", 4, "build-console", now),
+    createLegacyMigrationWindow("archive", "field", 3, "field-archive", now),
+    createLegacyMigrationWindow("vector", "field", 4, "field-vector", now),
+    createLegacyMigrationWindow("pulse", "field", 5, "field-pulse", now),
+    createLegacyMigrationWindow("archive", "notes", 3, "notes-archive", now),
+    createLegacyMigrationWindow("scratch", "notes", 4, "notes-scratch", now),
+  ];
+
+  return {
+    version: 3,
+    activeWorkspaceId: "build",
+    activeInstances: {
+      build: "build-stack",
+      field: "field-pulse",
+      notes: "notes-scratch",
+    },
+    themeId: "cobalt",
+    windows,
+    scratch: "",
+    methodStep: "clarify",
+    updatedAt: now,
+  };
+}
 
 export type WorkbenchBackupEnvelope = {
   format: typeof WORKBENCH_BACKUP_FORMAT;
@@ -170,17 +253,41 @@ export function deriveWorkbenchContentRevision(
   )}`;
 }
 
-function hasValidBounds(value: unknown) {
+type RepairableWorkbenchBounds = Partial<
+  NonNullable<WorkbenchWindow["restoreBounds"]>
+>;
+
+type StrictWorkbenchWindowInput = Omit<WorkbenchWindow, "restoreBounds"> & {
+  restoreBounds: RepairableWorkbenchBounds | null;
+};
+
+function isOptionalFiniteNumber(value: unknown, min: number, max: number) {
+  return value === undefined || isFiniteNumber(value, min, max);
+}
+
+/**
+ * A saved restore object may predate one of its geometry fields. Present values
+ * remain strict; the shared parser supplies registry fallbacks for omissions.
+ */
+function hasRepairableBounds(value: unknown): value is RepairableWorkbenchBounds {
   return (
     isRecord(value) &&
-    isFiniteNumber(value.x, -3_000, 3_000) &&
-    isFiniteNumber(value.y, -3_000, 3_000) &&
-    isFiniteNumber(value.width, 320, 3_000) &&
-    isFiniteNumber(value.height, 190, 2_000)
+    isOptionalFiniteNumber(
+      value.x,
+      -WORKBENCH_COORDINATE_LIMIT,
+      WORKBENCH_COORDINATE_LIMIT,
+    ) &&
+    isOptionalFiniteNumber(
+      value.y,
+      -WORKBENCH_COORDINATE_LIMIT,
+      WORKBENCH_COORDINATE_LIMIT,
+    ) &&
+    isOptionalFiniteNumber(value.width, 320, 3_000) &&
+    isOptionalFiniteNumber(value.height, 190, 2_000)
   );
 }
 
-function isStrictWindow(value: unknown): value is WorkbenchWindow {
+function isStrictWindow(value: unknown): value is StrictWorkbenchWindowInput {
   if (
     !isRecord(value) ||
     typeof value.instanceId !== "string" ||
@@ -190,8 +297,16 @@ function isStrictWindow(value: unknown): value is WorkbenchWindow {
     typeof value.title !== "string" ||
     value.title.length > 240 ||
     !isWorkspaceId(value.workspaceId) ||
-    !isFiniteNumber(value.x, -3_000, 3_000) ||
-    !isFiniteNumber(value.y, -3_000, 3_000) ||
+    !isFiniteNumber(
+      value.x,
+      -WORKBENCH_COORDINATE_LIMIT,
+      WORKBENCH_COORDINATE_LIMIT,
+    ) ||
+    !isFiniteNumber(
+      value.y,
+      -WORKBENCH_COORDINATE_LIMIT,
+      WORKBENCH_COORDINATE_LIMIT,
+    ) ||
     !isFiniteNumber(value.width, 320, 3_000) ||
     !isFiniteNumber(value.height, 190, 2_000) ||
     !isFiniteNumber(value.z, 1, 100_000) ||
@@ -199,7 +314,7 @@ function isStrictWindow(value: unknown): value is WorkbenchWindow {
     typeof value.minimized !== "boolean" ||
     typeof value.maximized !== "boolean" ||
     (value.snap !== null && value.snap !== "left" && value.snap !== "right") ||
-    (value.restoreBounds !== null && !hasValidBounds(value.restoreBounds)) ||
+    (value.restoreBounds !== null && !hasRepairableBounds(value.restoreBounds)) ||
     !isRecord(value.data) ||
     !isFiniteNumber(value.createdAt, 0, Number.MAX_SAFE_INTEGER)
   ) {
@@ -241,7 +356,7 @@ export function parseStrictWorkbenchSession(value: unknown): WorkbenchSession | 
     return null;
   }
 
-  const windows = value.windows as WorkbenchWindow[];
+  const windows = value.windows as StrictWorkbenchWindowInput[];
   const instanceIds = new Set(windows.map((windowState) => windowState.instanceId));
   if (instanceIds.size !== windows.length) return null;
 
@@ -252,12 +367,14 @@ export function parseStrictWorkbenchSession(value: unknown): WorkbenchSession | 
   const maxZ = windows.reduce((highest, windowState) => Math.max(highest, windowState.z), 0);
   let stacked = windows;
   if (maxZ > WORKBENCH_Z_RENUMBER_THRESHOLD) {
-    const byStackOrder = windows.slice().sort(
-      (left, right) =>
-        left.z - right.z ||
-        left.createdAt - right.createdAt ||
-        (left.instanceId < right.instanceId ? -1 : left.instanceId > right.instanceId ? 1 : 0),
-    );
+    const byStackOrder = windows
+      .map((windowState, originalIndex) => ({ windowState, originalIndex }))
+      .sort(
+        (left, right) =>
+          left.windowState.z - right.windowState.z ||
+          left.originalIndex - right.originalIndex,
+      )
+      .map(({ windowState }) => windowState);
     const renumbered = new Map(
       byStackOrder.map((windowState, index) => [windowState.instanceId, index + 1]),
     );
@@ -294,7 +411,7 @@ export function parseStrictWorkbenchSession(value: unknown): WorkbenchSession | 
     ...parsed,
     windows: parsed.windows.map((windowState) => ({
       ...windowState,
-      maximized: sourceById.get(windowState.instanceId)?.maximized ?? false,
+      z: sourceById.get(windowState.instanceId)?.z ?? windowState.z,
     })),
   };
 }
@@ -505,12 +622,12 @@ function createMigratedWindow(
 ): WorkbenchWindow {
   const base =
     fallback ??
-    createWindowInstance(
+    createLegacyMigrationWindow(
       legacy.id,
       "build",
       legacy.z,
-      0,
       `legacy-build-${legacy.id}`,
+      createdAt,
     );
   const restoreBounds = legacy.maximized
     ? {
@@ -571,7 +688,7 @@ export function migrateLegacyWorkbenchSession(
   if (!legacyWindows) return null;
 
   const scratch = legacyScratch ?? "";
-  const defaults = createDefaultWorkbenchSession();
+  const defaults = createLegacyMigrationBaseSession();
   const now = Date.now();
   const windows = defaults.windows.map((windowState) => ({
     ...windowState,

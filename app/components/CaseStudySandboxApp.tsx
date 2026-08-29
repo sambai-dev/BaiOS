@@ -3,65 +3,184 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { playSound } from "../lib/workbench-sound";
 
-type CaseTab = "trekky" | "springs" | "architecture";
+const CASE_TABS = [
+  { id: "trekky", label: "Trekky" },
+  { id: "workbench", label: "Workbench" },
+  { id: "motion", label: "Motion" },
+] as const;
+
+type CaseTab = (typeof CASE_TABS)[number]["id"];
+
+const TREKKY_STEPS = [
+  {
+    label: "Discover",
+    eyebrow: "Multi-market discovery",
+    detail:
+      "Job sources across New Zealand, Australia, the United States, and Singapore feed one discovery workflow.",
+    note: "Duplicate handling and source history keep imported listings reviewable.",
+  },
+  {
+    label: "Organize",
+    eyebrow: "One working system",
+    detail:
+      "Tracking, contacts, follow-ups, analytics, and Google sync stay connected across the job-search workflow.",
+    note: "The product spans web, PWA, an MV3 extension, and authenticated MCP.",
+  },
+  {
+    label: "Prepare",
+    eyebrow: "AI-assisted, human-led",
+    detail:
+      "AI apply kits help prepare application material while the final submission remains with the user.",
+    note: "Automation is review-first: the system assists, and the user submits.",
+  },
+  {
+    label: "Follow through",
+    eyebrow: "Calendar-connected follow-up",
+    detail:
+      "Calendar sync keeps interviews, reminders, and application follow-ups beside tracked work.",
+    note: "The same workflow connects discovery, preparation, and follow-up without automating the final submission.",
+  },
+] as const;
+
+const WORKBENCH_LAYERS = [
+  {
+    label: "Interaction",
+    title: "A working window manager",
+    detail:
+      "Windows can focus, drag, resize, snap, maximize, minimize, and restore across three local workspaces.",
+  },
+  {
+    label: "State",
+    title: "Typed, versioned local state",
+    detail:
+      "The session records workspace, window geometry, theme, app data, and the shared editable Archive tree.",
+  },
+  {
+    label: "Commit",
+    title: "Session and Archive move together",
+    detail:
+      "A content-derived revision commits both stores as one envelope and exposes competing edits from another tab.",
+  },
+  {
+    label: "Recovery",
+    title: "Validation before replacement",
+    detail:
+      "Versioned JSON backups are schema-checked before import; migration and corrupt-state recovery preserve a safe path back.",
+  },
+] as const;
 
 type CaseStudySandboxAppProps = {
   /** False while the host window is minimized or hidden, pausing background loops. */
   isActive: boolean;
 };
 
+function subscribeToReducedMotion(onChange: () => void) {
+  const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function getReducedMotionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getReducedMotionServerSnapshot() {
+  return false;
+}
+
 export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppProps) {
   const [activeTab, setActiveTab] = useState<CaseTab>("trekky");
-
-  // Trekky Sandbox State
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [progress, setProgress] = useState(38);
-  const [offlineMode, setOfflineMode] = useState(false);
-
-  // Springs Sandbox State
+  const [activeTrekkyStep, setActiveTrekkyStep] = useState(0);
+  const [activeWorkbenchLayer, setActiveWorkbenchLayer] = useState(0);
   const [stiffness, setStiffness] = useState(240);
   const [damping, setDamping] = useState(22);
   const [springTrigger, setSpringTrigger] = useState(0);
+  const [canvasThemeRevision, setCanvasThemeRevision] = useState(0);
+  const [canvasSizeRevision, setCanvasSizeRevision] = useState(0);
 
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
-  // Spring constants live in refs so tuning a slider updates the running
-  // simulation instead of tearing it down and teleporting the weight back
-  // to its start position. Only tab/visibility/impulse changes restart it.
+  // Parameters live in refs so controls can tune a moving trajectory. The
+  // effect restarts only for a new impulse, visibility, theme, or canvas size.
   const stiffnessRef = useRef(stiffness);
   const dampingRef = useRef(damping);
+  const prefersReducedMotion = useSyncExternalStore(
+    subscribeToReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  );
 
   useEffect(() => {
     stiffnessRef.current = stiffness;
     dampingRef.current = damping;
   }, [stiffness, damping]);
 
-  // Trekky telemetry playback loop
   useEffect(() => {
-    if (activeTab !== "trekky" || !isPlaying || !isActive) return;
+    if (activeTab !== "motion") return;
 
-    const interval = setInterval(() => {
-      setProgress((prev) => (prev >= 100 ? 0 : prev + 1));
-    }, 120);
+    const themeRoot = canvasRef.current?.closest("[data-os-theme]");
+    if (!themeRoot) return;
 
-    return () => clearInterval(interval);
-  }, [activeTab, isPlaying, isActive]);
+    const observer = new MutationObserver(() => {
+      setCanvasThemeRevision((revision) => revision + 1);
+    });
+    observer.observe(themeRoot, {
+      attributes: true,
+      attributeFilter: ["data-os-theme"],
+    });
 
-  // Spring physics simulation on Canvas
+    return () => observer.disconnect();
+  }, [activeTab]);
+
   useEffect(() => {
-    if (activeTab !== "springs" || !isActive) return;
+    if (activeTab !== "motion" || !isActive) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let previousWidth = -1;
+    let previousHeight = -1;
+    const updateCanvasSize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const nextWidth = Math.max(1, Math.round(rect.width));
+      const nextHeight = Math.max(1, Math.round(rect.height));
+      if (nextWidth === previousWidth && nextHeight === previousHeight) return;
+      previousWidth = nextWidth;
+      previousHeight = nextHeight;
+      setCanvasSizeRevision((revision) => revision + 1);
+    };
+
+    updateCanvasSize();
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(updateCanvasSize);
+    resizeObserver?.observe(canvas);
+    window.addEventListener("resize", updateCanvasSize);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateCanvasSize);
+    };
+  }, [activeTab, isActive]);
+
+  useEffect(() => {
+    if (activeTab !== "motion" || !isActive) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Match the other lab canvases: scale the backing store by devicePixelRatio
-    // so the plot stays crisp on HiDPI displays instead of stretching a
-    // fixed-size bitmap.
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
     const rect = canvas.getBoundingClientRect();
     const viewWidth = Math.max(1, Math.round(rect.width));
@@ -70,60 +189,85 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
     canvas.height = Math.round(viewHeight * pixelRatio);
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
+    const styles = getComputedStyle(canvas);
+    const carbon = styles.getPropertyValue("--carbon").trim() || styles.color;
+    const route = styles.getPropertyValue("--cobalt").trim() || styles.color;
+
+    const draw = (position: number) => {
+      const targetY = viewHeight * 0.45;
+      const currentY = targetY + (1 - position) * Math.min(70, viewHeight * 0.38);
+
+      ctx.clearRect(0, 0, viewWidth, viewHeight);
+
+      ctx.save();
+      ctx.globalAlpha = 0.12;
+      ctx.strokeStyle = carbon;
+      ctx.lineWidth = 1;
+      for (let x = 0; x < viewWidth; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, viewHeight);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      ctx.save();
+      ctx.globalAlpha = 0.38;
+      ctx.strokeStyle = route;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(0, targetY);
+      ctx.lineTo(viewWidth, targetY);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.strokeStyle = carbon;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(viewWidth * 0.5, 0);
+      ctx.lineTo(viewWidth * 0.5, currentY);
+      ctx.stroke();
+
+      ctx.fillStyle = route;
+      ctx.beginPath();
+      ctx.arc(viewWidth * 0.5, currentY, 18, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
+    if (prefersReducedMotion) {
+      draw(1);
+      animationRef.current = null;
+      return;
+    }
+
     let position = 0;
     let velocity = 0;
-    const target = 1;
+    let settledFrames = 0;
     let lastTime = performance.now();
 
     const render = (time: number) => {
-      const dt = Math.min((time - lastTime) / 1000, 0.032);
+      const frameDelta = Math.min((time - lastTime) / 1000, 0.032);
       lastTime = time;
 
-      // Spring formula: F = -k*(x - target) - d*v
-      const force =
-        -stiffnessRef.current * (position - target) - dampingRef.current * velocity;
-      velocity += force * dt;
-      position += velocity * dt;
-
-      const width = viewWidth;
-      const height = viewHeight;
-
-      ctx.clearRect(0, 0, width, height);
-
-      // Grid rules
-      ctx.strokeStyle = "rgba(17, 17, 15, 0.12)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 40) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
+      const maximumStep = 1 / 120;
+      const substeps = Math.max(1, Math.ceil(frameDelta / maximumStep));
+      const step = frameDelta / substeps;
+      for (let index = 0; index < substeps; index += 1) {
+        const force =
+          -stiffnessRef.current * (position - 1) - dampingRef.current * velocity;
+        velocity += force * step;
+        position += velocity * step;
       }
+      draw(position);
 
-      // Target Line
-      ctx.strokeStyle = "rgba(76, 92, 229, 0.35)";
-      ctx.setLineDash([4, 4]);
-      const targetY = height * 0.45;
-      ctx.beginPath();
-      ctx.moveTo(0, targetY);
-      ctx.lineTo(width, targetY);
-      ctx.stroke();
-      ctx.setLineDash([]);
+      const isSettled = Math.abs(position - 1) < 0.001 && Math.abs(velocity) < 0.01;
+      settledFrames = isSettled ? settledFrames + 1 : 0;
 
-      // Spring Weight
-      const currentY = targetY + (1 - position) * 70;
-      ctx.fillStyle = "#4c5ce5";
-      ctx.beginPath();
-      ctx.arc(width * 0.5, currentY, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Connector line
-      ctx.strokeStyle = "#11110f";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(width * 0.5, 0);
-      ctx.lineTo(width * 0.5, currentY);
-      ctx.stroke();
+      if (settledFrames >= 4) {
+        draw(1);
+        animationRef.current = null;
+        return;
+      }
 
       animationRef.current = requestAnimationFrame(render);
     };
@@ -131,306 +275,364 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
     animationRef.current = requestAnimationFrame(render);
 
     return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
     };
-  }, [activeTab, isActive, springTrigger]);
+  }, [
+    activeTab,
+    canvasSizeRevision,
+    canvasThemeRevision,
+    isActive,
+    prefersReducedMotion,
+    springTrigger,
+  ]);
+
+  const selectTab = (tab: CaseTab, index: number) => {
+    setActiveTab(tab);
+    tabRefs.current[index]?.focus();
+    playSound("click");
+  };
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let nextIndex: number | null = null;
+
+    if (event.key === "ArrowRight") {
+      nextIndex = (index + 1) % CASE_TABS.length;
+    } else if (event.key === "ArrowLeft") {
+      nextIndex = (index - 1 + CASE_TABS.length) % CASE_TABS.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = CASE_TABS.length - 1;
+    }
+
+    if (nextIndex === null) return;
+    const nextTab = CASE_TABS[nextIndex];
+    if (!nextTab) return;
+    event.preventDefault();
+    selectTab(nextTab.id, nextIndex);
+  };
+
+  const selectedTrekkyStep = TREKKY_STEPS[activeTrekkyStep] ?? TREKKY_STEPS[0];
+  const selectedWorkbenchLayer =
+    WORKBENCH_LAYERS[activeWorkbenchLayer] ?? WORKBENCH_LAYERS[0];
 
   return (
     <div className="sandbox-app">
       <header className="sandbox-header">
         <div>
-          <h2>Sandbox.</h2>
-          <p>Inspectable architectures, interactive engines, and live micro-interaction physics.</p>
+          <span className="sandbox-header-index">Systems / 03</span>
+          <h2>Systems &amp; experiments.</h2>
+          <p>Documented product systems beside one clearly labeled local simulation.</p>
         </div>
-        <div className="sandbox-tabs" role="tablist" aria-label="Case study areas">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "trekky"}
-            onClick={() => {
-              playSound("click");
-              setActiveTab("trekky");
-            }}
-          >
-            Trekky Engine
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "springs"}
-            onClick={() => {
-              playSound("click");
-              setActiveTab("springs");
-            }}
-          >
-            Motion Springs
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === "architecture"}
-            onClick={() => {
-              playSound("click");
-              setActiveTab("architecture");
-            }}
-          >
-            Systems Architecture
-          </button>
+        <div className="sandbox-tabs" role="tablist" aria-label="System and experiment views">
+          {CASE_TABS.map((tab, index) => (
+            <button
+              key={tab.id}
+              ref={(node) => {
+                tabRefs.current[index] = node;
+              }}
+              id={`sandbox-tab-${tab.id}`}
+              type="button"
+              role="tab"
+              aria-controls={`sandbox-panel-${tab.id}`}
+              aria-selected={activeTab === tab.id}
+              tabIndex={activeTab === tab.id ? 0 : -1}
+              onClick={() => selectTab(tab.id, index)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </header>
 
-      {activeTab === "trekky" && (
-        <div className="sandbox-body sandbox-trekky-view">
-          <div className="sandbox-stage">
-            <div className="sandbox-panel-head">
-              <span className="sandbox-tag">Live Engine Sandbox</span>
-              <h3>Trekky Offline GPS & Telemetry Engine</h3>
-              <p>
-                Demonstrating local-first SQLite sync, continuous background GPS batching, and elevation calculation.
-              </p>
-            </div>
-
-            <div className="sandbox-telemetry-cluster">
-              <div className="sandbox-telemetry-chart" aria-label="Elevation and speed graph">
-                <svg viewBox="0 0 600 160" preserveAspectRatio="none" className="sandbox-elevation-svg">
-                  <path
-                    d="M 0 130 Q 80 110, 160 70 T 320 40 T 480 85 T 600 20 L 600 160 L 0 160 Z"
-                    fill="rgba(76, 92, 229, 0.1)"
-                  />
-                  <path
-                    d="M 0 130 Q 80 110, 160 70 T 320 40 T 480 85 T 600 20"
-                    fill="none"
-                    stroke="#4c5ce5"
-                    strokeWidth="3"
-                  />
-                  {/* Current progress indicator */}
-                  <line
-                    x1={`${progress * 6}`}
-                    y1="0"
-                    x2={`${progress * 6}`}
-                    y2="160"
-                    stroke="#ba5b3f"
-                    strokeWidth="2"
-                    strokeDasharray="4 2"
-                  />
-                  <circle
-                    cx={`${progress * 6}`}
-                    cy={130 - progress * 0.9}
-                    r="5"
-                    fill="#ba5b3f"
-                  />
-                </svg>
-              </div>
-
-              <div className="sandbox-scrubber-row">
-                <button
-                  type="button"
-                  className="sandbox-btn-ctrl"
-                  onClick={() => {
-                    playSound("click");
-                    setIsPlaying(!isPlaying);
-                  }}
-                >
-                  {isPlaying ? "Pause Track" : "Play Simulation"}
-                </button>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={progress}
-                  aria-label="Track playback progress"
-                  onChange={(e) => {
-                    setProgress(Number(e.target.value));
-                    setIsPlaying(false);
-                  }}
-                />
-                <button
-                  type="button"
-                  className={`sandbox-btn-ctrl ${offlineMode ? "is-active" : ""}`}
-                  onClick={() => {
-                    playSound("snap");
-                    setOfflineMode(!offlineMode);
-                  }}
-                >
-                  {offlineMode ? "● Offline Buffer (Active)" : "○ Cloud Connected"}
-                </button>
-              </div>
-            </div>
-
-            <dl className="sandbox-metrics-grid">
-              <div>
-                <dt>Recorded Distance</dt>
-                <dd>{(progress * 0.18).toFixed(1)} km</dd>
-              </div>
-              <div>
-                <dt>Elevation Gain</dt>
-                <dd>+{(progress * 6.4).toFixed(0)} m</dd>
-              </div>
-              <div>
-                <dt>GPS Fix Accuracy</dt>
-                <dd>±2.4 meters</dd>
-              </div>
-              <div>
-                <dt>Local Queue</dt>
-                <dd>{offlineMode ? `${Math.floor(progress * 1.4)} records` : "0 (Synced)"}</dd>
-              </div>
-            </dl>
+      <div
+        id="sandbox-panel-trekky"
+        className="sandbox-body sandbox-trekky-view"
+        role="tabpanel"
+        aria-labelledby="sandbox-tab-trekky"
+        hidden={activeTab !== "trekky"}
+      >
+        <div className="sandbox-stage" role="region" aria-label="Trekky system details" tabIndex={0}>
+          <div className="sandbox-panel-head">
+            <span className="sandbox-tag">Owned product · documented scope</span>
+            <h3>Trekky job-search workflow engine.</h3>
+            <p>
+              A live Next.js, React, and TypeScript product operated across web, PWA,
+              an MV3 extension, and authenticated MCP.
+            </p>
           </div>
 
-          <aside className="sandbox-sidebar">
-            <span className="sandbox-tag">Engineering Highlights</span>
-            <h4>Technical Highlights</h4>
-            <ul className="sandbox-bullet-list">
-              <li>
-                <strong>Douglas-Peucker Simplification:</strong> Compresses 10,000+ GPS coordinates by 82% without losing track fidelity.
-              </li>
-              <li>
-                <strong>CRDT Conflict Resolution:</strong> Deterministic sync over unreliable backcountry cellular towers.
-              </li>
-              <li>
-                <strong>Zero-Drift Background Loop:</strong> Sub-3% battery drain per 8-hour alpine trek.
-              </li>
-            </ul>
-          </aside>
-        </div>
-      )}
-
-      {activeTab === "springs" && (
-        <div className="sandbox-body sandbox-springs-view">
-          <div className="sandbox-stage">
-            <div className="sandbox-panel-head">
-              <span className="sandbox-tag">Tactile Micro-Physics</span>
-              <h3>Spring Mechanics & Dynamic Curves</h3>
-              <p>Test physical spring stiffness and damping constants for tactile interface responses.</p>
-            </div>
-
-            <div className="sandbox-canvas-container">
-              <canvas ref={canvasRef} width={500} height={180} className="sandbox-spring-canvas" />
-            </div>
-
-              <div className="sandbox-controls-cluster">
-              <div className="sandbox-presets" role="group" aria-label="Spring presets">
-                {(
-                  [
-                    ["Bouncy", 320, 12],
-                    ["Snappy", 420, 28],
-                    ["Critical", 240, Math.round(2 * Math.sqrt(240))],
-                    ["Floaty", 90, 18],
-                  ] as const
-                ).map(([label, k, d]) => (
+          <div className="sandbox-flow-shell">
+            <ol className="sandbox-flow-track" aria-label="Trekky workflow stages">
+              {TREKKY_STEPS.map((step, index) => (
+                <li key={step.label}>
                   <button
-                    key={label}
                     type="button"
-                    aria-pressed={stiffness === k && damping === d}
+                    aria-pressed={activeTrekkyStep === index}
                     onClick={() => {
+                      setActiveTrekkyStep(index);
                       playSound("click");
-                      setStiffness(k);
-                      setDamping(d);
-                      setSpringTrigger((v) => v + 1);
                     }}
                   >
-                    {label}
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{step.label}</strong>
                   </button>
-                ))}
-              </div>
-              <div className="sandbox-slider-control">
-                <div className="sandbox-slider-head">
-                  <label htmlFor="spring-stiffness">Stiffness (k)</label>
-                  <span>{stiffness}</span>
-                </div>
-                <input
-                  id="spring-stiffness"
-                  type="range"
-                  min="50"
-                  max="500"
-                  value={stiffness}
-                  onChange={(e) => setStiffness(Number(e.target.value))}
-                />
-              </div>
+                </li>
+              ))}
+            </ol>
 
-              <div className="sandbox-slider-control">
-                <div className="sandbox-slider-head">
-                  <label htmlFor="spring-damping">Damping (d)</label>
-                  <span>{damping}</span>
-                </div>
-                <input
-                  id="spring-damping"
-                  type="range"
-                  min="5"
-                  max="60"
-                  value={damping}
-                  onChange={(e) => setDamping(Number(e.target.value))}
-                />
+            <div className="sandbox-flow-detail" aria-live="polite">
+              <div>
+                <span className="sandbox-detail-label">{selectedTrekkyStep.eyebrow}</span>
+                <p>{selectedTrekkyStep.detail}</p>
               </div>
-
-              <button
-                type="button"
-                className="sandbox-cta-pulse"
-                onClick={() => {
-                  playSound("snap");
-                  setSpringTrigger((v) => v + 1);
-                }}
-              >
-                Trigger Spring Impulse
-              </button>
+              <p className="sandbox-proof-note">{selectedTrekkyStep.note}</p>
             </div>
           </div>
 
-          <aside className="sandbox-sidebar">
-            <span className="sandbox-tag">Motion Philosophy</span>
-            <h4>Why Physics Over Easing</h4>
+          <dl className="sandbox-facts-grid">
+            <div>
+              <dt>Product surfaces</dt>
+              <dd>Web · PWA · MV3 · MCP</dd>
+            </div>
+            <div>
+              <dt>Discovery markets</dt>
+              <dd>NZ · AU · US · Singapore</dd>
+            </div>
+            <div>
+              <dt>Automation boundary</dt>
+              <dd>Review first; users submit</dd>
+            </div>
+          </dl>
+        </div>
+
+        <section className="sandbox-sidebar" aria-labelledby="sandbox-trekky-proof-title" tabIndex={0}>
+          <span className="sandbox-tag">Coverage</span>
+          <h4 id="sandbox-trekky-proof-title">One workflow across four product surfaces.</h4>
+          <ul className="sandbox-bullet-list">
+            <li>
+              <strong>Multiple surfaces:</strong> one workflow reaches web, installable,
+              extension, and authenticated tool contexts.
+            </li>
+            <li>
+              <strong>Workflow continuity:</strong> tracking, contacts, calendar sync, and
+              follow-ups stay connected.
+            </li>
+            <li>
+              <strong>Human control:</strong> AI helps prepare work without submitting on a
+              person&apos;s behalf.
+            </li>
+          </ul>
+          <p className="sandbox-sidebar-note">
+            This view shows documented build scope. Product outcomes and performance measurements
+            are not included.
+          </p>
+        </section>
+      </div>
+
+      <div
+        id="sandbox-panel-workbench"
+        className="sandbox-body sandbox-workbench-view"
+        role="tabpanel"
+        aria-labelledby="sandbox-tab-workbench"
+        hidden={activeTab !== "workbench"}
+      >
+        <div className="sandbox-stage" role="region" aria-label="Workbench architecture details" tabIndex={0}>
+          <div className="sandbox-panel-head">
+            <span className="sandbox-tag">This portfolio · observable architecture</span>
+            <h3>Browser-local state with a recovery path.</h3>
             <p>
-              Linear and bezier curves feel synthetic when interrupted mid-gesture. Physics-based springs inherit velocity from visitor pointers, creating instantaneous, tactile feedback without awkward hitching.
+              The surrounding Workbench is the proof: a typed window system, editable Archive,
+              atomic local commits, and validated backup controls.
             </p>
-          </aside>
-        </div>
-      )}
-
-      {activeTab === "architecture" && (
-        <div className="sandbox-body sandbox-arch-view">
-          <div className="sandbox-stage">
-            <div className="sandbox-panel-head">
-              <span className="sandbox-tag">Full-Stack Blueprint</span>
-              <h3>Solynth Labs Production Architecture</h3>
-              <p>A battle-tested 2026 stack built for sub-50ms cold starts, type-safety, and edge scalability.</p>
-            </div>
-
-            <div className="sandbox-arch-grid">
-              <div className="sandbox-arch-card">
-                <span className="sandbox-arch-layer">01 / Edge & Presentation</span>
-                <h4>Next.js 16 + React 19</h4>
-                <p>Server Components, partial prerendering, and fluid vanilla CSS design tokens.</p>
-              </div>
-              <div className="sandbox-arch-card">
-                <span className="sandbox-arch-layer">02 / Edge Routing & Cache</span>
-                <h4>Cloudflare Workers & KV</h4>
-                <p>Global edge proxying, stale-while-revalidate caching, and sub-10ms response times.</p>
-              </div>
-              <div className="sandbox-arch-card">
-                <span className="sandbox-arch-layer">03 / State & Security</span>
-                <h4>PostgreSQL + Supabase RLS</h4>
-                <p>Row-Level Security policies enforcing airtight zero-trust data isolation per tenant.</p>
-              </div>
-              <div className="sandbox-arch-card">
-                <span className="sandbox-arch-layer">04 / AI Orchestration</span>
-                <h4>LLM Streaming & Tool Use</h4>
-                <p>Fast structured JSON outputs, streaming token parsers, and multi-agent coordination.</p>
-              </div>
-            </div>
           </div>
 
-          <aside className="sandbox-sidebar">
-            <span className="sandbox-tag">Performance Benchmarks</span>
-            <h4>Verified Metrics</h4>
-            <ul className="sandbox-bullet-list">
-              <li><strong>TTFB:</strong> 38ms average globally</li>
-              <li><strong>Lighthouse Score:</strong> 100 Performance, 100 A11y</li>
-              <li><strong>Cold Start:</strong> 0ms on Edge runtime</li>
-              <li><strong>Type Safety:</strong> End-to-end inference from DB to React</li>
-            </ul>
-          </aside>
+          <div className="sandbox-architecture-shell">
+            <div className="sandbox-architecture-status" aria-hidden="true">
+              <span>Browser</span>
+              <i />
+              <span>Committed state</span>
+              <i />
+              <span>Recovery</span>
+            </div>
+
+            <div className="sandbox-layer-grid" role="group" aria-label="Workbench architecture layers">
+              {WORKBENCH_LAYERS.map((layer, index) => (
+                <button
+                  key={layer.label}
+                  type="button"
+                  aria-pressed={activeWorkbenchLayer === index}
+                  onClick={() => {
+                    setActiveWorkbenchLayer(index);
+                    playSound("click");
+                  }}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{layer.label}</strong>
+                </button>
+              ))}
+            </div>
+
+            <div className="sandbox-layer-detail" aria-live="polite">
+              <span className="sandbox-detail-label">{selectedWorkbenchLayer.label}</span>
+              <h4>{selectedWorkbenchLayer.title}</h4>
+              <p>{selectedWorkbenchLayer.detail}</p>
+            </div>
+          </div>
         </div>
-      )}
+
+        <section className="sandbox-sidebar" aria-labelledby="sandbox-local-boundary-title" tabIndex={0}>
+          <span className="sandbox-tag">Local means local</span>
+          <h4 id="sandbox-local-boundary-title">A precise persistence boundary.</h4>
+          <p>
+            Workbench session and Archive data stay in this browser. They are not uploaded and do
+            not imply an account, remote sync, or cross-device storage.
+          </p>
+          <dl className="sandbox-sidebar-facts">
+            <div>
+              <dt>Editable</dt>
+              <dd>Folders, notes, window state</dd>
+            </div>
+            <div>
+              <dt>Portable</dt>
+              <dd>Visitor-triggered JSON backup</dd>
+            </div>
+            <div>
+              <dt>Defensive</dt>
+              <dd>Validation, conflicts, migration</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+
+      <div
+        id="sandbox-panel-motion"
+        className="sandbox-body sandbox-motion-view"
+        role="tabpanel"
+        aria-labelledby="sandbox-tab-motion"
+        hidden={activeTab !== "motion"}
+      >
+        <div className="sandbox-stage" role="region" aria-label="Motion simulation controls" tabIndex={0}>
+          <div className="sandbox-panel-head">
+            <span className="sandbox-tag">Local simulation · editable parameters</span>
+            <h3>Spring response, made inspectable.</h3>
+            <p>
+              Tune stiffness and damping while the spring moves, then trigger a new impulse to
+              compare the response. Values below describe this demo only.
+            </p>
+          </div>
+
+          <div className="sandbox-canvas-container">
+            <canvas
+              ref={canvasRef}
+              width={500}
+              height={180}
+              className="sandbox-spring-canvas"
+              role="img"
+              aria-label="Simulated spring weight moving toward a target line"
+            >
+              A local spring simulation moving a weight toward a target.
+            </canvas>
+            <span className="sandbox-canvas-state">
+              {prefersReducedMotion ? "Reduced motion · resting state" : "F = −kx − dv"}
+            </span>
+          </div>
+
+          <div className="sandbox-controls-cluster">
+            <div className="sandbox-presets" role="group" aria-label="Spring presets">
+              {(
+                [
+                  ["Bouncy", 320, 12],
+                  ["Snappy", 420, 28],
+                  ["Critical", 240, Math.round(2 * Math.sqrt(240))],
+                  ["Floaty", 90, 18],
+                ] as const
+              ).map(([label, k, d]) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-pressed={stiffness === k && damping === d}
+                  onClick={() => {
+                    setStiffness(k);
+                    setDamping(d);
+                    playSound("click");
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="sandbox-slider-control">
+              <div className="sandbox-slider-head">
+                <label htmlFor="spring-stiffness">Stiffness (k)</label>
+                <output htmlFor="spring-stiffness">{stiffness}</output>
+              </div>
+              <input
+                id="spring-stiffness"
+                name="spring-stiffness"
+                type="range"
+                min="50"
+                max="500"
+                value={stiffness}
+                onChange={(event) => setStiffness(Number(event.target.value))}
+              />
+            </div>
+
+            <div className="sandbox-slider-control">
+              <div className="sandbox-slider-head">
+                <label htmlFor="spring-damping">Damping (d)</label>
+                <output htmlFor="spring-damping">{damping}</output>
+              </div>
+              <input
+                id="spring-damping"
+                name="spring-damping"
+                type="range"
+                min="5"
+                max="60"
+                value={damping}
+                onChange={(event) => setDamping(Number(event.target.value))}
+              />
+            </div>
+
+            <button
+              type="button"
+              className="sandbox-cta-pulse"
+              onClick={() => {
+                setSpringTrigger((trigger) => trigger + 1);
+                playSound("snap");
+              }}
+            >
+              Trigger impulse
+            </button>
+          </div>
+        </div>
+
+        <section className="sandbox-sidebar" aria-labelledby="sandbox-motion-limits-title" tabIndex={0}>
+          <span className="sandbox-tag">Observable behavior</span>
+          <h4 id="sandbox-motion-limits-title">A simulation with clear limits.</h4>
+          <ul className="sandbox-bullet-list">
+            <li>
+              <strong>Inputs:</strong> sliders and presets tune the active trajectory without
+              starting it again.
+            </li>
+            <li>
+              <strong>Integration:</strong> the demo advances a damped spring on Canvas.
+            </li>
+            <li>
+              <strong>Lifecycle:</strong> drawing pauses when hidden and stops once the spring
+              settles.
+            </li>
+          </ul>
+          <p className="sandbox-sidebar-note">
+            With reduced motion enabled, the canvas resolves directly to its resting state.
+          </p>
+        </section>
+      </div>
     </div>
   );
 }

@@ -12,6 +12,7 @@ export const MAX_ARCHIVE_BYTES = 1_048_576;
 export const MAX_ARCHIVE_NODES = 2_000;
 export const MAX_NOTE_LENGTH = 200_000;
 export const MAX_ARCHIVE_DEPTH = 64;
+export const MAX_WORKBENCH_SEARCH_CACHE_ENTRIES = 64;
 
 type NodeKind = "root" | "folder" | "note" | "app" | "external" | "trash";
 
@@ -92,8 +93,67 @@ export type FileSearchOptions = {
   readonly includeTrash?: boolean;
 };
 
+export type WorkbenchFilesIndex = {
+  readonly noteCharacterCount: number;
+  readonly getNode: (id: string) => FileNode | undefined;
+  readonly getNodePath: (id: string) => readonly FileNode[];
+  readonly isNodeInTrash: (id: string) => boolean;
+  readonly listChildren: (parentId: string) => readonly FileNode[];
+  readonly search: (
+    query: string,
+    options?: FileSearchOptions,
+  ) => readonly FileNode[];
+};
+
 type StorageReader = Pick<Storage, "getItem">;
 type StorageWriter = Pick<Storage, "setItem">;
+
+type LegacyShortcutMetadataMigration = {
+  readonly id: string;
+  readonly appId: string;
+  readonly legacyName: string;
+  readonly legacySummary: string;
+  readonly currentName: string;
+  readonly currentSummary: string;
+};
+
+const LEGACY_SHORTCUT_METADATA_MIGRATIONS: readonly LegacyShortcutMetadataMigration[] =
+  Object.freeze([
+    Object.freeze({
+      id: "shortcut-book",
+      appId: "book",
+      legacyName: "Book",
+      legacySummary: "B2B scope estimator & consultation booking.",
+      currentName: "Brief",
+      currentSummary: "A factual project-enquiry brief composer.",
+    }),
+    Object.freeze({
+      id: "shortcut-sandbox",
+      appId: "sandbox",
+      legacyName: "Sandbox",
+      legacySummary: "Interactive systems teardown & case studies.",
+      currentName: "Systems",
+      currentSummary: "Documented product systems and a motion simulation.",
+    }),
+  ]);
+
+function freezeFileNode(node: FileNode): FileNode {
+  if (
+    node.kind !== "root" &&
+    node.kind !== "trash" &&
+    node.trashed
+  ) {
+    Object.freeze(node.trashed);
+  }
+  return Object.freeze(node);
+}
+
+/** Enforces the immutable snapshot contract at runtime, not only in TypeScript. */
+function freezeWorkbenchFiles(files: WorkbenchFiles): WorkbenchFiles {
+  for (const node of files.nodes) freezeFileNode(node);
+  Object.freeze(files.nodes);
+  return Object.freeze(files);
+}
 
 const defaultNodes: readonly FileNode[] = [
   {
@@ -132,7 +192,7 @@ const defaultNodes: readonly FileNode[] = [
     updatedAt: DEFAULT_TIMESTAMP,
     summary: "A compact operating note.",
     content:
-      "I build software products and the systems around them. My work sits between product direction, interaction design, and production engineering. The useful outcome is not a polished artifact by itself; it is a product team that can make the next decision with more confidence.",
+      "I design and build software. I work across product decisions, interface design, and production engineering. The work matters when it helps a team make and act on the next decision.",
   },
   {
     id: "shortcut-now",
@@ -162,7 +222,7 @@ const defaultNodes: readonly FileNode[] = [
     updatedAt: DEFAULT_TIMESTAMP,
     summary: "How a useful consulting engagement starts.",
     content:
-      "Start with the decision, not the feature list. Identify the costly uncertainty, shape a small complete surface, and create enough production evidence to choose the next move. Solynth Labs works across product strategy, design, and engineering when those boundaries need to collapse.",
+      "Start with the decision the business needs to make. Build the smallest useful version that can test it in real use. Solynth Labs can handle product direction, design, and engineering when splitting those jobs would slow the work down.",
   },
   {
     id: "link-solynth",
@@ -192,7 +252,7 @@ const defaultNodes: readonly FileNode[] = [
     updatedAt: DEFAULT_TIMESTAMP,
     summary: "A reminder about building the product in public reality.",
     content:
-      "Treat the product as a living loop: observe where planning becomes friction, reduce the distance between intent and action, then learn from actual use. Build for clarity under motion rather than for a static demo.",
+      "Watch where job-search planning breaks down. Fix that part, ship it, and see whether people use it. Trekky improves through releases and feedback from real use.",
   },
   {
     id: "link-trekky",
@@ -222,7 +282,7 @@ const defaultNodes: readonly FileNode[] = [
     updatedAt: DEFAULT_TIMESTAMP,
     summary: "The operating method behind the workbench.",
     content:
-      "CLARIFY: Find the decision hiding under the requested feature.\n\nSHAPE: Turn ambiguity into a legible product surface and technical path.\n\nSHIP: Build the smallest complete version that can survive real use.\n\nLEARN: Use the result to make the next product decision less expensive.",
+      "CLARIFY: Name the decision behind the feature request.\n\nSHAPE: Define what the first useful version must do and how it can be built.\n\nSHIP: Put it in front of real users.\n\nLEARN: Use what happened to decide what to build next.",
   },
   {
     id: "shortcut-method",
@@ -296,22 +356,22 @@ const defaultNodes: readonly FileNode[] = [
   {
     id: "shortcut-book",
     kind: "app",
-    name: "Book",
+    name: "Brief",
     parentId: "folder-about",
     appId: "book",
     createdAt: DEFAULT_TIMESTAMP,
     updatedAt: DEFAULT_TIMESTAMP,
-    summary: "B2B scope estimator & consultation booking.",
+    summary: "A factual project-enquiry brief composer.",
   },
   {
     id: "shortcut-sandbox",
     kind: "app",
-    name: "Sandbox",
+    name: "Systems",
     parentId: "folder-systems",
     appId: "sandbox",
     createdAt: DEFAULT_TIMESTAMP,
     updatedAt: DEFAULT_TIMESTAMP,
-    summary: "Interactive systems teardown & case studies.",
+    summary: "Documented product systems and a motion simulation.",
   },
   {
     id: "shortcut-agent",
@@ -325,13 +385,13 @@ const defaultNodes: readonly FileNode[] = [
   },
 ];
 
-export const DEFAULT_WORKBENCH_FILES: WorkbenchFiles = {
+export const DEFAULT_WORKBENCH_FILES: WorkbenchFiles = freezeWorkbenchFiles({
   version: WORKBENCH_FILES_VERSION,
   nodes: defaultNodes,
-};
+});
 
 function cloneFiles(files: WorkbenchFiles): WorkbenchFiles {
-  return {
+  return freezeWorkbenchFiles({
     version: WORKBENCH_FILES_VERSION,
     nodes: files.nodes.map((node) => ({
       ...node,
@@ -341,7 +401,7 @@ function cloneFiles(files: WorkbenchFiles): WorkbenchFiles {
         ? { trashed: { ...node.trashed } }
         : {}),
     })) as FileNode[],
-  };
+  });
 }
 
 export function createDefaultWorkbenchFiles(): WorkbenchFiles {
@@ -459,11 +519,7 @@ function fileSizeBudget(
 }
 
 export function getFileNode(files: WorkbenchFiles, id: string) {
-  return files.nodes.find((node) => node.id === id);
-}
-
-function buildNodeIndex(files: WorkbenchFiles) {
-  return new Map(files.nodes.map((node) => [node.id, node]));
+  return indexWorkbenchFiles(files).getNode(id);
 }
 
 function isNodeInTrashFromIndex(
@@ -498,6 +554,141 @@ function isNodeInTrashFromIndex(
   memo?.set(id, result);
   for (const pathId of path) memo?.set(pathId, result);
   return result;
+}
+
+const EMPTY_FILE_NODES: readonly FileNode[] = Object.freeze([] as FileNode[]);
+const workbenchFilesIndexCache = new WeakMap<
+  WorkbenchFiles,
+  WorkbenchFilesIndex
+>();
+
+/**
+ * Builds the read model used by Archive views. One immutable filesystem
+ * revision receives one index, so rendering a large folder does not rebuild
+ * maps or walk the same ancestor chain for every row.
+ */
+export function indexWorkbenchFiles(files: WorkbenchFiles): WorkbenchFilesIndex {
+  freezeWorkbenchFiles(files);
+  const cached = workbenchFilesIndexCache.get(files);
+  if (cached) return cached;
+
+  const byId = new Map(files.nodes.map((node) => [node.id, node]));
+  const childrenByParentId = new Map<string, FileNode[]>();
+  const pathById = new Map<string, readonly FileNode[]>();
+  const trashById = new Map<string, boolean>();
+  const searchTextById = new Map<string, string>();
+  const searchResultsByQuery = new Map<string, readonly FileNode[]>();
+  let noteCharacterCount = 0;
+
+  for (const node of files.nodes) {
+    if (node.parentId) {
+      const siblings = childrenByParentId.get(node.parentId);
+      if (siblings) siblings.push(node);
+      else childrenByParentId.set(node.parentId, [node]);
+    }
+    if (node.kind === "note") noteCharacterCount += node.content.length;
+  }
+  for (const siblings of childrenByParentId.values()) {
+    siblings.sort(compareNodes);
+    Object.freeze(siblings);
+  }
+
+  const getNodePath = (id: string): readonly FileNode[] => {
+    const cachedPath = pathById.get(id);
+    if (cachedPath) return cachedPath;
+
+    const unresolved: FileNode[] = [];
+    const visited = new Set<string>();
+    let current = byId.get(id);
+    let prefix: readonly FileNode[] = EMPTY_FILE_NODES;
+
+    while (current && !visited.has(current.id)) {
+      const ancestorPath = pathById.get(current.id);
+      if (ancestorPath) {
+        prefix = ancestorPath;
+        break;
+      }
+      unresolved.push(current);
+      visited.add(current.id);
+      current = current.parentId ? byId.get(current.parentId) : undefined;
+    }
+
+    let resolvedPath = prefix;
+    for (let index = unresolved.length - 1; index >= 0; index -= 1) {
+      const node = unresolved[index];
+      if (!node) continue;
+      resolvedPath = Object.freeze([...resolvedPath, node]);
+      pathById.set(node.id, resolvedPath);
+    }
+    return pathById.get(id) ?? EMPTY_FILE_NODES;
+  };
+
+  const isNodeInTrash = (id: string) =>
+    isNodeInTrashFromIndex(byId, id, trashById);
+
+  const search = (
+    query: string,
+    options: FileSearchOptions = {},
+  ): readonly FileNode[] => {
+    const includeTrash = options.includeTrash === true;
+    const terms = query
+      .trim()
+      .toLocaleLowerCase("en")
+      .split(/\s+/)
+      .filter(Boolean);
+    if (!terms.length) return EMPTY_FILE_NODES;
+
+    const searchKey = JSON.stringify([includeTrash, terms]);
+    const cachedResults = searchResultsByQuery.get(searchKey);
+    if (cachedResults !== undefined) {
+      // Refresh insertion order so the oldest unused query is evicted first.
+      searchResultsByQuery.delete(searchKey);
+      searchResultsByQuery.set(searchKey, cachedResults);
+      return cachedResults;
+    }
+
+    const results = Object.freeze(
+      files.nodes
+        .filter((node) => {
+          if (node.kind === "root" || node.kind === "trash") return false;
+          if (!includeTrash && isNodeInTrash(node.id)) return false;
+
+          let searchable = searchTextById.get(node.id);
+          if (searchable === undefined) {
+            searchable = [
+              node.name,
+              node.summary ?? "",
+              node.kind === "note" ? node.content : "",
+              node.kind === "app" ? node.appId : "",
+              node.kind === "external" ? node.href : "",
+            ]
+              .join(" ")
+              .toLocaleLowerCase("en");
+            searchTextById.set(node.id, searchable);
+          }
+          return terms.every((term) => searchable.includes(term));
+        })
+        .sort(compareNodes),
+    );
+    searchResultsByQuery.set(searchKey, results);
+    if (searchResultsByQuery.size > MAX_WORKBENCH_SEARCH_CACHE_ENTRIES) {
+      const oldestKey = searchResultsByQuery.keys().next().value;
+      if (oldestKey !== undefined) searchResultsByQuery.delete(oldestKey);
+    }
+    return results;
+  };
+
+  const index: WorkbenchFilesIndex = Object.freeze({
+    noteCharacterCount,
+    getNode: (id) => byId.get(id),
+    getNodePath,
+    isNodeInTrash,
+    listChildren: (parentId) =>
+      childrenByParentId.get(parentId) ?? EMPTY_FILE_NODES,
+    search,
+  });
+  workbenchFilesIndexCache.set(files, index);
+  return index;
 }
 
 export function createFolder(
@@ -600,7 +791,7 @@ export function editNote(
         candidateChars <= MAX_ARCHIVE_BYTES &&
         candidateBytes <= MAX_ARCHIVE_BYTES
       ) {
-        const candidate = replaceNode(files, nextNode);
+        const candidate = freezeWorkbenchFiles(replaceNode(files, nextNode));
         fileSizeBudgets.set(candidate, {
           chars: candidateChars,
           bytes: candidateBytes,
@@ -732,24 +923,15 @@ function compareNodes(a: FileNode, b: FileNode) {
 }
 
 export function listChildren(files: WorkbenchFiles, parentId: string) {
-  return files.nodes.filter((node) => node.parentId === parentId).sort(compareNodes);
+  return indexWorkbenchFiles(files).listChildren(parentId);
 }
 
 export function isNodeInTrash(files: WorkbenchFiles, id: string) {
-  return isNodeInTrashFromIndex(buildNodeIndex(files), id);
+  return indexWorkbenchFiles(files).isNodeInTrash(id);
 }
 
 export function getNodePath(files: WorkbenchFiles, id: string) {
-  const path: FileNode[] = [];
-  const visited = new Set<string>();
-  const byId = buildNodeIndex(files);
-  let current = byId.get(id);
-  while (current && !visited.has(current.id)) {
-    path.unshift(current);
-    visited.add(current.id);
-    current = current.parentId ? byId.get(current.parentId) : undefined;
-  }
-  return path;
+  return indexWorkbenchFiles(files).getNodePath(id);
 }
 
 export function searchFiles(
@@ -757,37 +939,7 @@ export function searchFiles(
   query: string,
   options: FileSearchOptions = {},
 ) {
-  const terms = query
-    .trim()
-    .toLocaleLowerCase("en")
-    .split(/\s+/)
-    .filter(Boolean);
-  if (!terms.length) return [];
-
-  const byId = buildNodeIndex(files);
-  const trashMemo = new Map<string, boolean>();
-
-  return files.nodes
-    .filter((node) => {
-      if (node.kind === "root" || node.kind === "trash") return false;
-      if (
-        !options.includeTrash &&
-        isNodeInTrashFromIndex(byId, node.id, trashMemo)
-      ) {
-        return false;
-      }
-      const searchable = [
-        node.name,
-        node.summary ?? "",
-        node.kind === "note" ? node.content : "",
-        node.kind === "app" ? node.appId : "",
-        node.kind === "external" ? node.href : "",
-      ]
-        .join(" ")
-        .toLocaleLowerCase("en");
-      return terms.every((term) => searchable.includes(term));
-    })
-    .sort(compareNodes);
+  return indexWorkbenchFiles(files).search(query, options);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -897,6 +1049,45 @@ function parseNode(value: unknown): FileNode | null {
   return null;
 }
 
+function migrateLegacyShortcutMetadata(
+  nodes: readonly FileNode[],
+): readonly FileNode[] {
+  // Shortcut names are user-editable. Upgrade only exact legacy metadata;
+  // any changed copy or occupied target name is treated as user-owned state.
+  let changed = false;
+  const migrated = nodes.map((node) => {
+    const migration = LEGACY_SHORTCUT_METADATA_MIGRATIONS.find(
+      (candidate) => candidate.id === node.id,
+    );
+    if (
+      !migration ||
+      node.kind !== "app" ||
+      node.appId !== migration.appId ||
+      node.name !== migration.legacyName ||
+      node.summary !== migration.legacySummary
+    ) {
+      return node;
+    }
+
+    const targetSiblingName = migration.currentName.toLocaleLowerCase("en");
+    const hasSiblingConflict = nodes.some(
+      (candidate) =>
+        candidate.id !== node.id &&
+        candidate.parentId === node.parentId &&
+        candidate.name.toLocaleLowerCase("en") === targetSiblingName,
+    );
+    if (hasSiblingConflict) return node;
+
+    changed = true;
+    return {
+      ...node,
+      name: migration.currentName,
+      summary: migration.currentSummary,
+    };
+  });
+  return changed ? migrated : nodes;
+}
+
 function hasValidHierarchy(nodes: readonly FileNode[]) {
   const byId = new Map(nodes.map((node) => [node.id, node]));
   const root = byId.get(ROOT_FILE_ID);
@@ -966,10 +1157,34 @@ export function parseWorkbenchFiles(serialized: string | null | undefined) {
       nodes.push(node);
     }
     if (!hasValidHierarchy(nodes)) return null;
-    const parsed = { version: WORKBENCH_FILES_VERSION, nodes } satisfies WorkbenchFiles;
+    const migratedNodes = migrateLegacyShortcutMetadata(nodes);
+    if (!hasValidHierarchy(migratedNodes)) return null;
+    let parsed: WorkbenchFiles = {
+      version: WORKBENCH_FILES_VERSION,
+      nodes: migratedNodes,
+    };
+    let measured = measureSerializedFiles(parsed);
+    if (
+      migratedNodes !== nodes &&
+      (!measured ||
+        measured.chars > MAX_ARCHIVE_BYTES ||
+        measured.bytes > MAX_ARCHIVE_BYTES)
+    ) {
+      // A metadata upgrade must never make a formerly valid, full archive
+      // unloadable. Keep the v1 legacy strings when there is no byte headroom.
+      parsed = { version: WORKBENCH_FILES_VERSION, nodes };
+      measured = measureSerializedFiles(parsed);
+    }
+    if (
+      !measured ||
+      measured.chars > MAX_ARCHIVE_BYTES ||
+      measured.bytes > MAX_ARCHIVE_BYTES
+    ) {
+      return null;
+    }
+    parsed = freezeWorkbenchFiles(parsed);
     // Seed the incremental size budget used by content-only edit fast paths.
-    const measured = measureSerializedFiles(parsed);
-    if (measured) fileSizeBudgets.set(parsed, measured);
+    fileSizeBudgets.set(parsed, measured);
     return parsed;
   } catch {
     return null;

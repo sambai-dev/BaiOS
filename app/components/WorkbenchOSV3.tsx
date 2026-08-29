@@ -3,7 +3,7 @@
 
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
 import dynamic from "next/dynamic";
 import {
   type CSSProperties,
@@ -16,8 +16,6 @@ import {
   useRef,
   useState,
 } from "react";
-import ArchiveApp from "./ArchiveApp";
-import ControlCenterApp from "./ControlCenterApp";
 import WorkbenchAppBoundary from "./WorkbenchAppBoundary";
 import WorkbenchMenuBar, {
   type WorkbenchMenu,
@@ -100,12 +98,12 @@ const MarketPulseApp = dynamic(() => import("./MarketPulseApp"), {
 
 const BookConsultApp = dynamic(() => import("./BookConsultApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Book…</div>,
+  loading: () => <div className="os-app-loading">Loading Brief…</div>,
 });
 
 const CaseStudySandboxApp = dynamic(() => import("./CaseStudySandboxApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Sandbox…</div>,
+  loading: () => <div className="os-app-loading">Loading Systems…</div>,
 });
 
 const AgentWorkflowApp = dynamic(() => import("./AgentWorkflowApp"), {
@@ -116,6 +114,16 @@ const AgentWorkflowApp = dynamic(() => import("./AgentWorkflowApp"), {
 const SearchApp = dynamic(() => import("./SearchApp"), {
   ssr: false,
   loading: () => <div className="os-app-loading">Loading Search…</div>,
+});
+
+const ArchiveApp = dynamic(() => import("./ArchiveApp"), {
+  ssr: false,
+  loading: () => <div className="os-app-loading">Loading Archive…</div>,
+});
+
+const ControlCenterApp = dynamic(() => import("./ControlCenterApp"), {
+  ssr: false,
+  loading: () => <div className="os-app-loading">Loading Control…</div>,
 });
 
 import { playSound } from "../lib/workbench-sound";
@@ -174,6 +182,8 @@ type ContextMenuState = {
 
 const DOCK_INSET = 84;
 const SNAP_EDGE = 28;
+const WINDOW_Z_BASE = 10;
+const WINDOW_Z_CEILING = 80;
 /** Pointer travel required before a drag releases a snapped window. */
 const UNSNAP_DRAG_THRESHOLD_PX = 4;
 
@@ -346,6 +356,10 @@ export default function WorkbenchOSV3({
   const [paletteQuery, setPaletteQuery] = useState("");
   const [paletteActiveIndex, setPaletteActiveIndex] = useState(0);
   const [isAtlasOpen, setIsAtlasOpen] = useState(false);
+  const [isCloseGuardOpen, setIsCloseGuardOpen] = useState(false);
+  const [closeGuardExportStatus, setCloseGuardExportStatus] = useState<
+    string | null
+  >(null);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [snapZone, setSnapZone] = useState<WorkbenchSnapTarget | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -366,6 +380,9 @@ export default function WorkbenchOSV3({
   const paletteInputRef = useRef<HTMLInputElement>(null);
   const paletteOptionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const paletteInvokerRef = useRef<HTMLElement | null>(null);
+  const atlasInvokerRef = useRef<HTMLElement | null>(null);
+  const closeGuardInvokerRef = useRef<HTMLElement | null>(null);
+  const closeGuardExportRef = useRef<HTMLButtonElement>(null);
   const consoleInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const methodTabRefs = useRef<
     Record<string, Array<HTMLButtonElement | null>>
@@ -746,6 +763,13 @@ export default function WorkbenchOSV3({
   }, [isPaletteOpen]);
 
   useEffect(() => {
+    if (!isCloseGuardOpen) return;
+    window.requestAnimationFrame(() => {
+      closeGuardExportRef.current?.focus({ preventScroll: true });
+    });
+  }, [isCloseGuardOpen]);
+
+  useEffect(() => {
     if (!isPaletteOpen) return;
     window.requestAnimationFrame(() => {
       paletteOptionRefs.current[paletteActiveIndex]?.scrollIntoView({
@@ -797,6 +821,18 @@ export default function WorkbenchOSV3({
     });
   }, []);
 
+  const clearAppDeepLink = useCallback((expectedAppId?: WorkbenchAppId) => {
+    if (typeof window === "undefined") return false;
+    const url = new URL(window.location.href);
+    const linkedAppId = url.searchParams.get("app");
+    if (!linkedAppId || (expectedAppId && linkedAppId !== expectedAppId)) {
+      return false;
+    }
+    url.searchParams.delete("app");
+    window.history.replaceState(window.history.state, "", url.toString());
+    return true;
+  }, []);
+
   const raiseWindowInstance = useCallback(
     (instanceId: string) => {
       const current = sessionRef.current;
@@ -842,7 +878,7 @@ export default function WorkbenchOSV3({
       if (typeof window !== "undefined") {
         const url = new URL(window.location.href);
         url.searchParams.set("app", appId);
-        window.history.replaceState(null, "", url.toString());
+        window.history.replaceState(window.history.state, "", url.toString());
       }
       if (instanceId) {
         window.requestAnimationFrame(() => {
@@ -926,15 +962,11 @@ export default function WorkbenchOSV3({
           (windowState) => windowState.appId === target.appId && windowState.open,
         );
         if (!appStillOpen) {
-          const url = new URL(window.location.href);
-          if (url.searchParams.get("app") === target.appId) {
-            url.searchParams.delete("app");
-            window.history.replaceState(null, "", url.toString());
-          }
+          clearAppDeepLink(target.appId);
         }
       }
     },
-    [commitWindowResult, focusManagedSurface],
+    [clearAppDeepLink, commitWindowResult, focusManagedSurface],
   );
 
   const toggleMaximize = useCallback(
@@ -987,6 +1019,18 @@ export default function WorkbenchOSV3({
 
   const closeCurrentWorkspace = useCallback(() => {
     const current = sessionRef.current;
+    const linkedAppId =
+      typeof window === "undefined"
+        ? null
+        : new URL(window.location.href).searchParams.get("app");
+    const closesLinkedApp =
+      linkedAppId !== null &&
+      current.windows.some(
+        (windowState) =>
+          windowState.workspaceId === current.activeWorkspaceId &&
+          windowState.open &&
+          windowState.appId === linkedAppId,
+      );
     const result = closeWorkspaceWindows(
       current.windows,
       current.activeWorkspaceId,
@@ -994,42 +1038,53 @@ export default function WorkbenchOSV3({
     commitWindowResult(result, current.activeWorkspaceId);
     setContextMenu(null);
     focusManagedSurface(result.activeInstanceId);
-  }, [commitWindowResult, focusManagedSurface]);
+    if (closesLinkedApp && isWorkbenchAppId(linkedAppId)) {
+      clearAppDeepLink(linkedAppId);
+    }
+  }, [clearAppDeepLink, commitWindowResult, focusManagedSurface]);
 
-  const switchWorkspace = useCallback((workspaceId: WorkspaceId, focusSurface = true) => {
-    const current = sessionRef.current;
-    playSound("snap");
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      url.searchParams.set("workspace", workspaceId);
-      window.history.replaceState(null, "", url.toString());
-    }
-    const active = switchWorkspaceActiveInstance(
-      current.windows,
-      workspaceId,
-      current.activeInstances[workspaceId],
-    );
-    updateSession((latest) => ({
-      ...latest,
-      activeWorkspaceId: workspaceId,
-      activeInstances: {
-        ...latest.activeInstances,
-        [workspaceId]: active,
-      },
-    }));
-    setVisitedWorkspaceIds((visited) =>
-      visited.includes(workspaceId) ? visited : [...visited, workspaceId],
-    );
-    setContextMenu(null);
-    if (focusSurface) {
-      window.requestAnimationFrame(() => {
+  const switchWorkspace = useCallback(
+    (workspaceId: WorkspaceId, focusSurface = true) => {
+      const current = sessionRef.current;
+      playSound("snap");
+      const active = switchWorkspaceActiveInstance(
+        current.windows,
+        workspaceId,
+        current.activeInstances[workspaceId],
+      );
+      if (typeof window !== "undefined") {
+        const activeWindow = current.windows.find(
+          (windowState) => windowState.instanceId === active && windowState.open,
+        );
+        const url = new URL(window.location.href);
+        url.searchParams.set("workspace", workspaceId);
+        if (activeWindow) url.searchParams.set("app", activeWindow.appId);
+        else url.searchParams.delete("app");
+        window.history.replaceState(window.history.state, "", url.toString());
+      }
+      updateSession((latest) => ({
+        ...latest,
+        activeWorkspaceId: workspaceId,
+        activeInstances: {
+          ...latest.activeInstances,
+          [workspaceId]: active,
+        },
+      }));
+      setVisitedWorkspaceIds((visited) =>
+        visited.includes(workspaceId) ? visited : [...visited, workspaceId],
+      );
+      setContextMenu(null);
+      if (focusSurface) {
         window.requestAnimationFrame(() => {
-          if (active) windowRefs.current[active]?.focus();
-          else overlayRef.current?.focus();
+          window.requestAnimationFrame(() => {
+            if (active) windowRefs.current[active]?.focus();
+            else overlayRef.current?.focus();
+          });
         });
-      });
-    }
-  }, [updateSession]);
+      }
+    },
+    [updateSession],
+  );
 
   const selectAtlasWindow = useCallback(
     (instanceId: string) => {
@@ -1043,6 +1098,12 @@ export default function WorkbenchOSV3({
         instanceId,
         zCounter.current,
       );
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("workspace", target.workspaceId);
+        url.searchParams.set("app", target.appId);
+        window.history.replaceState(window.history.state, "", url.toString());
+      }
       zCounter.current = result.nextZ;
       updateSession((latest) => ({
         ...latest,
@@ -1053,6 +1114,7 @@ export default function WorkbenchOSV3({
           [target.workspaceId]: result.activeInstanceId,
         },
       }));
+      atlasInvokerRef.current = null;
       setIsAtlasOpen(false);
       window.requestAnimationFrame(() => windowRefs.current[instanceId]?.focus());
     },
@@ -1089,6 +1151,9 @@ export default function WorkbenchOSV3({
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
+    // Move focus out of the background before it becomes inert/aria-hidden;
+    // the palette input takes over on the next animation frame.
+    overlayRef.current?.focus({ preventScroll: true });
     setContextMenu(null);
     setIsAtlasOpen(false);
     setPaletteQuery("");
@@ -1108,6 +1173,19 @@ export default function WorkbenchOSV3({
   }, []);
 
   const openAtlas = useCallback(() => {
+    const activeElement =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    // Atlas can be launched from a Palette result. The result button unmounts
+    // with Palette, so transfer Palette's original invoker instead of keeping
+    // a reference to that temporary button.
+    atlasInvokerRef.current = activeElement?.closest(".os-palette")
+      ? paletteInvokerRef.current
+      : activeElement;
+    // Capture the real invoker first, then move focus out of content that is
+    // about to become inert. Mission Control can safely take focus next frame.
+    overlayRef.current?.focus({ preventScroll: true });
     paletteInvokerRef.current = null;
     setContextMenu(null);
     setIsPaletteOpen(false);
@@ -1115,13 +1193,63 @@ export default function WorkbenchOSV3({
     setIsAtlasOpen(true);
   }, []);
 
+  const closeAtlas = useCallback(() => {
+    const invoker = atlasInvokerRef.current;
+    atlasInvokerRef.current = null;
+    setIsAtlasOpen(false);
+    window.requestAnimationFrame(() => {
+      if (invoker?.isConnected) invoker.focus({ preventScroll: true });
+      else overlayRef.current?.focus({ preventScroll: true });
+    });
+  }, []);
+
+  const openCloseGuard = useCallback(() => {
+    const activeElement =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    closeGuardInvokerRef.current = activeElement?.closest(".os-palette")
+      ? paletteInvokerRef.current
+      : activeElement;
+    setCloseGuardExportStatus(null);
+    setContextMenu(null);
+    // Leave focus on a stable node until the dialog's first action mounts.
+    overlayRef.current?.focus({ preventScroll: true });
+    setIsCloseGuardOpen(true);
+  }, []);
+
+  const stayInWorkbench = useCallback(() => {
+    const invoker = closeGuardInvokerRef.current;
+    closeGuardInvokerRef.current = null;
+    setIsCloseGuardOpen(false);
+    setCloseGuardExportStatus(null);
+    window.requestAnimationFrame(() => {
+      if (invoker?.isConnected) invoker.focus({ preventScroll: true });
+      else if (closeButtonRef.current?.isConnected) {
+        closeButtonRef.current.focus({ preventScroll: true });
+      } else {
+        overlayRef.current?.focus({ preventScroll: true });
+      }
+    });
+  }, [closeButtonRef]);
+
+  const leaveWithoutSaving = useCallback(() => {
+    // This is the only path that abandons the in-memory session. It is reached
+    // through the explicit destructive action in the guard and never writes to
+    // storage, so an invalid stored payload remains available for recovery.
+    closeGuardInvokerRef.current = null;
+    setIsCloseGuardOpen(false);
+    clearAppDeepLink();
+    onClose();
+  }, [clearAppDeepLink, onClose]);
+
   const closePortfolio = useCallback(() => {
-    if (hasStorageConflict) {
-      setNotice("Choose which tab revision to keep before closing Workbench.");
+    if (storageBlocked) {
+      openCloseGuard();
       return;
     }
-    if (storageBlocked) {
-      setNotice("Resolve local storage recovery or export a backup before closing Workbench.");
+    if (hasStorageConflict) {
+      setNotice("Choose which tab revision to keep before closing Workbench.");
       return;
     }
     const snapshot = {
@@ -1130,12 +1258,21 @@ export default function WorkbenchOSV3({
     } satisfies WorkbenchSession;
     if (!persistPair(snapshot, filesRef.current)) {
       if (!storageConflictPendingRef.current) {
-        setNotice("Workbench could not save. Export a backup before closing to protect local edits.");
+        setNotice("Workbench could not save this session.");
+        openCloseGuard();
       }
       return;
     }
+    clearAppDeepLink();
     onClose();
-  }, [hasStorageConflict, onClose, persistPair, storageBlocked]);
+  }, [
+    clearAppDeepLink,
+    hasStorageConflict,
+    onClose,
+    openCloseGuard,
+    persistPair,
+    storageBlocked,
+  ]);
 
   const openExternal = useCallback((href: string) => {
     if (!isSafeExternalHref(href)) {
@@ -1177,8 +1314,10 @@ export default function WorkbenchOSV3({
       anchor.click();
       URL.revokeObjectURL(href);
       setNotice("Session backup exported with local Archive content.");
+      return true;
     } catch {
       setNotice("The current Workbench state could not be packaged for export.");
+      return false;
     }
   }, []);
 
@@ -1402,13 +1541,20 @@ export default function WorkbenchOSV3({
 
   useEffect(() => {
     const handlePointerMove = (event: PointerEvent) => {
+      const resizing = resizeSession.current;
+      const dragging = dragSession.current;
+      if (
+        (!resizing || resizing.pointerId !== event.pointerId) &&
+        (!dragging || dragging.pointerId !== event.pointerId)
+      ) {
+        return;
+      }
+
       const desktop = desktopRef.current;
       if (!desktop) return;
-      const desktopRect = desktop.getBoundingClientRect();
       const bounds = getDesktopBounds();
       if (!bounds) return;
 
-      const resizing = resizeSession.current;
       if (resizing && resizing.pointerId === event.pointerId) {
         const target = sessionRef.current.windows.find(
           (windowState) => windowState.instanceId === resizing.instanceId,
@@ -1431,8 +1577,8 @@ export default function WorkbenchOSV3({
         return;
       }
 
-      const dragging = dragSession.current;
       if (!dragging || dragging.pointerId !== event.pointerId) return;
+      const desktopRect = desktop.getBoundingClientRect();
       let target = sessionRef.current.windows.find(
         (windowState) => windowState.instanceId === dragging.instanceId,
       );
@@ -1712,8 +1858,8 @@ export default function WorkbenchOSV3({
     const appActions = workbenchApps.map((app) => ({
       id: `app-${app.id}`,
       label: `Open ${app.label}`,
-      meta: `App · ${app.shortcut}`,
-      terms: `${app.summary} ${app.keywords.join(" ")}`,
+      meta: "Application",
+      terms: `${app.id} ${app.summary} ${app.keywords.join(" ")}`,
       run: () =>
         openWindow(app.id, {
           focusConsole: app.id === "console",
@@ -1853,10 +1999,10 @@ export default function WorkbenchOSV3({
         action.run();
         return;
       }
-      paletteInvokerRef.current = null;
       setIsPaletteOpen(false);
       setPaletteQuery("");
       action.run();
+      paletteInvokerRef.current = null;
     },
     [closePalette],
   );
@@ -1871,13 +2017,11 @@ export default function WorkbenchOSV3({
           {
             id: "about",
             label: "Open Now",
-            shortcut: "1",
             onSelect: () => openWindow("now"),
           },
           {
             id: "control",
             label: "Open Control",
-            shortcut: "0",
             onSelect: () => openWindow("control"),
           },
           {
@@ -1906,7 +2050,6 @@ export default function WorkbenchOSV3({
           {
             id: "open-archive-root",
             label: "Open Archive root",
-            shortcut: "9",
             onSelect: () => openArchiveAt(ROOT_FILE_ID),
           },
           {
@@ -1938,7 +2081,7 @@ export default function WorkbenchOSV3({
           {
             id: "search",
             label: "Search everything",
-            shortcut: "/",
+            shortcut: "Ctrl+K",
             onSelect: openPalette,
           },
           {
@@ -2002,7 +2145,6 @@ export default function WorkbenchOSV3({
           {
             id: "go-archive",
             label: "Open Archive",
-            shortcut: "9",
             onSelect: () => openArchiveAt(ROOT_FILE_ID),
           },
         ],
@@ -2037,12 +2179,15 @@ export default function WorkbenchOSV3({
       if (event.repeat) return;
 
       if (event.key === "Escape") {
-        if (isPaletteOpen) {
+        if (isCloseGuardOpen) {
+          event.preventDefault();
+          stayInWorkbench();
+        } else if (isPaletteOpen) {
           event.preventDefault();
           closePalette();
         } else if (isAtlasOpen) {
           event.preventDefault();
-          setIsAtlasOpen(false);
+          closeAtlas();
         } else if (contextMenu) {
           event.preventDefault();
           setContextMenu(null);
@@ -2056,13 +2201,15 @@ export default function WorkbenchOSV3({
       }
 
       if (event.key === "Tab") {
-        const scope = isAtlasOpen
-          ? overlayRef.current?.querySelector<HTMLElement>(
-              ".mission-control-surface",
-            )
-          : isPaletteOpen
-            ? overlayRef.current?.querySelector<HTMLElement>(".os-palette")
-            : overlayRef.current;
+        const scope = isCloseGuardOpen
+          ? overlayRef.current?.querySelector<HTMLElement>(".os-close-guard")
+          : isAtlasOpen
+            ? overlayRef.current?.querySelector<HTMLElement>(
+                ".mission-control-surface",
+              )
+            : isPaletteOpen
+              ? overlayRef.current?.querySelector<HTMLElement>(".os-palette")
+              : overlayRef.current;
         if (!scope) return;
         const focusable = Array.from(
           scope.querySelectorAll<HTMLElement>(
@@ -2096,18 +2243,19 @@ export default function WorkbenchOSV3({
         return;
       }
 
-      if (isAtlasOpen || isPaletteOpen) return;
-      if (isTypingTarget(event.target) || event.metaKey || event.ctrlKey) return;
+      if (isCloseGuardOpen || isAtlasOpen || isPaletteOpen) return;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openPalette();
+        return;
+      }
+      if (isTypingTarget(event.target)) return;
       if (event.key === "F3") {
         event.preventDefault();
         openAtlas();
         return;
       }
-      if (event.key === "/") {
-        event.preventDefault();
-        openPalette();
-        return;
-      }
+      if (event.metaKey || event.ctrlKey) return;
       if (event.altKey) {
         // Use the physical key code: on macOS, Option+digit produces a
         // composed character in event.key ("¡", "™", "£"), which never
@@ -2125,34 +2273,21 @@ export default function WorkbenchOSV3({
         }
         return;
       }
-      if (event.key.toLowerCase() === "w") {
-        event.preventDefault();
-        closePortfolio();
-        return;
-      }
-      const shortcutApp = workbenchApps.find(
-        (app) => app.shortcut.toLowerCase() === event.key.toLowerCase(),
-      );
-      if (shortcutApp) {
-        event.preventDefault();
-        openWindow(shortcutApp.id, {
-          forceNew: event.shiftKey,
-          focusConsole: shortcutApp.id === "console",
-        });
-      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
     closePalette,
+    closeAtlas,
     closePortfolio,
     contextMenu,
     isAtlasOpen,
+    isCloseGuardOpen,
     isPaletteOpen,
     openAtlas,
     openPalette,
-    openWindow,
+    stayInWorkbench,
     switchWorkspace,
   ]);
 
@@ -2176,18 +2311,33 @@ export default function WorkbenchOSV3({
     if (windowState.appId === "now") {
       return (
         <div className="os-now">
+          <span className="os-now-kicker">Start here / choose a route</span>
           <h2>Building the company and the products inside it.</h2>
           <p>
             I work with businesses on software direction and production while
             operating Solynth Labs and building Trekky.app.
           </p>
+          <nav className="os-now-actions" aria-label="Workbench starting points">
+            <button type="button" onClick={() => openWindow("sandbox")}>
+              <strong>See current work</strong>
+              <span>Selected systems and active products</span>
+            </button>
+            <button type="button" onClick={() => openWindow("method")}>
+              <strong>Explore how I work</strong>
+              <span>From product question to shipped software</span>
+            </button>
+            <button type="button" onClick={() => openWindow("book")}>
+              <strong>Start a project</strong>
+              <span>Prepare a concise project brief</span>
+            </button>
+          </nav>
           <dl className="os-signal-list">
             <div><dt>Solynth Labs</dt><dd>Operating</dd></div>
             <div><dt>Trekky.app</dt><dd>Current product</dd></div>
             <div><dt>Consulting</dt><dd>Open</dd></div>
           </dl>
           <p className="os-now-foot" aria-hidden="true">
-            NZT {time} · Hamilton · 37.79°S 175.46°E
+            NZT {time} · Hamilton, New Zealand
           </p>
         </div>
       );
@@ -2197,8 +2347,8 @@ export default function WorkbenchOSV3({
       return (
         <div className="os-stack">
           <div className="os-stack-intro">
-            <h2>One shipping surface.</h2>
-            <p>Web, mobile, data, infrastructure, and product loops.</p>
+            <h2>Software from interface to infrastructure.</h2>
+            <p>Web, mobile, data, and deployment tools used in production.</p>
           </div>
           <dl className="os-stack-list">
             {stackRows.map(([label, value]) => (
@@ -2265,7 +2415,9 @@ export default function WorkbenchOSV3({
                   type="button"
                   role="tab"
                   aria-selected={session.methodStep === step.id}
-                  aria-controls={panelId}
+                  aria-controls={
+                    session.methodStep === step.id ? panelId : undefined
+                  }
                   tabIndex={session.methodStep === step.id ? 0 : -1}
                   onClick={() =>
                     updateSession((current) => ({
@@ -2280,7 +2432,7 @@ export default function WorkbenchOSV3({
               );
             })}
           </div>
-          <motion.div
+          <m.div
             className="os-method-detail"
             key={activeStep.id}
             id={`${instanceDomId}-method-panel-${activeStep.id}`}
@@ -2292,7 +2444,7 @@ export default function WorkbenchOSV3({
           >
             <h2>{activeStep.label}</h2>
             <p>{activeStep.text}</p>
-          </motion.div>
+          </m.div>
           <div className="os-method-progress" aria-hidden="true">
             {methodSteps.map((step, index) => (
               <span
@@ -2420,14 +2572,18 @@ export default function WorkbenchOSV3({
             // same tick must chain off each other, not both branch from a
             // stale tree and silently drop the first note.
             const currentFiles = filesRef.current;
+            const savedAt = new Date();
             const outcome = createNote(currentFiles, ROOT_FILE_ID, note.title, {
-              content: `${note.body}\n\nSaved from Search · ${workbenchTimestampFormat.format(new Date())} NZT`,
+              content: `${note.body}\n\nSaved from Search · ${workbenchTimestampFormat.format(savedAt)} NZT`,
+              now: savedAt.toISOString(),
             });
             if (outcome !== currentFiles) {
               replaceFiles(outcome);
-              setNotice(`Saved "${note.title}" to Archive → Notes.`);
+              setNotice(`Saved "${note.title}" in Archive.`);
+              return true;
             } else {
               setNotice("Archive is full; could not save that note.");
+              return false;
             }
           }}
         />
@@ -2556,7 +2712,7 @@ export default function WorkbenchOSV3({
           <small aria-hidden="true">↗</small>
         </a>
         <a
-          href="https://www.linkedin.com/in/sam-bai-dev/"
+          href="https://www.linkedin.com/in/sam-bai1/"
           target="_blank"
           rel="noreferrer"
         >
@@ -2579,12 +2735,14 @@ export default function WorkbenchOSV3({
     (windowState) =>
       windowState.workspaceId === activeWorkspaceId && !windowState.minimized,
   );
+  const isModalSurfaceOpen = isAtlasOpen || isPaletteOpen || isCloseGuardOpen;
   const revealClipOrigin = `${Math.round(revealOrigin.x)}px ${Math.round(
     revealOrigin.y,
   )}px`;
 
   return (
-    <motion.section
+    <LazyMotion features={domAnimation}>
+      <m.section
       ref={overlayRef}
       tabIndex={-1}
       className="workbench-os"
@@ -2612,8 +2770,21 @@ export default function WorkbenchOSV3({
         ease: [0.16, 1, 0.3, 1],
       }}
     >
+      <button
+        type="button"
+        className="os-skip-link"
+        aria-hidden={isModalSurfaceOpen || undefined}
+        inert={isModalSurfaceOpen || undefined}
+        onClick={() => {
+          if (activeInstanceId) focusManagedSurface(activeInstanceId);
+          else openWindow("now");
+        }}
+      >
+        Skip to active window
+      </button>
       <WorkbenchMenuBar
         activeAppLabel={activeWindow?.title ?? "Desktop"}
+        backgroundInert={isModalSurfaceOpen}
         time={time}
         workspaceLabel={activeWorkspace.label}
         menus={menus}
@@ -2634,7 +2805,14 @@ export default function WorkbenchOSV3({
       <div
         className="os-desktop"
         ref={desktopRef}
+        aria-hidden={isAtlasOpen || isCloseGuardOpen || undefined}
+        inert={isAtlasOpen || isCloseGuardOpen || undefined}
         onContextMenu={(event) => {
+          if (isAtlasOpen || isPaletteOpen) {
+            event.preventDefault();
+            setContextMenu(null);
+            return;
+          }
           const target = event.target as HTMLElement;
           if (
             isCompact ||
@@ -2662,7 +2840,12 @@ export default function WorkbenchOSV3({
           Hamilton / {time} / LOCAL
         </span>
 
-        <nav className="os-desktop-icons" aria-label="Desktop objects">
+        <nav
+          className="os-desktop-icons"
+          aria-label="Desktop objects"
+          aria-hidden={isPaletteOpen || undefined}
+          inert={isPaletteOpen || undefined}
+        >
           <button
             type="button"
             className="os-desktop-object"
@@ -2704,16 +2887,16 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("book")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">BK</span>
-            <span>Book</span>
+            <span className="os-desktop-object-mark" aria-hidden="true">BR</span>
+            <span>Brief</span>
           </button>
           <button
             type="button"
             className="os-desktop-object"
             onClick={() => openWindow("sandbox")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">SB</span>
-            <span>Sandbox</span>
+            <span className="os-desktop-object-mark" aria-hidden="true">SY</span>
+            <span>Systems</span>
           </button>
           <button
             type="button"
@@ -2736,7 +2919,13 @@ export default function WorkbenchOSV3({
         {snapZone && <div className="os-snap-preview" data-zone={snapZone} />}
 
         {notice && (
-          <div className="os-system-notice" role="status" aria-live="polite">
+          <div
+            className="os-system-notice"
+            role="status"
+            aria-live="polite"
+            aria-hidden={isPaletteOpen || undefined}
+            inert={isPaletteOpen || undefined}
+          >
             <span>{notice}</span>
             {hasStorageConflict ? (
               <>
@@ -2761,7 +2950,11 @@ export default function WorkbenchOSV3({
         )}
 
         {!visibleWindows.length && (
-          <div className="os-empty">
+          <div
+            className="os-empty"
+            aria-hidden={isPaletteOpen || undefined}
+            inert={isPaletteOpen || undefined}
+          >
             <p>{activeWorkspace.label} is clear.</p>
             <button type="button" onClick={() => openWindow("now")}>Open Now</button>
             <button type="button" onClick={openPalette}>Search Workbench</button>
@@ -2769,7 +2962,7 @@ export default function WorkbenchOSV3({
         )}
 
         <AnimatePresence>
-          {mountedWindows.map((windowState) => {
+          {mountedWindows.map((windowState, renderIndex) => {
             const isActive = activeInstanceId === windowState.instanceId;
             const isWorkspaceHidden =
               windowState.workspaceId !== activeWorkspaceId;
@@ -2780,10 +2973,13 @@ export default function WorkbenchOSV3({
               top: windowState.y,
               width: windowState.width,
               height: windowState.height,
-              zIndex: windowState.z,
+              zIndex: Math.min(
+                WINDOW_Z_CEILING,
+                WINDOW_Z_BASE + renderIndex,
+              ),
             };
             return (
-              <motion.section
+              <m.section
                 ref={(element) => {
                   windowRefs.current[windowState.instanceId] = element;
                 }}
@@ -2798,8 +2994,10 @@ export default function WorkbenchOSV3({
                 style={style}
                 role="region"
                 aria-label={`${windowState.title} window`}
-                aria-hidden={isPresentationHidden ? true : undefined}
-                inert={isPresentationHidden ? true : undefined}
+                aria-hidden={
+                  isPresentationHidden || isPaletteOpen ? true : undefined
+                }
+                inert={isPresentationHidden || isPaletteOpen ? true : undefined}
                 initial={
                   prefersReducedMotion
                     ? false
@@ -2848,25 +3046,35 @@ export default function WorkbenchOSV3({
                   >
                     <button
                       type="button"
+                      aria-label={`Minimize ${windowState.title} window`}
                       onClick={() => minimizeWindow(windowState.instanceId)}
                     >
                       Minimize
                     </button>
                     <button
                       type="button"
+                      aria-label={`${
+                        windowState.maximized ? "Restore" : "Maximize"
+                      } ${windowState.title} window`}
                       onClick={() => toggleMaximize(windowState.instanceId)}
                     >
                       {windowState.maximized ? "Restore" : "Maximize"}
                     </button>
                     <button
                       type="button"
+                      aria-label={`Close ${windowState.title} window`}
                       onClick={() => closeWindow(windowState.instanceId)}
                     >
                       Close
                     </button>
                   </div>
                 </div>
-                <div className={`os-window-content os-app-${windowState.appId}`}>
+                <div
+                  className={`os-window-content os-app-${windowState.appId}`}
+                  tabIndex={0}
+                  role="region"
+                  aria-label={`${windowState.title} content`}
+                >
                   <WorkbenchAppBoundary resetKey={windowState.instanceId}>
                     {renderApp(windowState)}
                   </WorkbenchAppBoundary>
@@ -2897,15 +3105,20 @@ export default function WorkbenchOSV3({
                     }}
                   />
                 )}
-              </motion.section>
+              </m.section>
             );
           })}
         </AnimatePresence>
 
-        <nav className="os-dock" aria-label="Workbench applications">
+        <nav
+          className="os-dock"
+          aria-label="Workbench applications"
+          aria-hidden={isPaletteOpen || undefined}
+          inert={isPaletteOpen || undefined}
+        >
           <div className="os-dock-label">
             <span>{activeWorkspace.label}</span>
-            <span>Keys 1–0 · P · B · S · A · R · D</span>
+            <span>Choose an application</span>
           </div>
           {workbenchApps.map((app) => {
             const instances = session.windows.filter(
@@ -2947,7 +3160,6 @@ export default function WorkbenchOSV3({
                 }
               >
                 <span>{app.label}</span>
-                <span>[{app.shortcut}]</span>
                 <small>{status}</small>
               </button>
             );
@@ -2992,7 +3204,7 @@ export default function WorkbenchOSV3({
           >
             <span>{activeWorkspace.label} / Desktop</span>
             <button type="button" role="menuitem" onClick={openPalette}>
-              Search Workbench <kbd>/</kbd>
+              Search Workbench <kbd>Ctrl K</kbd>
             </button>
             <button type="button" role="menuitem" onClick={openAtlas}>
               Open Atlas <kbd>F3</kbd>
@@ -3012,14 +3224,14 @@ export default function WorkbenchOSV3({
               role="menuitem"
               onClick={() => openWindow("control")}
             >
-              Open Control <kbd>0</kbd>
+              Open Control
             </button>
           </div>
         )}
 
         <AnimatePresence>
           {isPaletteOpen && (
-            <motion.div
+            <m.div
               className="os-palette-backdrop"
               initial={prefersReducedMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -3028,7 +3240,7 @@ export default function WorkbenchOSV3({
                 if (event.currentTarget === event.target) closePalette();
               }}
             >
-              <motion.section
+              <m.section
                 className="os-palette"
                 role="dialog"
                 aria-modal="true"
@@ -3146,11 +3358,89 @@ export default function WorkbenchOSV3({
                     <p>No local result matches “{paletteQuery}”.</p>
                   )}
                 </div>
-              </motion.section>
-            </motion.div>
+              </m.section>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {isCloseGuardOpen && (
+          <m.div
+            className="os-close-guard-backdrop"
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onPointerDown={(event) => {
+              if (event.currentTarget === event.target) stayInWorkbench();
+            }}
+          >
+            <m.section
+              className="os-close-guard"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="workbench-close-guard-title"
+              aria-describedby="workbench-close-guard-description"
+              tabIndex={-1}
+              initial={
+                prefersReducedMotion
+                  ? false
+                  : { opacity: 0, y: 12, clipPath: "inset(0 0 12% 0)" }
+              }
+              animate={{ opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)" }}
+              exit={
+                prefersReducedMotion
+                  ? { opacity: 0 }
+                  : { opacity: 0, y: 8, clipPath: "inset(0 0 8% 0)" }
+              }
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="os-close-guard-copy">
+                <h2 id="workbench-close-guard-title">This session isn’t saved.</h2>
+                <p id="workbench-close-guard-description">
+                  Browser storage is unavailable or could not accept the latest
+                  session. Export a backup before leaving, or stay and keep working.
+                  Any unreadable data already in storage will remain untouched.
+                </p>
+              </div>
+
+              {closeGuardExportStatus ? (
+                <p className="os-close-guard-status" role="status" aria-live="polite">
+                  {closeGuardExportStatus}
+                </p>
+              ) : null}
+
+              <div className="os-close-guard-actions">
+                <button
+                  ref={closeGuardExportRef}
+                  type="button"
+                  className="is-primary"
+                  onClick={() => {
+                    const exported = exportSession();
+                    setCloseGuardExportStatus(
+                      exported
+                        ? "Backup download started. You can now leave without relying on browser storage."
+                        : "The backup could not be created. Stay in Workbench and try again.",
+                    );
+                  }}
+                >
+                  Export backup
+                </button>
+                <button type="button" onClick={stayInWorkbench}>
+                  Stay in Workbench
+                </button>
+                <button
+                  type="button"
+                  className="is-danger"
+                  onClick={leaveWithoutSaving}
+                >
+                  Leave without saving
+                </button>
+              </div>
+            </m.section>
+          </m.div>
+        )}
+      </AnimatePresence>
 
       <WorkbenchMissionControl
         open={isAtlasOpen}
@@ -3161,8 +3451,9 @@ export default function WorkbenchOSV3({
         onSwitchWorkspace={(workspaceId) => {
           if (isWorkspaceId(workspaceId)) switchWorkspace(workspaceId, false);
         }}
-        onClose={() => setIsAtlasOpen(false)}
+        onClose={closeAtlas}
       />
-    </motion.section>
+      </m.section>
+    </LazyMotion>
   );
 }

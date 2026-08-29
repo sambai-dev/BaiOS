@@ -1,0 +1,2 @@
+# Reproducible direct dependency for scripts/build_resume.py.
+python-docx==1.2.0

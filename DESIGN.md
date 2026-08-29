@@ -1,6 +1,6 @@
 ---
 name: "Quiet Junction / Sam Bai Portfolio"
-description: "A precise, local-first portfolio where authored working software is the proof."
+description: "A precise portfolio where authored working software is the proof and local state is described honestly."
 colors:
   carbon: "#11110f"
   carbon-soft: "#1b1b18"
@@ -104,7 +104,7 @@ Quiet Junction is a senior, authored operating environment disguised as a sparse
 
 The public layer stays quiet and exacting; the Workbench reveals the machinery behind the person. Workbench, Atlas, Archive, Control, the menu system, and the workspace language form an original clean-room visual and interaction vocabulary. Their windows, local tools, recoverable state, and three interactive labs make working software itself the personality without importing another product's names, icons, or trade dress.
 
-The Workbench is explicitly local-only: there is no account, login, remote sync, filesystem service, or backend. Browser storage and visitor-initiated JSON export/import are the only persistence paths, and every state message must preserve that truth.
+Workbench session and Archive data stay in this browser. There is no account, login, remote sync, or remote filesystem for that state; browser storage and visitor-initiated JSON export/import are its persistence paths. Pulse, Search, and Agent use network-backed services, and their interfaces must disclose that boundary instead of extending the browser-local claim to the whole Workbench.
 
 **Key Characteristics:**
 
@@ -172,7 +172,9 @@ The palette behaves like an operating signal system. Warm near-black and paper n
 
 The shared spatial grammar is field-and-rule, not card-and-gap. Content sits in broad carbon, route-color, or ivory fields; one-pixel rules establish alignment; large declarations and compact operational data create the density contrast. Public outer padding steps from 2rem to 1.5rem below 980px and 1.1rem below 620px. Within the Workbench, compact control padding clusters around 0.6–1rem while app content uses about 1–1.2rem.
 
-Workbench desktop space is divided into the menu bar, a free window field, and a fifteen-app dock. Build, Field, and Notes are three local workspaces with independent active-window memory. The right-side desktop objects provide direct routes to Archive, Atlas, Subsurface, Railshift, Pulse, Book, Sandbox, AI Lab, and Control; Atlas is the cross-workspace map rather than another workspace. Scratch, Vector, and Archive can open multiple instances in a workspace; other apps recover or focus their existing instance. The total saved window registry is bounded at 60 instances.
+Workbench desktop space is divided into the menu bar, a free window field, and an app dock whose current registry is defined in `app/lib/workbench-system.ts`. Build, Field, and Notes are three local workspaces with independent active-window memory. Desktop objects provide selected direct routes, including Archive, Atlas, Subsurface, Railshift, Pulse, Brief, Systems, Agent, and Control; Atlas is the cross-workspace map rather than another workspace. Scratch, Vector, and Archive can open multiple instances in a workspace. Other apps recover or focus an existing saved instance in the current workspace; the same app may exist in another workspace. The total saved window registry is bounded at 60 instances.
+
+A fresh session opens one active Now window in Build. Field and Notes have no open windows until the visitor opens something there. This is only the first-run default: an existing valid saved session retains its windows, geometry, and remembered active workspace state.
 
 Between 981px and 1120px, the dock becomes a horizontal strip without changing the desktop window model. At 980px, the environment changes modes: only one active window is visible while inactive or minimized open windows in visited workspaces remain mounted, hidden, inert, and `aria-hidden`. Drag, resize, desktop objects, context menus, and snap previews disappear; the dock becomes the persistent horizontal task switcher. Heavy app bodies mount only after their workspace has been visited. Archive restructures at 840px and 580px, the menu bar condenses at 1080px and 760px, Atlas simplifies at 620px, and the Workbench compacts again at 520px.
 
@@ -228,7 +230,7 @@ The form language is square and mechanical. Panels, windows, controls, text fiel
 
 - **Style:** Text controls remain square and legible. Scratch uses a transparent ivory field with a one-pixel dark rule; console input is borderless within a ruled carbon command row; Vector axes use editable text drafts with decimal input hints so empty and partial values remain typeable.
 - **Focus:** Use route-color inset focus for light fields and the active signal outline for standalone interactive surfaces.
-- **Error / Disabled:** Vector drafts mark invalid or out-of-range values with `aria-invalid`, a compact associated status line, and a restrained red field tint. Calculations run only when all six drafts are finite values from −3 to 3; otherwise the results show em dashes. Disabled actions retain labels and reduce emphasis rather than disappearing.
+- **Error / Disabled:** Vector drafts mark invalid or out-of-range values with `aria-invalid`, a compact associated status line, and a restrained red field tint. Calculations run only when all six drafts are finite values from −3 to 3; otherwise the results show `N/A`. Disabled actions retain labels and reduce emphasis rather than disappearing.
 
 ### Workbench Aperture
 
@@ -236,7 +238,9 @@ The aperture is a small live instrument, not a promotional card. On desktop it r
 
 ### Public Front Door
 
-The public surface is a single quiet composition: identity and the Workbench aperture share the top edge, the six-word statement “Sam designs and builds software.” holds the center, and one availability line plus two compact link groups anchor the bottom. Desktop uses a responsive `clamp(4rem, 10vw, 12rem)` horizontal inset and a reference-scale `clamp(4.75rem, 10vw, 11rem)` statement. Its two lines are intentionally separated by `clamp(2.5rem, 4.5vw, 5.5rem)` so the declaration reads as two calm beats rather than a compressed lockup. The statement is uninterrupted display text with no embedded controls; Workbench and Solynth Labs remain explicit destinations in the surrounding interface. Compact widths collapse the gutter, type, and line gap without changing the underlying hierarchy. The front door does not carry an explanatory deck, route labels, project taxonomy, or Workbench telemetry outside the aperture; those details belong one level deeper.
+The public surface is a single quiet composition. The identity line is “Founder & Product Engineer, Solynth Labs” and the exact statement “Sam designs and builds software.” holds the center as two deliberate beats, breaking after “and.” The status line is “Open to B2B software projects.” Direct links expose Sam's email address, Solynth Labs, and “Open Workbench” without conversion-copy wrappers. Desktop uses a responsive `clamp(4rem, 10vw, 12rem)` horizontal inset and a `clamp(4.75rem, 10vw, 11rem)` statement. The statement is uninterrupted display text with no embedded controls. Compact widths collapse the gutter, type, and line gap without changing the hierarchy; short viewports may scroll rather than clip controls. The front door carries no explanatory deck, project grid, or Workbench telemetry outside the aperture.
+
+The aperture uses differentiated, truthful labels—Build / Work, Field / Labs, Notes / Local, Atlas / Map, Archive / Browser, and Session / State. It avoids stale counts and claims that a fresh session has already been saved. Its visible action always says “Open Workbench.”
 
 ### Workbench Menu Bar
 
@@ -248,11 +252,19 @@ Windows use ivory content, carbon title bars, square clipping, structural shadow
 
 ### Workbench Dock
 
-The dock exposes all fifteen registered apps: Now, Stack, Method, Scratch, Console, Links, Pulse, Book, Sandbox, AI Lab, Subsurface, Railshift, Vector, Archive, and Control. It provides number shortcuts plus P for Pulse and R for Railshift and exact Closed, Suspended, Active, or Running status. Shift plus a shortcut or dock activation requests a new instance only for Scratch, Vector, and Archive. The dock shows multiple-instance count as a small signal badge and becomes horizontally scrollable before labels need to compress.
+The dock is generated from the current app registry rather than a documented fixed count. It exposes professional context, Systems, Brief, local tools, experiments, Search, Agent, Archive, and Control with exact Closed, Suspended, Active, or Running status. Shift-modified click or dock activation requests a new instance only where the registry explicitly permits multiple instances; other apps reuse a saved instance within the current workspace. The dock shows that instance count as a small signal badge and becomes horizontally scrollable before labels need to compress.
+
+### Systems, Brief, Search, and Agent
+
+**Systems** is an evidence surface, not a speculative case-study generator. It may document supported facts about Sam's products and this Workbench, and it must label the motion playground as a simulation. It must not present invented benchmarks, client outcomes, implementation details, or a “verified” result unless that evidence is available and current.
+
+**Brief** helps a visitor prepare a factual project enquiry. It may organize a selected service area, focus, timing context, and visitor-supplied notes, but it must not calculate a fixed price, duration, capacity, delivery date, or fill missing information with invented commitments. Its handoff uses conventional email.
+
+**Search** queries Wikipedia through this site's server route, attributes the source, and may copy a result into the browser-local Archive. **Agent** sends prompts through this site's server-side route to the configured model provider. It discloses that prompts leave the browser, warns against confidential information, labels token figures as estimates, and describes completed generated output as not independently verified.
 
 ### System Search
 
-System search is a modal editable combobox and listbox, not a decorative command field. `/` opens it and results span apps, open window instances, workspaces, non-trash Archive entries, and local system commands. Arrows, Home, End, and Enter move and execute the active result; Escape closes the surface and returns focus to the Workbench root. Hover, focus, and active-result state use the same route-color inversion.
+System search is a modal editable combobox and listbox. Ctrl/Cmd+K opens it and results span apps, saved window instances including closed/reopenable ones, workspaces, non-trash Archive entries, and local system commands. Arrows, Home, End, and Enter move and execute the active result; Escape closes the surface and returns focus to the invoking control when it is still available, otherwise to the Workbench root. Hover, focus, and active-result state use the same route-color inversion.
 
 ### Atlas
 
@@ -288,11 +300,11 @@ The simulation advances through a capped fixed timestep while drawing directly t
 
 ### Vector Lab
 
-Vector Field is a working spatial calculator, not an illustration. Decimal input drafts keep empty and partial values editable while exposing decimal input keyboards; each axis reports invalid or out-of-range state with `aria-invalid` and compact status guidance. Dot product, cross product, and area update only when both vectors contain finite values from −3 to 3, and show em dashes otherwise. A canvas-projected three-dimensional grid responds to pointer drag for direct orbit; the numeric calculator remains usable without orbit interaction. Mounted window bodies preserve drafts and view while inactive, minimized, or hidden after a workspace switch; closing unmounts that component-local state. Narrow layouts stack the plot over inputs and results.
+Vector Field combines a numeric spatial calculator with a projected plot. Decimal input drafts keep empty and partial values editable while exposing decimal input keyboards; each axis reports invalid or out-of-range state with `aria-invalid` and compact status guidance. Dot product, cross product, and area update only when both vectors contain finite values from −3 to 3, and show `N/A` otherwise. A canvas-projected three-dimensional grid responds to pointer drag or arrow keys for orbit; the numeric calculator remains usable without orbit interaction. Drafts and view state persist under a per-instance browser-storage key, survive window close/reopen, and remain outside Control's session-and-Archive backup. Narrow layouts stack the plot over inputs and results.
 
 ### Local Session and Recovery
 
-Session state and the Archive tree are separately validated and saved as a pair in browser storage after a short debounce. The session includes theme, active workspace, remembered active instances, the bounded window registry, serialized per-window data, Scratch content, and Method state. It does not claim to capture transient console history, search/Atlas UI, Subsurface or Railshift best scores, or unsaved component-only state. Corrupt saved values block silent overwrite and may be preserved under recovery keys. There is no network path, account, backend, cloud sync, collaboration, or cross-device promise.
+Session state and the Archive tree are separately validated and saved as a pair in browser storage after a short debounce. The session includes theme, active workspace, remembered active instances, the bounded window registry, serialized per-window data, Scratch content, and Method state. Control backup covers that session-plus-Archive pair only. It does not capture transient console history, search/Atlas UI, Brief drafts, Vector drafts/view state, sound preference, Subsurface or Railshift scores, or unsaved component-only state. Corrupt saved values block silent overwrite and may be preserved under recovery keys. This persisted state has no account, cloud sync, collaboration, remote filesystem, or cross-device promise. Pulse, Search, and Agent have separate network request paths and do not change that storage boundary.
 
 ### Named Rules
 
@@ -300,7 +312,7 @@ Session state and the Archive tree are separately validated and saved as a pair 
 
 **The Native Control Rule.** Direct manipulation must keep a legible keyboard or native-input path, visible focus, and truthful local-state language.
 
-**The Local Means Local Rule.** Describe browser persistence, backup coverage, destructive actions, and recovery exactly; never imply an account, upload, remote sync, or backend.
+**The Local Means Local Rule.** Describe browser persistence, backup coverage, destructive actions, and recovery exactly. Never imply an account, upload, remote sync, or remote filesystem for session and Archive data, and never describe a network-backed tool as local.
 
 ## Do's and Don'ts
 
@@ -320,7 +332,7 @@ Session state and the Archive tree are separately validated and saved as a pair 
 - **Don't** turn the portfolio into a project-card résumé or a wall of interchangeable case-study tiles.
 - **Don't** drift into a generic SaaS component dashboard or rounded-card shell.
 - **Don't** import third-party operating-system names, icons, window decoration, or trade dress; this is a clean-room original system.
-- **Don't** imply an account, upload, cloud sync, collaboration layer, remote filesystem, or backend.
+- **Don't** imply an account, upload, cloud sync, collaboration layer, or remote filesystem for browser-local state; disclose the service boundary anywhere a tool uses the network.
 - **Don't** use shadows on static content fields or treat route and signal colors as decoration.
 - **Don't** claim every state is exported: Subsurface and Railshift scores plus transient component state have deliberately narrower lifecycles.
 - **Don't** start continuous lab motion before the visitor initiates it or hide the core calculator behind pointer-only interaction.

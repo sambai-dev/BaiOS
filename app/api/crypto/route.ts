@@ -114,20 +114,17 @@ function parseMarket(value: CoinGeckoMarket) {
 }
 
 /**
- * Bounds the upstream call so a stalled CoinGecko connection settles into the
- * catch block (stale fallback / 503) instead of hanging the route indefinitely.
+ * Bounds the upstream call and aborts the underlying request when the deadline
+ * expires. The incoming request signal is combined with the timeout signal so
+ * a disconnected client also cancels the CoinGecko request.
  */
 async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new Error(`CoinGecko timed out after ${UPSTREAM_TIMEOUT_MS}ms.`)),
-      UPSTREAM_TIMEOUT_MS,
-    );
-  });
-  return Promise.race([fetch(url, init), timeout]).finally(() => {
-    if (timer !== undefined) clearTimeout(timer);
-  });
+  const timeoutSignal = AbortSignal.timeout(UPSTREAM_TIMEOUT_MS);
+  const signal = init.signal
+    ? AbortSignal.any([init.signal, timeoutSignal])
+    : timeoutSignal;
+
+  return fetch(url, { ...init, signal });
 }
 
 export async function GET(request: Request) {
@@ -152,6 +149,7 @@ export async function GET(request: Request) {
           ...(demoKey ? { "x-cg-demo-api-key": demoKey } : {}),
         },
         next: { revalidate: 300 },
+        signal: request.signal,
       },
     );
 

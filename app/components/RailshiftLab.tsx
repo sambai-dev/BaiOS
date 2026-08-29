@@ -1088,7 +1088,11 @@ export default function RailshiftLab({
           </div>
         )}
 
-        <div className="railshift__touch-controls" aria-label="Touch controls">
+          <div
+            className="railshift__touch-controls"
+            role="group"
+            aria-label="Touch controls"
+          >
           <button type="button" aria-label="Move left" onClick={() => moveLane(-1)}>
             <svg aria-hidden="true" viewBox="0 0 24 24">
               <path d="M20 12H5M10 7l-5 5 5 5" />

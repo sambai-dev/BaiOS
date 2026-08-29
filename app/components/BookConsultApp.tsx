@@ -3,146 +3,237 @@
 
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { playSound } from "../lib/workbench-sound";
 
 const BOOK_DRAFT_KEY = "sam-workbench-book-draft-v1";
+const PRIMARY_EMAIL = "sambai.codes@gmail.com";
+const MAILTO_MAX_HREF_LENGTH = 1_800;
+const MAILTO_MAX_SUBJECT_LENGTH = 96;
+const MAILTO_TRUNCATION_NOTE =
+  "\n\n[Project context shortened for email. Copy or download the full planning brief from Workbench.]";
+
+type ServiceArea = "direction" | "interface" | "architecture" | "ongoing";
+type ViewMode = "builder" | "contact";
 
 type BookDraft = {
-  model: EngagementModel;
-  selectedDeliverables: string[];
+  version: 2;
+  serviceArea: ServiceArea | "";
+  selectedFocusAreas: string[];
   timelineTarget: string;
   clientName: string;
   clientEmail: string;
   projectNotes: string;
 };
 
-type EngagementModel = "sprint" | "retainer" | "audit" | "advisory";
-
-type DeliverableItem = {
+type FocusArea = {
   id: string;
   label: string;
-  category: "frontend" | "backend" | "ai" | "mobile";
-  timeDays: number;
 };
 
-const ENGAGEMENT_MODELS: Record<
-  EngagementModel,
-  { title: string; subtitle: string; baseWeeks: string; defaultCommitment: string; description: string }
+const SERVICE_AREAS: Record<
+  ServiceArea,
+  { title: string; subtitle: string; description: string }
 > = {
-  sprint: {
-    title: "2-Week MVP Sprint",
-    subtitle: "Rapid 0-to-1 Production",
-    baseWeeks: "2 weeks",
-    defaultCommitment: "Full-time dedicated sprint",
-    description: "Move from an idea or wireframe to a live, production-grade web or mobile product with senior design engineering.",
+  direction: {
+    title: "Product direction",
+    subtitle: "Clarify the product decision",
+    description:
+      "Clarify the product decision and define the first useful version.",
   },
-  retainer: {
-    title: "Design Engineering Retainer",
-    subtitle: "Embedded Senior Craft",
-    baseWeeks: "Monthly ongoing",
-    defaultCommitment: "15–20 hrs / week",
-    description: "Ongoing partnership for high-velocity teams needing top-tier interfaces, complex state machines, and design systems.",
+  interface: {
+    title: "Interface & workflow build",
+    subtitle: "Production design engineering",
+    description:
+      "Design and build production interfaces, stateful workflows, and the systems behind them.",
   },
-  audit: {
-    title: "Architecture & AI Audit",
-    subtitle: "Systems & Workflows",
-    baseWeeks: "3–5 days",
-    defaultCommitment: "Intensive deep-dive",
-    description: "Comprehensive code, database, performance, and LLM/agentic workflow review with actionable refactor pull requests.",
+  architecture: {
+    title: "Architecture & AI workflow review",
+    subtitle: "Technical decision support",
+    description:
+      "Review architecture, data flows, and AI-assisted workflows, then identify the next decisions.",
   },
-  advisory: {
-    title: "Advisory & Strategy",
-    subtitle: "Fractional Founding Engineer",
-    baseWeeks: "Flexible",
-    defaultCommitment: "Weekly syncs + async reviews",
-    description: "Strategic guidance on architecture decisions, hiring screens, stack evaluation, and high-leverage software trade-offs.",
+  ongoing: {
+    title: "Ongoing product production",
+    subtitle: "Embedded product engineering",
+    description:
+      "Work across product direction, design engineering, and delivery as the product evolves.",
   },
 };
 
-const AVAILABLE_DELIVERABLES: DeliverableItem[] = [
-  { id: "del-next", label: "Next.js 16 / React 19 Frontend", category: "frontend", timeDays: 3 },
-  { id: "del-ds", label: "Design System & Micro-Interactions", category: "frontend", timeDays: 3 },
-  { id: "del-pg", label: "PostgreSQL & Supabase / Neon RLS", category: "backend", timeDays: 2 },
-  { id: "del-edge", label: "Cloudflare Workers & Edge Caching", category: "backend", timeDays: 2 },
-  { id: "del-ai", label: "AI Agentic Workflows & Streaming UI", category: "ai", timeDays: 4 },
-  { id: "del-mobile", label: "React Native / Expo iOS & Android", category: "mobile", timeDays: 5 },
+const SERVICE_AREA_KEYS = Object.keys(SERVICE_AREAS) as ServiceArea[];
+
+const FOCUS_AREAS: FocusArea[] = [
+  { id: "del-next", label: "Web product interfaces" },
+  { id: "del-ds", label: "Design systems & interaction" },
+  { id: "del-pg", label: "Data models & application state" },
+  { id: "del-edge", label: "Cloud & edge delivery" },
+  { id: "del-ai", label: "AI-assisted workflows & streaming UI" },
+  { id: "del-mobile", label: "Mobile & cross-platform products" },
 ];
 
 const TIMELINE_OPTIONS = [
-  "Immediate (Within 2 weeks)",
-  "Next Month (Within 30 days)",
-  "Upcoming Quarter",
-  "Flexible / Exploring Scope",
+  "As soon as practical",
+  "Within 30 days",
+  "This quarter",
+  "Exploring timing",
 ] as const;
 
+function truncateSubject(subject: string): string {
+  const codePoints = Array.from(subject);
+  if (codePoints.length <= MAILTO_MAX_SUBJECT_LENGTH) return subject;
+  return `${codePoints
+    .slice(0, MAILTO_MAX_SUBJECT_LENGTH - 1)
+    .join("")
+    .trimEnd()}…`;
+}
+
+function buildBoundedMailtoHref(subject: string, body: string): string {
+  const boundedSubject = truncateSubject(subject);
+  const buildHref = (nextBody: string) =>
+    `mailto:${PRIMARY_EMAIL}?subject=${encodeURIComponent(boundedSubject)}&body=${encodeURIComponent(nextBody)}`;
+
+  const completeHref = buildHref(body);
+  if (completeHref.length <= MAILTO_MAX_HREF_LENGTH) return completeHref;
+
+  const bodyCodePoints = Array.from(body);
+  let lowerBound = 0;
+  let upperBound = bodyCodePoints.length;
+  let bestLength = 0;
+
+  while (lowerBound <= upperBound) {
+    const midpoint = Math.floor((lowerBound + upperBound) / 2);
+    const candidate = `${bodyCodePoints.slice(0, midpoint).join("").trimEnd()}${MAILTO_TRUNCATION_NOTE}`;
+    if (buildHref(candidate).length <= MAILTO_MAX_HREF_LENGTH) {
+      bestLength = midpoint;
+      lowerBound = midpoint + 1;
+    } else {
+      upperBound = midpoint - 1;
+    }
+  }
+
+  let shortenedBody = bodyCodePoints.slice(0, bestLength).join("").trimEnd();
+  const lastBoundary = Math.max(
+    shortenedBody.lastIndexOf("\n"),
+    shortenedBody.lastIndexOf(" "),
+  );
+  if (lastBoundary >= Math.floor(shortenedBody.length * 0.7)) {
+    shortenedBody = shortenedBody.slice(0, lastBoundary).trimEnd();
+  }
+
+  return buildHref(`${shortenedBody}${MAILTO_TRUNCATION_NOTE}`);
+}
+
 function readStoredDraft(): Partial<BookDraft> | null {
+  if (typeof window === "undefined") return null;
+
   try {
     const raw = window.localStorage.getItem(BOOK_DRAFT_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") return null;
+
     const candidate = parsed as Record<string, unknown>;
     const readString = (value: unknown) =>
       typeof value === "string" ? value : undefined;
+    const isCurrentDraft = candidate.version === 2;
+
     return {
-      // Object.hasOwn (not `in`): inherited keys like "toString" would
-      // otherwise pass validation and resolve to undefined metadata.
-      model:
-        typeof candidate.model === "string" &&
-        Object.hasOwn(ENGAGEMENT_MODELS, candidate.model)
-          ? (candidate.model as EngagementModel)
-          : undefined,
-      selectedDeliverables: Array.isArray(candidate.selectedDeliverables)
-        ? candidate.selectedDeliverables.filter(
-            (id): id is string =>
-              typeof id === "string" &&
-              AVAILABLE_DELIVERABLES.some((item) => item.id === id),
-          )
-        : undefined,
+      version: 2,
+      serviceArea:
+        isCurrentDraft &&
+        typeof candidate.serviceArea === "string" &&
+        (candidate.serviceArea === "" ||
+          Object.hasOwn(SERVICE_AREAS, candidate.serviceArea))
+          ? (candidate.serviceArea as ServiceArea | "")
+          : "",
+      selectedFocusAreas:
+        isCurrentDraft && Array.isArray(candidate.selectedFocusAreas)
+          ? candidate.selectedFocusAreas.filter(
+              (id): id is string =>
+                typeof id === "string" &&
+                FOCUS_AREAS.some((item) => item.id === id),
+            )
+          : [],
       timelineTarget:
+        isCurrentDraft &&
         typeof candidate.timelineTarget === "string" &&
-        (TIMELINE_OPTIONS as readonly string[]).includes(
-          candidate.timelineTarget,
-        )
+        (candidate.timelineTarget === "" ||
+          (TIMELINE_OPTIONS as readonly string[]).includes(
+            candidate.timelineTarget,
+          ))
           ? candidate.timelineTarget
-          : undefined,
+          : "",
+      // Carry forward visitor-authored text from the old estimator draft,
+      // but not its preselected packages, timings, or capability defaults.
       clientName: readString(candidate.clientName),
       clientEmail: readString(candidate.clientEmail),
       projectNotes: readString(candidate.projectNotes),
     };
   } catch {
-    /* corrupt or unavailable storage, so start fresh */
     return null;
   }
 }
 
 export default function BookConsultApp() {
-  // Client-only component (loaded with ssr: false), so window and
-  // localStorage exist during the first render and can seed initial state.
-  // The lazy initializer reads storage exactly once, not on every render.
   const [storedDraft] = useState<Partial<BookDraft> | null>(readStoredDraft);
-  const [model, setModel] = useState<EngagementModel>(
-    storedDraft?.model ?? "sprint",
+  const [serviceArea, setServiceArea] = useState<ServiceArea | "">(
+    storedDraft?.serviceArea ?? "",
   );
-  const [selectedDeliverables, setSelectedDeliverables] = useState<string[]>(
-    storedDraft?.selectedDeliverables ?? [
-      "del-next",
-      "del-ds",
-      "del-pg",
-      "del-ai",
-    ],
+  const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>(
+    storedDraft?.selectedFocusAreas ?? [],
   );
   const [timelineTarget, setTimelineTarget] = useState(
-    storedDraft?.timelineTarget ?? "Immediate (Within 2 weeks)",
+    storedDraft?.timelineTarget ?? "",
   );
   const [clientName, setClientName] = useState(storedDraft?.clientName ?? "");
-  const [clientEmail, setClientEmail] = useState(storedDraft?.clientEmail ?? "");
-  const [projectNotes, setProjectNotes] = useState(storedDraft?.projectNotes ?? "");
+  const [clientEmail, setClientEmail] = useState(
+    storedDraft?.clientEmail ?? "",
+  );
+  const [projectNotes, setProjectNotes] = useState(
+    storedDraft?.projectNotes ?? "",
+  );
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
+  const [showEmailError, setShowEmailError] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("builder");
   const copiedTimerRef = useRef<number | null>(null);
-  const [viewMode, setViewMode] = useState<"estimator" | "calendar">("estimator");
+  const tabRefs = useRef<Record<ViewMode, HTMLButtonElement | null>>({
+    builder: null,
+    contact: null,
+  });
+  const contactPrimaryActionRef = useRef<HTMLAnchorElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const pendingViewFocusRef = useRef<
+    "tab" | "contact-action" | "email-input" | null
+  >(null);
+  const serviceAreaRefs = useRef<Record<ServiceArea, HTMLButtonElement | null>>(
+    {
+      direction: null,
+      interface: null,
+      architecture: null,
+      ongoing: null,
+    },
+  );
+
+  const nameInputId = useId();
+  const emailInputId = useId();
+  const emailErrorId = useId();
+  const notesInputId = useId();
+  const timelineInputId = useId();
+  const builderTabId = useId();
+  const contactTabId = useId();
+  const builderPanelId = useId();
+  const contactPanelId = useId();
+  const focusAreasLabelId = useId();
 
   useEffect(
     () => () => {
@@ -153,98 +244,189 @@ export default function BookConsultApp() {
     [],
   );
 
-  // Persist on every change (payload is tiny).
+  useEffect(() => {
+    const focusTarget = pendingViewFocusRef.current;
+    if (!focusTarget) return;
+    pendingViewFocusRef.current = null;
+
+    const frame = window.requestAnimationFrame(() => {
+      if (focusTarget === "email-input") {
+        emailInputRef.current?.focus({ preventScroll: false });
+        return;
+      }
+      if (focusTarget === "contact-action") {
+        contactPrimaryActionRef.current?.focus({ preventScroll: true });
+        return;
+      }
+      tabRefs.current[viewMode]?.focus({ preventScroll: true });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [viewMode]);
+
   useEffect(() => {
     const draft: BookDraft = {
-      model,
-      selectedDeliverables,
+      version: 2,
+      serviceArea,
+      selectedFocusAreas,
       timelineTarget,
       clientName,
       clientEmail,
       projectNotes,
     };
+
     try {
       window.localStorage.setItem(BOOK_DRAFT_KEY, JSON.stringify(draft));
     } catch {
-      /* storage full or blocked; estimator keeps working in-memory */
+      /* The brief remains usable in-memory when storage is unavailable. */
     }
   }, [
-    model,
-    selectedDeliverables,
+    serviceArea,
+    selectedFocusAreas,
     timelineTarget,
     clientName,
     clientEmail,
     projectNotes,
   ]);
 
-  const nameInputId = useId();
-  const emailInputId = useId();
-  const notesInputId = useId();
+  const activeService = serviceArea ? SERVICE_AREAS[serviceArea] : null;
 
-  const toggleDeliverable = (id: string) => {
+  const planningBriefMarkdown = useMemo(() => {
+    const selectedLabels = selectedFocusAreas
+      .map((id) => FOCUS_AREAS.find((item) => item.id === id)?.label)
+      .filter((label): label is string => Boolean(label));
+
+    return `# Planning brief (not a quote or delivery estimate)
+
+**Name / company:** ${clientName.trim() || "Not provided"}
+**Contact email:** ${clientEmail.trim() || "Not provided"}
+**Service area:** ${activeService?.title ?? "Not selected"}
+**Target timing:** ${timelineTarget || "Not provided"}
+
+## Focus areas
+${selectedLabels.length > 0 ? selectedLabels.map((label) => `- ${label}`).join("\n") : "None selected"}
+
+## Project context
+${projectNotes.trim() || "Not provided"}
+
+## Next step
+Email Sam Bai at Solynth Labs to discuss this brief.
+`;
+  }, [
+    activeService?.title,
+    clientEmail,
+    clientName,
+    projectNotes,
+    selectedFocusAreas,
+    timelineTarget,
+  ]);
+
+  const emailHref = useMemo(() => {
+    const subject = activeService
+      ? `Project enquiry: ${activeService.title}`
+      : "Project enquiry: planning brief";
+    return buildBoundedMailtoHref(subject, planningBriefMarkdown);
+  }, [activeService, planningBriefMarkdown]);
+
+  const toggleFocusArea = (id: string) => {
     playSound("click");
-    setSelectedDeliverables((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    setSelectedFocusAreas((previous) =>
+      previous.includes(id)
+        ? previous.filter((item) => item !== id)
+        : [...previous, id],
     );
   };
 
-  const estimatedDays = useMemo(() => {
-    const base = model === "sprint" ? 10 : model === "audit" ? 4 : model === "retainer" ? 20 : 5;
-    const additional = selectedDeliverables.reduce((acc, id) => {
-      const item = AVAILABLE_DELIVERABLES.find((d) => d.id === id);
-      return acc + (item ? item.timeDays : 0);
-    }, 0);
-    return Math.max(base, Math.round(base * 0.5 + additional * 0.6));
-  }, [model, selectedDeliverables]);
+  const chooseServiceArea = (nextServiceArea: ServiceArea) => {
+    playSound("click");
+    setServiceArea(nextServiceArea);
+  };
 
-  const scopeBriefMarkdown = useMemo(() => {
-    const activeModel = ENGAGEMENT_MODELS[model];
-    const items = selectedDeliverables
-      .map((id) => AVAILABLE_DELIVERABLES.find((d) => d.id === id)?.label)
-      .filter(Boolean)
-      .map((label) => `• ${label}`)
-      .join("\n");
+  const handleServiceAreaKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    currentServiceArea: ServiceArea,
+  ) => {
+    const currentIndex = SERVICE_AREA_KEYS.indexOf(currentServiceArea);
+    let nextIndex: number | null = null;
 
-    return `### Project Scope Inquiry for Sam Bai / Solynth Labs
-**Engagement Model:** ${activeModel.title} (${activeModel.subtitle})
-**Target Start / Timeline:** ${timelineTarget} (~${estimatedDays} days estimated effort)
-**Client / Company:** ${clientName.trim() || "Not specified"} (${clientEmail.trim() || "Email not specified"})
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      nextIndex = (currentIndex + 1) % SERVICE_AREA_KEYS.length;
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      nextIndex =
+        (currentIndex - 1 + SERVICE_AREA_KEYS.length) %
+        SERVICE_AREA_KEYS.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = SERVICE_AREA_KEYS.length - 1;
+    }
 
-**Selected Architecture & Deliverables:**
-${items || "• Custom full-stack architecture"}
+    if (nextIndex !== null) {
+      event.preventDefault();
+      const nextServiceArea = SERVICE_AREA_KEYS[nextIndex];
+      if (!nextServiceArea) return;
+      chooseServiceArea(nextServiceArea);
+      serviceAreaRefs.current[nextServiceArea]?.focus();
+    }
+  };
 
-**Project Goals & Notes:**
-${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural approach."}
-`;
-  }, [model, timelineTarget, estimatedDays, clientName, clientEmail, selectedDeliverables, projectNotes]);
+  const setActiveView = (
+    nextView: ViewMode,
+    focusTarget: "tab" | "contact-action" | null = null,
+  ) => {
+    playSound("click");
+    pendingViewFocusRef.current = focusTarget;
+    setViewMode(nextView);
+  };
+
+  const handleTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    currentView: ViewMode,
+  ) => {
+    let nextView: ViewMode | null = null;
+
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      nextView = currentView === "builder" ? "contact" : "builder";
+    } else if (event.key === "Home") {
+      nextView = "builder";
+    } else if (event.key === "End") {
+      nextView = "contact";
+    }
+
+    if (nextView) {
+      event.preventDefault();
+      setActiveView(nextView, "tab");
+    }
+  };
 
   const downloadBrief = () => {
     playSound("click");
-    const blob = new Blob([scopeBriefMarkdown], { type: "text/markdown" });
+    const blob = new Blob([planningBriefMarkdown], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "solynth-scope-brief.md";
+    anchor.download = "sam-bai-project-brief.md";
     anchor.click();
     URL.revokeObjectURL(url);
   };
 
   const copyBriefToClipboard = async () => {
     playSound("snap");
+
     let succeeded = false;
     try {
-      await navigator.clipboard.writeText(scopeBriefMarkdown);
+      await navigator.clipboard.writeText(planningBriefMarkdown);
       succeeded = true;
     } catch {
       succeeded = false;
     }
+
     if (copiedTimerRef.current !== null) {
       window.clearTimeout(copiedTimerRef.current);
     }
-    const flashState = succeeded ? setCopied : setCopyFailed;
-    // Surface failure explicitly: on insecure contexts the Clipboard API is
-    // absent, and silent no-feedback looks identical to success.
-    flashState(true);
+
+    setCopied(succeeded);
+    setCopyFailed(!succeeded);
     copiedTimerRef.current = window.setTimeout(() => {
       copiedTimerRef.current = null;
       setCopied(false);
@@ -252,263 +434,374 @@ ${projectNotes.trim() || "Looking to discuss scope, timeline, and architectural 
     }, 2500);
   };
 
-  const openGmailDraft = () => {
-    // Gmail compose URLs fail silently beyond a few KB; trim the notes
-    // section so the brief always survives the URL round-trip.
-    const GMAIL_BODY_CHAR_BUDGET = 6_000;
-    let brief = scopeBriefMarkdown;
-    while (encodeURIComponent(brief).length > GMAIL_BODY_CHAR_BUDGET && brief.length > 200) {
-      brief = brief.slice(0, Math.ceil(brief.length / 2));
-    }
-    if (brief !== scopeBriefMarkdown) {
-      brief = `${brief.trimEnd()}\n\n…[truncated for email — use "Download brief" for the full version]`;
+  const handleEmailAction = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    const emailInput = emailInputRef.current;
+    const hasInvalidEmail =
+      clientEmail.trim().length > 0 &&
+      Boolean(emailInput && !emailInput.validity.valid);
+
+    if (!hasInvalidEmail) {
+      setShowEmailError(false);
+      playSound("chime");
+      return;
     }
 
-    const subject = encodeURIComponent(`Project Inquiry: ${ENGAGEMENT_MODELS[model].title}`);
-    const body = encodeURIComponent(brief);
-    const opened = window.open(
-      `https://mail.google.com/mail/?view=cm&fs=1&to=sambai.codes%40gmail.com&su=${subject}&body=${body}`,
-      "_blank",
-      "noreferrer"
-    );
-    // Only signal success when a compose tab actually opened (popup
-    // blockers return null).
-    playSound(opened ? "chime" : "delete");
+    event.preventDefault();
+    playSound("delete");
+    setShowEmailError(true);
+
+    if (viewMode !== "builder") {
+      pendingViewFocusRef.current = "email-input";
+      setViewMode("builder");
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      emailInput?.focus({ preventScroll: false });
+    });
   };
 
   return (
     <div className="book-app">
       <header className="book-header">
         <div>
-          <h2>Book.</h2>
-          <p>Estimate a B2B engagement, configure deliverables, and schedule an intro call.</p>
+          <h2>Project brief.</h2>
+          <p>
+            Shape a factual project enquiry. Your draft stays in this browser.
+          </p>
         </div>
-        <div className="book-nav" role="tablist" aria-label="Booking view selector">
+        <div
+          className="book-nav"
+          role="tablist"
+          aria-label="Project brief view"
+        >
           <button
+            ref={(node) => {
+              tabRefs.current.builder = node;
+            }}
+            id={builderTabId}
             type="button"
             role="tab"
-            aria-selected={viewMode === "estimator"}
-            onClick={() => {
-              playSound("click");
-              setViewMode("estimator");
-            }}
+            aria-selected={viewMode === "builder"}
+            aria-controls={builderPanelId}
+            tabIndex={viewMode === "builder" ? 0 : -1}
+            onClick={() => setActiveView("builder")}
+            onKeyDown={(event) => handleTabKeyDown(event, "builder")}
           >
-            Scope Estimator
+            Build brief
           </button>
           <button
+            ref={(node) => {
+              tabRefs.current.contact = node;
+            }}
+            id={contactTabId}
             type="button"
             role="tab"
-            aria-selected={viewMode === "calendar"}
-            onClick={() => {
-              playSound("click");
-              setViewMode("calendar");
-            }}
+            aria-selected={viewMode === "contact"}
+            aria-controls={contactPanelId}
+            tabIndex={viewMode === "contact" ? 0 : -1}
+            onClick={() => setActiveView("contact")}
+            onKeyDown={(event) => handleTabKeyDown(event, "contact")}
           >
-            Schedule Sync
+            Contact Sam
           </button>
         </div>
       </header>
 
-      {viewMode === "calendar" ? (
-        <div className="book-calendar-surface">
-          <div className="book-calendar-card">
-            <div className="book-calendar-meta">
-              <span className="book-tag">Introductory Call</span>
-              <h3>30-Minute Architecture & Project Sync</h3>
-              <p>
-                Direct discussion with Sam Bai covering product goals, technical constraints, timeline, and execution fit.
-              </p>
-              <ul className="book-calendar-bullets">
-                <li>Discussion on product direction & architecture</li>
-                <li>Live assessment of technical scope</li>
-                <li>Fixed pricing quote or retainer terms</li>
-              </ul>
-            </div>
-            <div className="book-calendar-actions">
-              <a
-                href="https://cal.com/sambai-dev"
-                target="_blank"
-                rel="noreferrer"
-                className="book-cta-primary"
-                onClick={() => playSound("chime")}
-              >
-                Open Cal.com Booking
-              </a>
-              <button type="button" className="book-cta-secondary" onClick={openGmailDraft}>
-                Direct Email (sambai.codes@gmail.com)
-              </button>
-            </div>
+      <section
+        id={contactPanelId}
+        role="tabpanel"
+        aria-labelledby={contactTabId}
+        className="book-contact-surface"
+        hidden={viewMode !== "contact"}
+      >
+        <div className="book-contact-card">
+          <div className="book-contact-meta">
+            <span className="book-tag">Direct contact</span>
+            <h3>Start a project conversation.</h3>
+            <p>
+              Send the problem, product decision, or system you need help with.
+              The brief is optional and deliberately avoids promising a quote,
+              schedule, or engagement format.
+            </p>
+            <ul className="book-contact-bullets">
+              <li>Describe the outcome or decision that matters.</li>
+              <li>Add constraints and target timing only when known.</li>
+              <li>Discuss the brief and next steps directly.</li>
+            </ul>
+          </div>
+          <div className="book-contact-actions">
+            <a
+              ref={contactPrimaryActionRef}
+              href={emailHref}
+              className="book-cta-primary"
+              onClick={handleEmailAction}
+            >
+              Email project enquiry
+            </a>
+            <button
+              type="button"
+              className="book-cta-secondary"
+              onClick={copyBriefToClipboard}
+            >
+              {copied
+                ? "Copied planning brief"
+                : copyFailed
+                  ? "Copy blocked: download instead"
+                  : "Copy planning brief"}
+            </button>
+            <button
+              type="button"
+              className="book-cta-secondary"
+              onClick={downloadBrief}
+            >
+              Download Markdown
+            </button>
           </div>
         </div>
-      ) : (
-        <div className="book-workspace">
-          <div className="book-config">
-            <section className="book-section">
-              <span className="book-section-label">01 / Choose Engagement Model</span>
-              <div className="book-models-grid" role="radiogroup" aria-label="Engagement models">
-                {(Object.keys(ENGAGEMENT_MODELS) as EngagementModel[]).map((key) => {
-                  const item = ENGAGEMENT_MODELS[key];
-                  const isSelected = model === key;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      role="radio"
-                      aria-checked={isSelected}
-                      className={`book-model-card ${isSelected ? "is-selected" : ""}`}
-                      onClick={() => {
-                        playSound("click");
-                        setModel(key);
-                      }}
-                    >
-                      <div className="book-model-head">
-                        <strong>{item.title}</strong>
-                        <span className="book-model-tag">{item.baseWeeks}</span>
-                      </div>
-                      <p>{item.description}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
+      </section>
 
-            <section className="book-section">
-              <span className="book-section-label">02 / Select Target Capabilities</span>
-              <div className="book-deliverables-grid">
-                {AVAILABLE_DELIVERABLES.map((item) => {
-                  const isChecked = selectedDeliverables.includes(item.id);
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      role="checkbox"
-                      aria-checked={isChecked}
-                      className={`book-chip ${isChecked ? "is-active" : ""}`}
-                      onClick={() => toggleDeliverable(item.id)}
-                    >
-                      <span className="book-chip-mark" aria-hidden="true">
-                        {isChecked ? "■" : "□"}
-                      </span>
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
+      <div
+        id={builderPanelId}
+        role="tabpanel"
+        aria-labelledby={builderTabId}
+        className="book-workspace"
+        hidden={viewMode !== "builder"}
+      >
+        <div className="book-config">
+          <section className="book-section">
+            <span className="book-section-label">
+              01 / Choose a starting point
+            </span>
+            <div
+              className="book-models-grid"
+              role="radiogroup"
+              aria-label="Service areas"
+            >
+              {SERVICE_AREA_KEYS.map((key) => {
+                const item = SERVICE_AREAS[key];
+                const isSelected = serviceArea === key;
 
-            <section className="book-section">
-              <span className="book-section-label">03 / Project Context & Timeline</span>
-              <div className="book-inputs-grid">
-                <div>
-                  <label htmlFor={nameInputId}>Your Name / Company</label>
+                return (
+                  <button
+                    key={key}
+                    ref={(node) => {
+                      serviceAreaRefs.current[key] = node;
+                    }}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    tabIndex={
+                      isSelected || (!serviceArea && key === "direction")
+                        ? 0
+                        : -1
+                    }
+                    className={`book-model-card ${isSelected ? "is-selected" : ""}`}
+                    onClick={() => chooseServiceArea(key)}
+                    onKeyDown={(event) => handleServiceAreaKeyDown(event, key)}
+                  >
+                    <span className="book-model-head">
+                      <strong>{item.title}</strong>
+                      <span className="book-model-tag">{item.subtitle}</span>
+                    </span>
+                    <span className="book-model-description">
+                      {item.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="book-section">
+            <span id={focusAreasLabelId} className="book-section-label">
+              02 / Add relevant focus areas
+            </span>
+            <div
+              className="book-deliverables-grid"
+              role="group"
+              aria-labelledby={focusAreasLabelId}
+            >
+              {FOCUS_AREAS.map((item) => {
+                const isChecked = selectedFocusAreas.includes(item.id);
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="checkbox"
+                    aria-checked={isChecked}
+                    className={`book-chip ${isChecked ? "is-active" : ""}`}
+                    onClick={() => toggleFocusArea(item.id)}
+                  >
+                    <span className="book-chip-mark" aria-hidden="true">
+                      {isChecked ? "■" : "□"}
+                    </span>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="book-section">
+            <span className="book-section-label">03 / Add what you know</span>
+            <div className="book-inputs-grid">
+              <div>
+                <label htmlFor={nameInputId}>Your name / company</label>
                   <input
                     id={nameInputId}
+                    name="client-name"
                     type="text"
-                    placeholder="e.g. Alex / Acme Ventures"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor={emailInputId}>Contact Email</label>
+                  autoComplete="name"
+                  placeholder="Name or company"
+                  value={clientName}
+                  onChange={(event) => setClientName(event.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor={emailInputId}>Contact email</label>
                   <input
+                    ref={emailInputRef}
                     id={emailInputId}
+                    name="client-email"
                     type="email"
-                    placeholder="alex@acme.com"
-                    value={clientEmail}
-                    onChange={(e) => setClientEmail(e.target.value)}
-                  />
-                </div>
-                <div className="book-input-full">
-                  <label htmlFor="timeline-target-select">Target Timeline</label>
-                  <select
-                    id="timeline-target-select"
-                    value={timelineTarget}
-                    onChange={(e) => setTimelineTarget(e.target.value)}
+                    autoComplete="email"
+                    spellCheck={false}
+                  maxLength={254}
+                  placeholder="you@example.com"
+                  value={clientEmail}
+                  aria-describedby={showEmailError ? emailErrorId : undefined}
+                  aria-invalid={showEmailError ? "true" : undefined}
+                  onChange={(event) => {
+                    setClientEmail(event.target.value);
+                    setShowEmailError(false);
+                  }}
+                />
+                {showEmailError ? (
+                  <p
+                    id={emailErrorId}
+                    className="book-field-error"
+                    role="alert"
                   >
-                    {TIMELINE_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="book-input-full">
-                  <label htmlFor={notesInputId}>Brief Notes / Core Challenge</label>
+                    Enter an email like name@example.com, or leave this field
+                    blank.
+                  </p>
+                ) : null}
+              </div>
+              <div className="book-input-full">
+                <label htmlFor={timelineInputId}>Target timing</label>
+                  <select
+                    id={timelineInputId}
+                    name="target-timing"
+                  value={timelineTarget}
+                  onChange={(event) => setTimelineTarget(event.target.value)}
+                >
+                  <option value="">Choose a target if known</option>
+                  {TIMELINE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="book-input-full">
+                <label htmlFor={notesInputId}>Project context</label>
                   <textarea
                     id={notesInputId}
-                    rows={2}
-                    placeholder="What are you building, and what is the primary technical or design bottleneck?"
-                    value={projectNotes}
-                    onChange={(e) => setProjectNotes(e.target.value)}
-                  />
-                </div>
+                    name="project-context"
+                  rows={3}
+                  placeholder="What are you building, changing, or deciding?"
+                  value={projectNotes}
+                  onChange={(event) => setProjectNotes(event.target.value)}
+                />
               </div>
-            </section>
-          </div>
+            </div>
+          </section>
+        </div>
 
-          <aside className="book-summary-panel">
+        <section
+          className="book-summary-panel"
+          aria-label="Planning brief summary"
+        >
+          <div>
             <div className="book-summary-head">
-              <span className="book-tag">Scope Summary</span>
-              <h3>{ENGAGEMENT_MODELS[model].title}</h3>
-              <p>{ENGAGEMENT_MODELS[model].defaultCommitment}</p>
+              <span className="book-tag">Planning brief</span>
+              <h3>{activeService?.title ?? "No service area selected"}</h3>
+              <p>
+                {activeService?.description ??
+                  "Choose a starting point only if one fits. This does not define a package or commitment."}
+              </p>
             </div>
 
             <dl className="book-summary-stats">
               <div>
-                <dt>Estimated Duration</dt>
-                <dd>~{estimatedDays} Working Days</dd>
+                <dt>Target timing</dt>
+                <dd>{timelineTarget || "Not provided"}</dd>
               </div>
               <div>
-                <dt>Location</dt>
-                <dd>Hamilton, NZ (Async / US & Global Friendly)</dd>
+                <dt>Focus areas</dt>
+                <dd>
+                  {selectedFocusAreas.length > 0
+                    ? `${selectedFocusAreas.length} selected`
+                    : "None selected"}
+                </dd>
               </div>
               <div>
-                <dt>Deliverables</dt>
-                <dd>{selectedDeliverables.length} Modules Selected</dd>
+                <dt>Contact</dt>
+                <dd>{clientEmail.trim() || "Not provided"}</dd>
               </div>
             </dl>
 
-            <div className="book-actions">
-              <button
-                type="button"
-                className="book-cta-primary"
-                onClick={openGmailDraft}
-              >
-                Send Scope via Gmail
-              </button>
-              <button
-                type="button"
-                className="book-cta-secondary"
-                onClick={copyBriefToClipboard}
-              >
-                {copied
-                  ? "✓ Copied Scope Brief"
-                  : copyFailed
-                    ? "Copy blocked — use Download .md"
-                    : "Copy Formatted Brief"}
-              </button>
-              <button
-                type="button"
-                className="book-cta-secondary"
-                onClick={downloadBrief}
-              >
-                Download .md
-              </button>
-              <button
-                type="button"
-                className="book-cta-link"
-                onClick={() => {
-                  playSound("click");
-                  setViewMode("calendar");
-                }}
-              >
-                Or schedule an introductory call →
-              </button>
-            </div>
-          </aside>
-        </div>
-      )}
+            <p className="book-brief-note">
+              Planning brief (not a quote or delivery estimate).
+            </p>
+          </div>
+
+          <div className="book-actions">
+            <a
+              href={emailHref}
+              className="book-cta-primary"
+              onClick={handleEmailAction}
+            >
+              Email project enquiry
+            </a>
+            <button
+              type="button"
+              className="book-cta-secondary"
+              onClick={copyBriefToClipboard}
+            >
+              {copied
+                ? "Copied planning brief"
+                : copyFailed
+                  ? "Copy blocked: download instead"
+                  : "Copy planning brief"}
+            </button>
+            <button
+              type="button"
+              className="book-cta-secondary"
+              onClick={downloadBrief}
+            >
+              Download Markdown
+            </button>
+            <button
+              type="button"
+              className="book-cta-link"
+              onClick={() => setActiveView("contact", "contact-action")}
+            >
+              Read contact guidance →
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <span className="sr-only" aria-live="polite">
+        {copied
+          ? "Planning brief copied to clipboard."
+          : copyFailed
+            ? "Clipboard access was blocked. Download the brief instead."
+            : ""}
+      </span>
     </div>
   );
 }

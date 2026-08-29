@@ -84,7 +84,7 @@ const CONFIRMATION_COPY: Record<
   import: {
     heading: "Import a session backup?",
     detail:
-      "The selected backup can replace your current local workspace, theme, and window state after it passes validation.",
+      "After validation, the selected backup replaces your current Archive, workspace layout, theme, and window settings.",
     action: "Choose backup",
   },
 };

@@ -6,7 +6,7 @@
   position: relative;
   z-index: 600;
   display: grid;
-  height: 3.75rem;
+  height: var(--workbench-menu-height, 3.75rem);
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: stretch;
   color: var(--ivory);
@@ -92,6 +92,8 @@
 .wmb-menu-trigger-wrap > button,
 .wmb-system > button {
   height: 100%;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   padding: 0 0.78rem;
   color: var(--ivory-muted);
   background: transparent;
@@ -179,6 +181,12 @@
   position: fixed;
   z-index: 900;
   width: min(17rem, calc(100vw - 1rem));
+  max-height: calc(
+    100dvh - 4.25rem - env(safe-area-inset-top, 0px) -
+      env(safe-area-inset-bottom, 0px)
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.4rem;
   color: var(--carbon);
   background: var(--ivory);
@@ -187,6 +195,9 @@
 }
 
 .wmb-popup-label {
+  position: sticky;
+  z-index: 1;
+  top: -0.4rem;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -194,6 +205,7 @@
   min-height: 2.35rem;
   padding: 0.4rem 0.65rem 0.55rem;
   color: #5e5d56;
+  background: var(--ivory);
   border-bottom: 1px solid var(--rule-dark);
 }
 
@@ -213,7 +225,7 @@
 .wmb-popup > button {
   display: grid;
   width: 100%;
-  min-height: 2.45rem;
+  min-height: 2.75rem;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
@@ -285,7 +297,7 @@
 
 @media (max-width: 760px) {
   .workbench-menu-bar {
-    height: 3.9rem;
+    height: var(--workbench-menu-height, 3.9rem);
   }
 
   .wmb-mark {
@@ -338,6 +350,14 @@
   .wmb-menu-trigger-wrap > button {
     padding: 0 0.62rem;
     font-size: 0.58rem;
+  }
+
+  .wmb-menu-label {
+    display: none;
+  }
+
+  .wmb-menu-trigger-wrap > button::after {
+    content: attr(data-compact-label);
   }
 
   .wmb-popup {

@@ -95,7 +95,7 @@ function errorMessage(status: number): string {
     return "The model quota is exhausted right now. Try again later.";
   if (status === 429) return "The model is rate limited. Give it a moment.";
   if (status >= 500) return "Upstream model provider hiccup. Retry shortly.";
-  return "The local AI service refused that request.";
+  return "The AI service refused that request.";
 }
 
 function redactStreamMetadata(stream: ReadableStream<Uint8Array>) {
@@ -239,7 +239,7 @@ export async function POST(request: Request) {
   const model = process.env.OPENROUTER_MODEL?.trim();
   if (!apiKey || !model) {
     return NextResponse.json(
-      { error: "Local AI is not configured on this deployment." },
+      { error: "The AI service is not configured on this deployment." },
       { status: 503 },
     );
   }
@@ -326,7 +326,7 @@ export async function POST(request: Request) {
       console.error("[api/ai] upstream failure:", caught);
     }
     return NextResponse.json(
-      { error: "Could not reach the local AI provider." },
+      { error: "Could not reach the AI service." },
       { status: 502 },
     );
   }

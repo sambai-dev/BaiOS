@@ -148,6 +148,7 @@ export async function GET(request: Request) {
       answer: "",
       definition: { text: "", url: "" },
       related: hits.slice(1, 8).map((hit) => ({
+        title: clamp(hit.title, 200),
         text: clamp(hit.snippet, 400),
         url: `https://en.wikipedia.org/wiki/${encodeURIComponent(
           (hit.title ?? "").replace(/ /g, "_"),

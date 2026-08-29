@@ -296,7 +296,7 @@ export default function MarketPulseApp() {
         <div className="pulse-workspace" aria-busy={status === "refreshing"}>
           {status === "error" && error ? (
             <p className="pulse-error" role="alert">
-              Refresh failed — showing the last successful snapshot. ({error})
+              Refresh failed: showing the last successful snapshot. ({error})
             </p>
           ) : null}
           <section className="pulse-stage" aria-label={`${selectedCoin.name} market detail`}>

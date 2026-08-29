@@ -7,9 +7,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { playSound } from "../lib/workbench-sound";
 
 type AgentPreset = "dashboard" | "rls" | "pipeline";
-type RunPhaseStatus = "pending" | "running" | "completed";
+type RunPhaseStatus =
+  "pending" | "running" | "completed" | "stopped" | "failed";
+type RunOutcome =
+  "idle" | "requesting" | "streaming" | "complete" | "aborted" | "error";
+type PromptSource = AgentPreset | "custom";
+type LastRun = { prompt: string; source: PromptSource };
 
-const MODEL_BADGE = "private model · protected local route";
+const PROVIDER_TARGET_BADGE =
+  "Provider target · OpenRouter · server-side route";
 
 const PRESETS: Record<AgentPreset, { title: string; prompt: string }> = {
   dashboard: {
@@ -31,26 +37,35 @@ const PRESETS: Record<AgentPreset, { title: string; prompt: string }> = {
 
 const RUN_PHASES: Array<{ name: string; tool: string; detail: string }> = [
   {
-    name: "Parse Objective",
-    tool: "intent",
-    detail: "Prompt normalized and routed to the local model endpoint.",
+    name: "Prepare Request",
+    tool: "client",
+    detail: "The browser prepares the submitted prompt for this site’s route.",
   },
   {
-    name: "Plan Response Shape",
-    tool: "planner",
-    detail: "Model reasoning over the request scope.",
+    name: "Contact Provider",
+    tool: "server",
+    detail: "The route attempts to request a response from OpenRouter.",
   },
   {
-    name: "Synthesize Output",
-    tool: "generator",
-    detail: "Tokens streaming from the private model route.",
+    name: "Receive Stream",
+    tool: "network",
+    detail: "Response chunks arrive after the provider accepts the request.",
   },
   {
-    name: "Review & Clean",
-    tool: "postprocess",
-    detail: "Reasoning traces stripped; final text verified.",
+    name: "Finalize Display",
+    tool: "interface",
+    detail:
+      "The client removes hidden thinking blocks and renders visible text.",
   },
 ];
+
+const PHASE_STATUS_LABELS: Record<RunPhaseStatus, string> = {
+  pending: "Pending",
+  running: "In progress",
+  completed: "Complete",
+  stopped: "Stopped",
+  failed: "Failed",
+};
 
 function stripThinking(text: string): string {
   // Remove complete <think>…</think> blocks and an unterminated trailing one.
@@ -60,13 +75,19 @@ function stripThinking(text: string): string {
 }
 
 export default function AgentWorkflowApp() {
-  const [selectedPreset, setSelectedPreset] = useState<AgentPreset>("dashboard");
+  const [selectedPreset, setSelectedPreset] = useState<AgentPreset | null>(
+    "dashboard",
+  );
   const [customPrompt, setCustomPrompt] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
+  const [lastRun, setLastRun] = useState<LastRun | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
   const [streamedText, setStreamedText] = useState("");
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [runOutcome, setRunOutcome] = useState<RunOutcome>("idle");
+  const [providerResponseConfirmed, setProviderResponseConfirmed] =
+    useState(false);
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
-  const [tokenCount, setTokenCount] = useState(0);
+  const [estimatedTokenCount, setEstimatedTokenCount] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
 
   const abortRef = useRef<AbortController | null>(null);
@@ -88,15 +109,20 @@ export default function AgentWorkflowApp() {
   );
 
   const runPrompt = useCallback(
-    async (prompt: string) => {
-      if (!prompt.trim() || isStreaming) return;
+    async (prompt: string, source: PromptSource) => {
+      const submittedPrompt = prompt.trim();
+      if (!submittedPrompt || isRunning) return;
       playSound("chime");
+      setLastRun({ prompt: submittedPrompt, source });
+      if (source === "custom") setSelectedPreset(null);
       setErrorText(null);
       setStreamedText("");
-      setTokenCount(0);
+      setRunOutcome("requesting");
+      setProviderResponseConfirmed(false);
+      setEstimatedTokenCount(0);
       setElapsedMs(0);
       setCurrentPhaseIndex(0);
-      setIsStreaming(true);
+      setIsRunning(true);
 
       const controller = new AbortController();
       abortRef.current = controller;
@@ -107,18 +133,19 @@ export default function AgentWorkflowApp() {
       }, 120);
 
       try {
+        setCurrentPhaseIndex(1);
         const response = await fetch("/api/ai", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            messages: [{ role: "user", content: prompt }],
+            messages: [{ role: "user", content: submittedPrompt }],
             stream: true,
           }),
           signal: controller.signal,
         });
 
         if (!response.ok || !response.body) {
-          let message = "The local AI service refused that request.";
+          let message = "The AI service refused that request.";
           try {
             const data = (await response.json()) as { error?: string };
             if (data.error) message = data.error;
@@ -128,7 +155,9 @@ export default function AgentWorkflowApp() {
           throw new Error(message);
         }
 
-        setCurrentPhaseIndex(1);
+        setProviderResponseConfirmed(true);
+        setRunOutcome("streaming");
+        setCurrentPhaseIndex(2);
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -141,15 +170,7 @@ export default function AgentWorkflowApp() {
         const consume = () => {
           const visible = stripThinking(raw);
           setStreamedText(visible);
-          setTokenCount(Math.ceil(visible.length / 4));
-          // Stay on the final phase while streaming; completion is granted
-          // only when the stream ends (below), not at ~72 chars of output.
-          // Monotonic: closing a long <think> block shrinks the visible
-          // length and must not regress completed phase cards.
-          const progress = Math.min(visible.length / 24, RUN_PHASES.length - 2);
-          setCurrentPhaseIndex((prev) =>
-            Math.max(prev, Math.max(1, Math.floor(progress) + 1)),
-          );
+          setEstimatedTokenCount(Math.ceil(visible.length / 4));
           if (visible.length - keystrokeMark >= 96) {
             keystrokeMark += 96;
             playSound("keystroke");
@@ -195,48 +216,71 @@ export default function AgentWorkflowApp() {
         handleEvents(buffer.split("\n\n"));
         buffer = "";
 
+        setCurrentPhaseIndex(3);
         const visible = stripThinking(raw).trim();
         setStreamedText(visible || "(empty response from the model)");
-        setTokenCount(Math.ceil(visible.length / 4));
+        setEstimatedTokenCount(Math.ceil(visible.length / 4));
         setCurrentPhaseIndex(RUN_PHASES.length);
+        setRunOutcome("complete");
         playSound("snap");
       } catch (caught) {
         if ((caught as Error).name === "AbortError") {
-          setStreamedText((current) => current || "Run aborted.");
+          setRunOutcome("aborted");
+          setStreamedText((current) =>
+            current
+              ? `${current}\n\n[Run stopped: partial output is incomplete.]`
+              : "Run stopped before a response was received. No complete output is available.",
+          );
         } else {
+          setRunOutcome("error");
           setErrorText((caught as Error).message);
           playSound("delete");
         }
-        // A failed or aborted run must not freeze mid-completion phase cards.
-        setCurrentPhaseIndex(0);
       } finally {
         stopClock();
         abortRef.current = null;
-        setIsStreaming(false);
+        setIsRunning(false);
       }
     },
-    [isStreaming, stopClock],
+    [isRunning, stopClock],
   );
 
   const runPreset = useCallback(
     (presetKey: AgentPreset) => {
       setSelectedPreset(presetKey);
-      void runPrompt(PRESETS[presetKey].prompt);
+      void runPrompt(PRESETS[presetKey].prompt, presetKey);
     },
     [runPrompt],
   );
 
   const submitCustom = useCallback(() => {
-    void runPrompt(customPrompt);
+    void runPrompt(customPrompt, "custom");
   }, [customPrompt, runPrompt]);
 
-  const activePreset = PRESETS[selectedPreset];
-  const phaseStatus = (index: number): RunPhaseStatus =>
-    currentPhaseIndex > index
-      ? "completed"
-      : currentPhaseIndex === index && isStreaming
-        ? "running"
-        : "pending";
+  const readyPrompt = selectedPreset
+    ? PRESETS[selectedPreset].prompt
+    : PRESETS.dashboard.prompt;
+  const displayedPrompt = lastRun?.prompt ?? readyPrompt;
+  const displayedPromptSource =
+    lastRun?.source ?? selectedPreset ?? "dashboard";
+  const phaseStatus = (index: number): RunPhaseStatus => {
+    if (runOutcome === "complete" || currentPhaseIndex > index) {
+      return "completed";
+    }
+    if (currentPhaseIndex !== index) return "pending";
+    if (runOutcome === "requesting" || runOutcome === "streaming") {
+      return "running";
+    }
+    if (runOutcome === "aborted") return "stopped";
+    if (runOutcome === "error") return "failed";
+    return "pending";
+  };
+
+  const showOutputDisclosure =
+    runOutcome === "requesting" ||
+    runOutcome === "streaming" ||
+    runOutcome === "complete" ||
+    runOutcome === "aborted";
 
   return (
     <div className="agent-app">
@@ -244,18 +288,22 @@ export default function AgentWorkflowApp() {
         <div>
           <h2>Agent.</h2>
           <p>
-            Server-side inference via this deployment&apos;s protected local
-            route. Presets below are one-click prompts; or ask anything.
+            When available, this site&apos;s server route sends prompts to
+            OpenRouter. The model identifier is not exposed here. Do not include
+            confidential information.
           </p>
         </div>
-        <div className="agent-presets" role="tablist" aria-label="AI task presets">
+        <div
+          className="agent-presets"
+          role="group"
+          aria-label="AI task presets"
+        >
           {(Object.keys(PRESETS) as AgentPreset[]).map((key) => (
             <button
               key={key}
               type="button"
-              role="tab"
-              aria-selected={selectedPreset === key}
-              disabled={isStreaming}
+              aria-pressed={selectedPreset === key}
+              disabled={isRunning}
               onClick={() => runPreset(key)}
             >
               {PRESETS[key].title}
@@ -267,17 +315,21 @@ export default function AgentWorkflowApp() {
       <div className="agent-workspace">
         <div className="agent-main">
           <div className="agent-prompt-box">
-            <span className="agent-tag">User Objective / Task Prompt</span>
-            <p className="agent-prompt-text">{activePreset.prompt}</p>
+            <span className="agent-tag">
+              {lastRun ? "Last submitted prompt" : "Prompt ready to run"}
+            </span>
+            <p className="agent-prompt-text">{displayedPrompt}</p>
             <div className="agent-prompt-bar">
-              <span className="agent-model-badge">{MODEL_BADGE}</span>
+              <span className="agent-model-badge">{PROVIDER_TARGET_BADGE}</span>
               <button
                 type="button"
                 className="agent-btn-run"
-                disabled={isStreaming}
-                onClick={() => runPreset(selectedPreset)}
+                disabled={isRunning}
+                onClick={() =>
+                  void runPrompt(displayedPrompt, displayedPromptSource)
+                }
               >
-                {isStreaming ? "Streaming Tokens…" : "Re-Run Workflow"}
+                {isRunning ? "Request in progress…" : "Run prompt again"}
               </button>
             </div>
           </div>
@@ -291,15 +343,17 @@ export default function AgentWorkflowApp() {
           >
             <input
               className="agent-ask-input"
+              name="agent-prompt"
               type="text"
               value={customPrompt}
               maxLength={2000}
               placeholder="Ask the agent anything…"
               aria-label="Ask the agent anything"
-              disabled={isStreaming}
+              autoComplete="off"
+              disabled={isRunning}
               onChange={(event) => setCustomPrompt(event.target.value)}
             />
-            {isStreaming ? (
+            {isRunning ? (
               <button
                 type="button"
                 className="agent-btn-run"
@@ -321,48 +375,80 @@ export default function AgentWorkflowApp() {
           <div className="agent-output-container">
             <div className="agent-output-head">
               <span className="agent-output-title">
-                {errorText ? "Run Failed" : "Streaming Output"}
+                {runOutcome === "idle"
+                  ? "No output yet"
+                  : runOutcome === "requesting"
+                    ? "Connecting to provider"
+                    : runOutcome === "streaming"
+                      ? "Streaming output"
+                      : runOutcome === "complete"
+                        ? "Response output"
+                        : runOutcome === "aborted"
+                          ? "Incomplete output"
+                          : "Run failed"}
               </span>
               <div className="agent-output-meta">
-                <span>{tokenCount} Tokens</span>
+                <span>≈{estimatedTokenCount} tokens estimated</span>
                 <span>{elapsedMs}ms</span>
                 <span>
-                  ~{Math.round((tokenCount / Math.max(elapsedMs, 1)) * 1000)}{" "}
-                  tokens/sec
+                  ≈
+                  {Math.round(
+                    (estimatedTokenCount / Math.max(elapsedMs, 1)) * 1000,
+                  )}{" "}
+                  tokens/s estimated
                 </span>
               </div>
             </div>
+            {showOutputDisclosure ? (
+              <p className="agent-output-disclosure">
+                <strong>
+                  {providerResponseConfirmed
+                    ? "Provider: OpenRouter response confirmed."
+                    : "Provider target: OpenRouter; no provider response confirmed yet."}
+                </strong>{" "}
+                AI output is unverified and may be inaccurate. Validate code,
+                facts, and security-sensitive guidance before use.
+              </p>
+            ) : null}
             <pre className="agent-code-block">
               <code>
                 {errorText
                   ? errorText
-                  : streamedText || (isStreaming ? "▌" : "")}
+                  : streamedText ||
+                    (runOutcome === "requesting"
+                      ? "Waiting for the server route…"
+                      : runOutcome === "streaming"
+                        ? "Waiting for the first response chunk…"
+                        : "")}
               </code>
             </pre>
           </div>
         </div>
 
         <aside className="agent-sidebar">
-          <span className="agent-tag">Step-by-Step Execution Tree</span>
-          <h3>Run Phases</h3>
+          <span className="agent-tag">Request lifecycle illustration</span>
+          <h3>Interface stages · simulated</h3>
+          <p className="agent-stage-note">
+            These stages describe the client request and stream lifecycle. They
+            are not provider reasoning, tool calls, or execution traces.
+          </p>
           <div className="agent-steps-list">
             {RUN_PHASES.map((phase, idx) => {
               const status = phaseStatus(idx);
               return (
                 <div
                   key={phase.name}
-                  className={`agent-step-card ${
-                    status === "completed"
-                      ? "is-done"
-                      : status === "running"
-                        ? "is-current"
-                        : ""
-                  }`}
+                  className="agent-step-card"
+                  data-status={status}
+                  aria-current={status === "running" ? "step" : undefined}
                 >
                   <div className="agent-step-head">
                     <span className="agent-step-idx">{`0${idx + 1}`}</span>
                     <strong>{phase.name}</strong>
                     <span className="agent-tool-tag">{phase.tool}</span>
+                    <span className="agent-step-status">
+                      {PHASE_STATUS_LABELS[status]}
+                    </span>
                   </div>
                   <p>{phase.detail}</p>
                 </div>
@@ -370,14 +456,25 @@ export default function AgentWorkflowApp() {
             })}
           </div>
 
-          <div className="agent-telemetry-box">
-            <h4>Workflow Verification</h4>
+          <div
+            className="agent-telemetry-box"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <h4>Run Status</h4>
             <p>
-              {currentPhaseIndex >= RUN_PHASES.length && !isStreaming
-                ? "✓ Stream complete. Reasoning traces stripped from output."
-                : isStreaming
-                  ? "⚙ Live inference in progress…"
-                  : "Idle. Run a preset or ask anything."}
+              {runOutcome === "complete"
+                ? "Response stream complete. Output has not been independently verified."
+                : runOutcome === "streaming"
+                  ? "Response stream in progress…"
+                  : runOutcome === "requesting"
+                    ? "Request sent. Provider response not yet confirmed."
+                    : runOutcome === "aborted"
+                      ? "Run stopped. Partial output is incomplete."
+                      : runOutcome === "error"
+                        ? "Run failed before completion."
+                        : "Idle. Run a preset or ask anything."}
             </p>
           </div>
         </aside>

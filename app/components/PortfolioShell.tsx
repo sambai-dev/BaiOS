@@ -15,73 +15,11 @@ import {
 const loadWorkbenchOS = () => import("@/app/components/WorkbenchOS");
 const WorkbenchOS = dynamic(loadWorkbenchOS, { ssr: false });
 
-const CLOCK_DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-
-function RollingClock({
-  time,
-  reducedMotion,
-}: {
-  time: string;
-  reducedMotion: boolean;
-}) {
-  const [display, setDisplay] = useState("00:00");
-  const [settled, setSettled] = useState(reducedMotion);
-
-  useEffect(() => {
-    if (reducedMotion) {
-      // Late reduced-motion toggles snap straight to the live time.
-      setDisplay(time);
-      setSettled(true);
-      return;
-    }
-    if (settled) return;
-    const randomPair = () =>
-      `${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}`;
-    const scramble = `${randomPair()}:${randomPair()}`;
-    const first = window.setTimeout(() => setDisplay(scramble), 140);
-    const second = window.setTimeout(() => {
-      setDisplay(time);
-      setSettled(true);
-    }, 360);
-    return () => {
-      window.clearTimeout(first);
-      window.clearTimeout(second);
-    };
-    // `time` is intentionally excluded: re-scrambling on every clock tick
-    // would defeat the settle-once design, and the settled effect below
-    // keeps the display synced to fresh time values.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reducedMotion]);
-
-  useEffect(() => {
-    if (settled) {
-      setDisplay(time);
-    }
-  }, [settled, time]);
-
+function RollingClock({ time }: { time: string }) {
   return (
     <>
-      <span className="odo-row" aria-hidden="true">
-        {display.split("").map((character, index) =>
-          character === ":" ? (
-            <span key={`${character}-${index}`} className="odo-colon">
-              :
-            </span>
-          ) : (
-            <span key={`${character}-${index}`} className="odo-digit">
-              <span
-                className="odo-strip"
-                style={{
-                  transform: `translateY(-${Number(character)}em)`,
-                }}
-              >
-                {CLOCK_DIGITS.map((digit) => (
-                  <span key={digit}>{digit}</span>
-                ))}
-              </span>
-            </span>
-          ),
-        )}
+      <span key={time} className="clock-value" aria-hidden="true">
+        {time}
       </span>
       <span className="sr-only">{time}</span>
     </>
@@ -109,13 +47,10 @@ export default function PortfolioShell() {
     []
   );
 
-  const openWorkbench = useCallback(() => {
+  const openWorkbench = useCallback((invoker?: HTMLElement | null) => {
     void loadWorkbenchOS();
-    const activeElement = document.activeElement;
     workbenchInvokerRef.current =
-      activeElement instanceof HTMLElement && activeElement !== document.body
-        ? activeElement
-        : openerRef.current;
+      invoker?.isConnected ? invoker : openerRef.current;
 
     const apertureBounds = openerRef.current?.getBoundingClientRect();
     if (apertureBounds) {
@@ -130,17 +65,25 @@ export default function PortfolioShell() {
   const closeWorkbench = useCallback(() => {
     setIsWorkbenchOpen(false);
     setDeepLink(null);
-    if (typeof window !== "undefined" && window.location.search) {
-      window.history.replaceState(null, "", window.location.pathname);
+    if (typeof window !== "undefined") {
+      const nextUrl = new URL(window.location.href);
+      for (const parameter of ["app", "workspace", "open", "workbench"]) {
+        nextUrl.searchParams.delete(parameter);
+      }
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`,
+      );
     }
   }, []);
 
   const restoreWorkbenchFocus = useCallback(() => {
     const invoker = workbenchInvokerRef.current;
     if (invoker?.isConnected) {
-      invoker.focus();
+      invoker.focus({ preventScroll: true });
     } else {
-      openerRef.current?.focus();
+      openerRef.current?.focus({ preventScroll: true });
     }
     workbenchInvokerRef.current = null;
   }, []);
@@ -191,63 +134,32 @@ export default function PortfolioShell() {
     return () => window.removeEventListener("resize", syncWorkbenchOrigin);
   }, [isWorkbenchOpen]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Ignore OS key autorepeat so a held W cannot re-open the Workbench
-      // while the close animation is still running.
-      if (event.repeat) return;
-      // Never hijack modified shortcuts (Alt+W etc.) or typing surfaces.
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target as HTMLElement | null;
-      if (
-        target &&
-        (target.isContentEditable ||
-          /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
-      ) {
-        return;
-      }
-      if (!isWorkbenchOpen && event.key.toLowerCase() === "w") {
-        event.preventDefault();
-        openWorkbench();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [closeWorkbench, isWorkbenchOpen, openWorkbench]);
-
   return (
     <main className="site-shell">
-      <a className="skip-link" href="#primary-links">
-        Skip to links
-      </a>
-
       <section
         className="public-surface"
         aria-label="Sam Bai portfolio"
         aria-hidden={isWorkbenchOpen || undefined}
         inert={isWorkbenchOpen ? true : undefined}
       >
+        <a className="skip-link" href="#primary-links">
+          Skip to links
+        </a>
+
         <header className="public-header">
           <div className="identity-block">
             <p className="identity-name">Sam Bai</p>
-            <p>Founder, Solynth Labs</p>
+            <p>Founder &amp; Product Engineer, Solynth Labs</p>
             <p>Hamilton, New Zealand</p>
             <p className="identity-time">
               <span aria-hidden="true">NZT ·&nbsp;</span>
-              <RollingClock
-                time={newZealandTime}
-                reducedMotion={Boolean(prefersReducedMotion)}
-              />
-              <span className="sr-only">
-                <time
-                  dateTime={
-                    newZealandTime === "--:--" ? undefined : newZealandTime
-                  }
-                >
-                  NZT · {newZealandTime}
-                </time>
-              </span>
+              <time
+                dateTime={
+                  newZealandTime === "--:--" ? undefined : newZealandTime
+                }
+              >
+                <RollingClock time={newZealandTime} />
+              </time>
             </p>
           </div>
 
@@ -255,10 +167,10 @@ export default function PortfolioShell() {
             ref={openerRef}
             type="button"
             className="workbench-aperture"
-            onClick={openWorkbench}
+            onClick={(event) => openWorkbench(event.currentTarget)}
             onFocus={() => void loadWorkbenchOS()}
             onMouseEnter={() => void loadWorkbenchOS()}
-            aria-label="Open Sam's Workbench (keyboard shortcut W)"
+            aria-label="Open the Workbench"
             aria-haspopup="dialog"
             aria-expanded={isWorkbenchOpen}
           >
@@ -266,22 +178,22 @@ export default function PortfolioShell() {
               <span>Workbench</span>
               <span className="live-state">
                 <span className="live-dot" aria-hidden="true" />
-                <kbd className="aperture-key" aria-hidden="true">W</kbd>
+                <span aria-hidden="true">Open</span>
               </span>
             </span>
             <span className="aperture-body" aria-hidden="true">
               <span className="aperture-column">
-                <span>BUILD / 03</span>
-                <span>FIELD / 03</span>
-                <span>NOTES / 02</span>
+                <span>BUILD / WORK</span>
+                <span>FIELD / LABS</span>
+                <span>NOTES / LOCAL</span>
               </span>
               <span className="aperture-signal">
-                <span>ATLAS / READY</span>
-                <span>ARCHIVE / LOCAL</span>
-                <span>15 APPS / {newZealandTime}</span>
+                <span>ATLAS / MAP</span>
+                <span>ARCHIVE / BROWSER</span>
+                <span>SESSION / STATE</span>
               </span>
             </span>
-            <span className="aperture-action">Enter the local system</span>
+            <span className="aperture-action">Open Workbench</span>
           </button>
         </header>
 
@@ -310,9 +222,7 @@ export default function PortfolioShell() {
         <div className="public-index" id="primary-links">
           <div className="index-intro">
             <p className="index-label">Status</p>
-            <p className="index-statement">
-              Open for select B2B software projects.
-            </p>
+            <p className="index-statement">Open to B2B software projects.</p>
           </div>
 
           <nav className="index-group" aria-label="Primary links">
@@ -321,10 +231,8 @@ export default function PortfolioShell() {
             </p>
             <a
               className="index-link index-link--email"
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=sambai.codes%40gmail.com&su=Project%20enquiry"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Email sambai.codes@gmail.com about a project in Gmail"
+              href="mailto:sambai.codes@gmail.com?subject=Project%20enquiry"
+              aria-label="Email Sam about a software project"
             >
               <span className="index-link-text">sambai.codes@gmail.com</span>
               <span className="index-arrow" aria-hidden="true">
@@ -345,7 +253,7 @@ export default function PortfolioShell() {
             <button
               className="index-link"
               type="button"
-              onClick={openWorkbench}
+              onClick={(event) => openWorkbench(event.currentTarget)}
               onFocus={() => void loadWorkbenchOS()}
               onMouseEnter={() => void loadWorkbenchOS()}
             >
@@ -384,7 +292,7 @@ export default function PortfolioShell() {
             </a>
             <a
               className="index-link"
-              href="https://www.linkedin.com/in/sam-bai-dev/"
+              href="https://www.linkedin.com/in/sam-bai1/"
               target="_blank"
               rel="noreferrer"
             >
@@ -395,7 +303,7 @@ export default function PortfolioShell() {
             </a>
             <a
               className="index-link"
-              href="/resume/SamBai_Resume.pdf?v=ba5b8288"
+              href="/resume/SamBai_Resume.pdf?v=d85c4735"
               target="_blank"
               rel="noreferrer"
             >

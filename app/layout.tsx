@@ -21,6 +21,7 @@ const archivoBlack = Archivo_Black({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-display",
+  preload: false,
 });
 
 const azeretMono = Azeret_Mono({
@@ -30,33 +31,25 @@ const azeretMono = Azeret_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.sambai.dev"),
-  alternates: { canonical: "/" },
-  title: "Sam Bai | Founder, Solynth Labs",
+  alternates: { canonical: "https://www.sambai.dev/" },
+  title: "Sam Bai | Founder & Product Engineer, Solynth Labs",
   description:
-    "Sam Bai is the founder of Solynth Labs, a New Zealand software consultation and production company.",
-  keywords: [
-    "Sam Bai",
-    "Solynth Labs",
-    "software consultation New Zealand",
-    "design engineering",
-    "software production",
-    "AI workflows",
-  ],
+    "Sam Bai is founder and product engineer at Solynth Labs, designing and building web products, developer tools, and production software in New Zealand.",
   authors: [{ name: "Sam Bai" }],
   openGraph: {
     type: "website",
-    url: "https://www.sambai.dev",
-    title: "Sam Bai | Founder, Solynth Labs",
+    url: "https://www.sambai.dev/",
+    title: "Sam Bai | Founder & Product Engineer, Solynth Labs",
     description:
-      "Software consultation, design engineering, and production from New Zealand.",
+      "Sam Bai is founder and product engineer at Solynth Labs, designing and building web products, developer tools, and production software in New Zealand.",
     siteName: "Sam Bai",
     locale: "en_NZ",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sam Bai | Founder, Solynth Labs",
+    title: "Sam Bai | Founder & Product Engineer, Solynth Labs",
     description:
-      "Software consultation, design engineering, and production from New Zealand.",
+      "Sam Bai is founder and product engineer at Solynth Labs, designing and building web products, developer tools, and production software in New Zealand.",
   },
 };
 
@@ -64,14 +57,15 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: "#11110f",
+  viewportFit: "cover",
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Sam Bai",
-  jobTitle: "Founder and Software Consultant",
-  url: "https://www.sambai.dev",
+  jobTitle: "Founder & Product Engineer",
+  url: "https://www.sambai.dev/",
   email: "sambai.codes@gmail.com",
   worksFor: {
     "@type": "Organization",
@@ -80,7 +74,7 @@ const jsonLd = {
   },
   sameAs: [
     "https://github.com/sambai-dev",
-    "https://www.linkedin.com/in/sam-bai-dev/",
+    "https://www.linkedin.com/in/sam-bai1/",
   ],
   address: {
     "@type": "PostalAddress",
@@ -89,8 +83,13 @@ const jsonLd = {
   },
 };
 
+const jsonLdString = JSON.stringify(jsonLd)
+  .replace(/</g, "\\u003c")
+  .replace(/>/g, "\\u003e")
+  .replace(/&/g, "\\u0026");
+
 const designContract = `<!--
-THESIS: A precise public front door says what Sam is building and refuses the project-card résumé.
+THESIS: Sam designs and builds software. The public front door states that plainly; the Workbench supplies the evidence.
 OWN-WORLD: Carbon grain, ivory condensed type, cobalt operational light, square rules, and a live Workbench console.
 STORY: Meet Sam, understand Solynth, visit the company, enter the Workbench, or make contact.
 FIRST VIEWPORT: Identity sits top-left, a live aperture top-right, the statement owns the field, and useful links anchor the bottom.
@@ -109,7 +108,7 @@ export default function RootLayout({
         <template dangerouslySetInnerHTML={{ __html: designContract }} />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdString }}
         />
         {children}
       </body>
