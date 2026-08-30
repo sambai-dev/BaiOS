@@ -353,6 +353,24 @@ export function focusWindow(
   return result(nextWindows, target.instanceId, allocation.nextZ);
 }
 
+/** Raises one window and suspends every other open window in its workspace. */
+export function focusWindowOnly(
+  windows: readonly WorkbenchWindow[],
+  instanceId: string,
+  z?: number,
+): WindowManagerResult {
+  const focused = focusWindow(windows, instanceId, z);
+  const target = requireWindow(focused.windows, instanceId);
+  const nextWindows = focused.windows.map((windowState) =>
+    windowState.workspaceId === target.workspaceId &&
+    windowState.instanceId !== instanceId &&
+    windowState.open
+      ? { ...cloneWindow(windowState), minimized: true }
+      : cloneWindow(windowState),
+  );
+  return result(nextWindows, instanceId, focused.nextZ);
+}
+
 /**
  * Opens an app in a workspace. Existing instances are reused by default; forceNew
  * creates a cascaded sibling only for apps registered as multi-instance capable.
@@ -527,6 +545,25 @@ export function minimizeWindow(
     nextWindows,
     getNextActiveInstanceId(nextWindows, target.workspaceId, instanceId),
     minimumNextZ,
+  );
+}
+
+/** Restores every open window in one workspace without changing their stack. */
+export function restoreWorkspaceWindows(
+  windows: readonly WorkbenchWindow[],
+  workspaceId: WorkspaceId,
+): WindowManagerResult {
+  assertWindows(windows);
+  assertWorkspaceId(workspaceId);
+  const nextWindows = windows.map((windowState) =>
+    windowState.workspaceId === workspaceId && windowState.open
+      ? { ...cloneWindow(windowState), minimized: false }
+      : cloneWindow(windowState),
+  );
+  return result(
+    nextWindows,
+    getNextActiveInstanceId(nextWindows, workspaceId),
+    Math.ceil(highestZ(nextWindows)) + 1,
   );
 }
 

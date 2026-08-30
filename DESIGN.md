@@ -268,7 +268,7 @@ System search is a modal editable combobox and listbox. Ctrl/Cmd+K opens it and 
 
 ### Atlas
 
-Atlas is the original cross-workspace map. It opens as a modal surface, exposes Build, Field, and Notes as semantic workspace tabs, and previews only the selected workspace's open windows; minimized windows are labeled Suspended. Tabs support arrows, Home, and End. Preview buttons support spatial four-arrow movement and Enter to restore or focus a surface. Atlas traps focus and restores the invoking control when it closes.
+Atlas is the original cross-workspace map and clutter-control surface. It opens modally, exposes Build, Field, and Notes as semantic workspace tabs, and previews only the selected workspace's open windows; minimized windows are labeled Suspended. Focus is the default selection mode: choosing a preview restores and raises that surface while suspending its open siblings. Raise restores and raises without changing the stack, while Show all reverses Focus for the inspected workspace. Dense workspaces use a compact aspect-aware preview grid. Tabs support arrows, Home, and End; preview buttons support spatial four-arrow movement and Enter. Atlas traps focus, and global F3 opens it even when a Workbench text field owns focus.
 
 ### Archive
 

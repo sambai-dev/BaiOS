@@ -4,10 +4,12 @@
 "use client";
 
 import {
+  type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   useId,
   useRef,
+  useState,
 } from "react";
 import "../styles/workbench-mission-control.css";
 
@@ -32,7 +34,8 @@ export type WorkbenchMissionControlProps = {
   currentWorkspaceId: string;
   workspaces: MissionControlWorkspace[];
   windows: MissionControlWindow[];
-  onSelect: (instanceId: string) => void;
+  onSelect: (instanceId: string, mode: "focus" | "raise") => void;
+  onRestoreAll: () => void;
   onSwitchWorkspace: (id: string) => void;
   onClose: () => void;
 };
@@ -122,6 +125,7 @@ export default function WorkbenchMissionControl({
   workspaces,
   windows,
   onSelect,
+  onRestoreAll,
   onSwitchWorkspace,
   onClose,
 }: WorkbenchMissionControlProps) {
@@ -132,6 +136,9 @@ export default function WorkbenchMissionControl({
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const workspaceTabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [selectionMode, setSelectionMode] = useState<"focus" | "raise">(
+    "focus",
+  );
 
   const visibleWindows = windows
     .filter((windowState) => windowState.workspaceId === currentWorkspaceId)
@@ -142,6 +149,10 @@ export default function WorkbenchMissionControl({
   const currentWorkspace = workspaces.find(
     (workspace) => workspace.id === currentWorkspaceId,
   );
+  const runningWindowCount = visibleWindows.filter(
+    (windowState) => !windowState.minimized,
+  ).length;
+  const suspendedWindowCount = visibleWindows.length - runningWindowCount;
 
   useEffect(() => {
     if (!open) return;
@@ -243,8 +254,8 @@ export default function WorkbenchMissionControl({
           <div>
             <h2 id={titleId}>All working surfaces.</h2>
             <p id={descriptionId} className="mission-control-description">
-              Atlas maps every workspace. Restore a surface or inspect what is
-              still running locally.
+              Atlas maps every workspace. Focus clears the stage around one
+              surface; Raise preserves the current stack.
             </p>
           </div>
           <div className="mission-control-header-meta">
@@ -305,16 +316,52 @@ export default function WorkbenchMissionControl({
           aria-label={`${currentWorkspace?.label ?? "Current workspace"} windows`}
         >
           <div className="mission-control-panel-heading">
-            <p>{currentWorkspace?.label ?? "Current workspace"}</p>
-            <p>
-              {visibleWindows.length === 1
-                ? "1 active surface"
-                : `${visibleWindows.length} active surfaces`}
-            </p>
+            <div>
+              <p>{currentWorkspace?.label ?? "Current workspace"}</p>
+              <p>
+                {runningWindowCount.toString().padStart(2, "0")} running
+                {suspendedWindowCount > 0 && (
+                  <>
+                    {" · "}
+                    {suspendedWindowCount.toString().padStart(2, "0")} suspended
+                  </>
+                )}
+              </p>
+            </div>
+            <div
+              className="mission-control-actions"
+              role="group"
+              aria-label="Atlas selection behavior"
+            >
+              <button
+                type="button"
+                aria-pressed={selectionMode === "focus"}
+                onClick={() => setSelectionMode("focus")}
+              >
+                Focus
+              </button>
+              <button
+                type="button"
+                aria-pressed={selectionMode === "raise"}
+                onClick={() => setSelectionMode("raise")}
+              >
+                Raise
+              </button>
+              <button
+                type="button"
+                onClick={onRestoreAll}
+                disabled={suspendedWindowCount === 0}
+              >
+                Show all
+              </button>
+            </div>
           </div>
 
           {visibleWindows.length > 0 ? (
-            <div className="mission-control-grid">
+            <div
+              className="mission-control-grid"
+              data-density={visibleWindows.length > 8 ? "dense" : "regular"}
+            >
               {visibleWindows.map((windowState) => (
                 <button
                   key={windowState.instanceId}
@@ -322,8 +369,18 @@ export default function WorkbenchMissionControl({
                   className={`mission-window-preview${
                     windowState.minimized ? " is-minimized" : ""
                   }`}
+                  style={
+                    {
+                      "--mission-window-aspect":
+                        Math.max(1, windowState.width) +
+                        " / " +
+                        Math.max(1, windowState.height),
+                    } as CSSProperties
+                  }
                   data-mission-window={windowState.instanceId}
-                  onClick={() => onSelect(windowState.instanceId)}
+                  onClick={() =>
+                    onSelect(windowState.instanceId, selectionMode)
+                  }
                   onKeyDown={(event) => {
                     const keyDirections: Partial<Record<string, Direction>> = {
                       ArrowLeft: "left",
@@ -341,12 +398,18 @@ export default function WorkbenchMissionControl({
                       );
                     } else if (event.key === "Enter") {
                       event.preventDefault();
-                      onSelect(windowState.instanceId);
+                      onSelect(windowState.instanceId, selectionMode);
                     }
                   }}
-                  aria-label={`${windowState.minimized ? "Restore" : "Select"} ${
+                  aria-label={
+                    (selectionMode === "focus"
+                      ? "Focus only"
+                      : windowState.minimized
+                        ? "Restore and raise"
+                        : "Raise") +
+                    " " +
                     windowState.title
-                  }`}
+                  }
                 >
                   <span
                     className="mission-window-frame"
@@ -382,6 +445,9 @@ export default function WorkbenchMissionControl({
                         {Math.round(windowState.height)}
                       </small>
                       <small>Z{windowState.z}</small>
+                      <small>
+                        {selectionMode === "focus" ? "Focus only" : "Raise"}
+                      </small>
                     </span>
                   </span>
                 </button>

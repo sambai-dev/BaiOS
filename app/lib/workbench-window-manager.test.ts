@@ -14,8 +14,10 @@ import {
 } from "./workbench-system";
 import {
   focusWindow,
+  focusWindowOnly,
   getNextActiveInstanceId,
   openAppWindow,
+  restoreWorkspaceWindows,
   toggleMaximize,
 } from "./workbench-window-manager";
 
@@ -77,6 +79,47 @@ describe("mobile default window placement", () => {
 });
 
 describe("runtime window layers", () => {
+  it("lets Atlas focus one surface without discarding sibling state", () => {
+    const initial = createDefaultWorkbenchSession();
+    const withAgent = openAppWindow(
+      initial.windows,
+      "agent",
+      initial.activeWorkspaceId,
+      { instanceId: "atlas-agent", createdAt: initial.updatedAt + 1 },
+    );
+    const withFieldSearch = openAppWindow(
+      withAgent.windows,
+      "search",
+      "field",
+      { instanceId: "field-search", createdAt: initial.updatedAt + 2 },
+    );
+
+    const focused = focusWindowOnly(
+      withFieldSearch.windows,
+      "atlas-agent",
+      withFieldSearch.nextZ,
+    );
+
+    expect(focused.activeInstanceId).toBe("atlas-agent");
+    expect(
+      focused.windows.find(({ instanceId }) => instanceId === "atlas-agent"),
+    ).toMatchObject({ open: true, minimized: false });
+    expect(
+      focused.windows.find(({ instanceId }) => instanceId === "build-now"),
+    ).toMatchObject({ open: true, minimized: true });
+    expect(
+      focused.windows.find(({ instanceId }) => instanceId === "field-search"),
+    ).toMatchObject({ open: true, minimized: false, workspaceId: "field" });
+
+    const restored = restoreWorkspaceWindows(focused.windows, "build");
+    expect(
+      restored.windows
+        .filter(({ workspaceId, open }) => workspaceId === "build" && open)
+        .every(({ minimized }) => !minimized),
+    ).toBe(true);
+    expect(restored.activeInstanceId).toBe("atlas-agent");
+  });
+
   it("compacts repeated focus operations before the persisted layer ceiling", () => {
     const initial = createDefaultWorkbenchSession();
     const opened = openAppWindow(

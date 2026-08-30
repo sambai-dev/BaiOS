@@ -144,7 +144,7 @@ The registry in `app/lib/workbench-system.ts` is the source of truth. It combine
 - **Agent** streams responses through `/api/ai` from the configured model provider; prompts leave the browser and visitors are warned not to include confidential information.
 - **Scratch**, **Vector**, and **Archive** support multiple simultaneous instances through Shift-modified dock activation. Other apps reuse an existing saved instance in the current workspace; the same app may exist in another workspace.
 - **Subsurface** and **Railshift** pause their animation loops whenever inactive.
-- Windows support focus, drag, resize, minimize, close, maximize/restore, and left/right snap; **Atlas** (F3) restores or focuses any open surface.
+- Windows support focus, drag, resize, minimize, close, maximize/restore, and left/right snap; **Atlas** (global F3) can Focus one surface, Raise it without changing the stack, or Show all suspended surfaces.
 
 A fresh session starts in Build with one active **Now** window; Field and Notes are empty until a visitor opens something there. An existing validated saved session keeps its open windows and workspace state.
 

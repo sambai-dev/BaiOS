@@ -157,6 +157,7 @@
 }
 
 .mission-control-panel {
+  container-type: inline-size;
   min-height: 0;
   padding: clamp(0.9rem, 2vw, 1.5rem);
   overflow-y: auto;
@@ -168,11 +169,20 @@
 }
 
 .mission-control-panel-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
   padding-bottom: 0.7rem;
   border-bottom: 1px solid var(--rule-dark);
+}
+
+.mission-control-panel-heading > div:first-child {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .mission-control-panel-heading p {
@@ -186,6 +196,51 @@
   font-weight: 680;
 }
 
+.mission-control-actions {
+  display: flex;
+  align-items: stretch;
+}
+
+.mission-control-actions button {
+  min-height: 2.25rem;
+  padding: 0 0.7rem;
+  color: var(--carbon);
+  background: transparent;
+  border: 1px solid var(--carbon);
+  border-right: 0;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: var(--font-data), monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.mission-control-actions button:last-child {
+  border-right: 1px solid var(--carbon);
+}
+
+.mission-control-actions button:hover,
+.mission-control-actions button:focus-visible,
+.mission-control-actions button[aria-pressed="true"] {
+  color: white;
+  background: var(--cobalt);
+}
+
+.mission-control-actions button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.mission-control-actions button:disabled {
+  color: var(--carbon);
+  background: rgba(17, 17, 15, 0.06);
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
 .mission-control-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(12.25rem, 1fr));
@@ -194,10 +249,27 @@
   padding-top: 1rem;
 }
 
+.mission-control-grid[data-density="dense"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+@container (min-width: 42rem) {
+  .mission-control-grid[data-density="dense"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 70rem) {
+  .mission-control-grid[data-density="dense"] {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
 .mission-window-preview {
   position: relative;
   display: grid;
-  aspect-ratio: 1;
+  width: 100%;
   grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
   padding: 0;
@@ -256,6 +328,7 @@
   position: relative;
   display: grid;
   min-height: 0;
+  aspect-ratio: var(--mission-window-aspect, 1);
   margin: 0.8rem 0.8rem 0;
   overflow: hidden;
   grid-template-rows: 1.55rem minmax(0, 1fr);
@@ -626,12 +699,27 @@
   }
 
   .mission-control-workspaces button {
-    min-width: 8.5rem;
+    min-width: 0;
     min-height: 2.75rem;
+    flex: 1 1 0;
   }
 
   .mission-control-panel {
     padding: 0.75rem;
+  }
+
+  .mission-control-panel-heading {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .mission-control-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mission-control-actions button {
+    min-height: 2.75rem;
   }
 
   .mission-control-grid {
@@ -662,18 +750,20 @@
 }
 
 @media (max-width: 380px) {
-  .mission-control-grid {
+  .mission-control-grid,
+  .mission-control-grid[data-density="dense"] {
     grid-template-columns: 1fr;
   }
 
   .mission-window-preview {
-    aspect-ratio: 1.25;
+    width: 100%;
   }
 }
 
 @media (pointer: coarse) {
   .mission-control-close,
-  .mission-control-workspaces button {
+  .mission-control-workspaces button,
+  .mission-control-actions button {
     min-height: 2.75rem;
   }
 }
@@ -685,6 +775,7 @@
 
   .mission-control-close,
   .mission-control-workspaces button,
+  .mission-control-actions button,
   .mission-window-preview {
     transition-duration: 0.01ms;
   }

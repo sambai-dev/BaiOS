@@ -65,8 +65,10 @@ import {
   closeWorkspaceWindows,
   fitWindowsToBounds,
   focusWindow as focusManagedWindow,
+  focusWindowOnly as focusManagedWindowOnly,
   minimizeWindow as minimizeManagedWindow,
   openAppWindow,
+  restoreWorkspaceWindows,
   snapWindow,
   switchWorkspaceActiveInstance,
   tidyWorkspace,
@@ -1102,17 +1104,20 @@ export default function WorkbenchOSV3({
   );
 
   const selectAtlasWindow = useCallback(
-    (instanceId: string) => {
+    (instanceId: string, mode: "focus" | "raise" = "raise") => {
       const current = sessionRef.current;
       const target = current.windows.find(
         (windowState) => windowState.instanceId === instanceId,
       );
       if (!target) return;
-      const result = focusManagedWindow(
-        current.windows,
-        instanceId,
-        zCounter.current,
-      );
+      const result =
+        mode === "focus"
+          ? focusManagedWindowOnly(
+              current.windows,
+              instanceId,
+              zCounter.current,
+            )
+          : focusManagedWindow(current.windows, instanceId, zCounter.current);
       if (typeof window !== "undefined") {
         const url = new URL(window.location.href);
         url.searchParams.set("workspace", target.workspaceId);
@@ -1135,6 +1140,16 @@ export default function WorkbenchOSV3({
     },
     [updateSession],
   );
+
+  const restoreAtlasWorkspace = useCallback(() => {
+    const current = sessionRef.current;
+    const result = restoreWorkspaceWindows(
+      current.windows,
+      current.activeWorkspaceId,
+    );
+    commitWindowResult(result, current.activeWorkspaceId);
+    setNotice("All open surfaces in this workspace are visible again.");
+  }, [commitWindowResult]);
 
   const updateWindowData = useCallback(
     (instanceId: string, key: string, value: string) => {
@@ -1213,8 +1228,21 @@ export default function WorkbenchOSV3({
     atlasInvokerRef.current = null;
     setIsAtlasOpen(false);
     window.requestAnimationFrame(() => {
-      if (invoker?.isConnected) invoker.focus({ preventScroll: true });
-      else overlayRef.current?.focus({ preventScroll: true });
+      if (invoker?.isConnected && invoker.offsetParent !== null) {
+        invoker.focus({ preventScroll: true });
+        return;
+      }
+      const current = sessionRef.current;
+      const activeInstanceId =
+        current.activeInstances[current.activeWorkspaceId];
+      const activeWindow = activeInstanceId
+        ? windowRefs.current[activeInstanceId]
+        : null;
+      if (activeWindow && activeWindow.offsetParent !== null) {
+        activeWindow.focus({ preventScroll: true });
+      } else {
+        overlayRef.current?.focus({ preventScroll: true });
+      }
     });
   }, []);
 
@@ -2264,12 +2292,12 @@ export default function WorkbenchOSV3({
         openPalette();
         return;
       }
-      if (isTypingTarget(event.target)) return;
       if (event.key === "F3") {
         event.preventDefault();
         openAtlas();
         return;
       }
+      if (isTypingTarget(event.target)) return;
       if (event.metaKey || event.ctrlKey) return;
       if (event.altKey) {
         // Use the physical key code: on macOS, Option+digit produces a
@@ -3488,6 +3516,7 @@ export default function WorkbenchOSV3({
         workspaces={workspaces}
         windows={session.windows.filter((windowState) => windowState.open)}
         onSelect={selectAtlasWindow}
+        onRestoreAll={restoreAtlasWorkspace}
         onSwitchWorkspace={(workspaceId) => {
           if (isWorkspaceId(workspaceId)) switchWorkspace(workspaceId, false);
         }}
