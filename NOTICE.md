@@ -32,9 +32,9 @@ The following materials are not licensed under the AGPL. To the extent copyright
 
 - The BaiOS name, word mark, icon, and brand identifiers. See [`TRADEMARKS.md`](./TRADEMARKS.md).
 - Sam Bai's name, likeness, biography, contact information, résumé, personal branding, and other identity materials.
-- `public/resume/SamBai_Resume.pdf` and its contents.
+- `public/resume/SamBai_Resume.d85c4735.pdf` and its contents.
 - Original portfolio copy, case-study narratives, project descriptions, service descriptions, business copy, and other personal or promotional writing embedded in the application.
-- Original project artwork and media, including `public/textures/carbon-grain.webp`.
+- Original project artwork and media, including `app/assets/carbon-grain.webp`.
 - Solynth Labs names, marks, content, and third-party names or marks referenced by the project.
 
 Source code that contains or renders an excluded material remains licensed as code under the AGPL, but the excluded material itself does not. Public forks and derivative deployments must remove or replace excluded personal and brand materials unless the relevant rights holder gives written permission.

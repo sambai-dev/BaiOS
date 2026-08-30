@@ -92,6 +92,7 @@ const BEST_DISTANCE_KEY = "sam-workbench-railshift-best-distance-v1";
 const ENTITY_POOL_SIZE = 72;
 const PARTICLE_POOL_SIZE = 42;
 const FIXED_STEP = 1 / 60;
+const RENDER_STEP_MS = 1000 / 60;
 const EVENT_CELL = 1;
 const EVENT_SHIELD = 2;
 const EVENT_IMPACT = 4;
@@ -769,6 +770,8 @@ export default function RailshiftLab({
 
     let frame = 0;
     let lastTimestamp = performance.now();
+    let lastRenderTimestamp = 0;
+    let lastDrawTimestamp = 0;
     let accumulator = 0;
     let lastHudUpdate = 0;
     let smoothedFps = 60;
@@ -803,10 +806,6 @@ export default function RailshiftLab({
       frame = 0;
       const rawDelta = Math.min(0.1, (timestamp - lastTimestamp) / 1000);
       lastTimestamp = timestamp;
-      if (rawDelta > 0) {
-        const instantaneousFps = 1 / rawDelta;
-        smoothedFps += (instantaneousFps - smoothedFps) * 0.08;
-      }
       accumulator = Math.min(accumulator + rawDelta, FIXED_STEP * 5);
 
       let steps = 0;
@@ -820,7 +819,29 @@ export default function RailshiftLab({
 
       if (events & EVENT_CELL) playTone(520 + modelRef.current.combo * 70, 0.055);
       if (events & EVENT_SHIELD) playTone(220, 0.14, 0.035);
-      redraw();
+      const renderElapsed = lastRenderTimestamp
+        ? timestamp - lastRenderTimestamp
+        : RENDER_STEP_MS;
+      const shouldRender =
+        lastRenderTimestamp === 0 || renderElapsed >= RENDER_STEP_MS;
+      if (shouldRender || (events & EVENT_IMPACT) !== 0) {
+        if (shouldRender) {
+          const drawElapsed = lastDrawTimestamp
+            ? timestamp - lastDrawTimestamp
+            : RENDER_STEP_MS;
+          const instantaneousFps = 1000 / Math.max(1, drawElapsed);
+          smoothedFps += (instantaneousFps - smoothedFps) * 0.08;
+          lastDrawTimestamp = timestamp;
+          const elapsedSteps = Math.max(
+            1,
+            Math.floor(renderElapsed / RENDER_STEP_MS),
+          );
+          lastRenderTimestamp = lastRenderTimestamp
+            ? lastRenderTimestamp + elapsedSteps * RENDER_STEP_MS
+            : timestamp;
+        }
+        redraw();
+      }
 
       if (events & EVENT_IMPACT) {
         finishRun();
@@ -839,6 +860,8 @@ export default function RailshiftLab({
     const startLoop = () => {
       if (document.visibilityState !== "visible" || frame) return;
       lastTimestamp = performance.now();
+      lastRenderTimestamp = 0;
+      lastDrawTimestamp = 0;
       accumulator = 0;
       frame = window.requestAnimationFrame(loop);
     };

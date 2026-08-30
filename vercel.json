@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "app/api/ai/route.ts": {
+      "supportsCancellation": true
+    },
+    "app/api/crypto/route.ts": {
+      "supportsCancellation": true
+    },
+    "app/api/search/route.ts": {
+      "supportsCancellation": true
+    }
+  }
+}

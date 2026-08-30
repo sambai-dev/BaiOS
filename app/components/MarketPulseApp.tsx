@@ -3,9 +3,15 @@
 
 "use client";
 
+import "@/app/styles/market-pulse-app.css";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Currency = "usd" | "nzd";
+
+type MarketPulseAppProps = {
+  isPresented: boolean;
+};
 
 type MarketCoin = {
   id: string;
@@ -121,7 +127,7 @@ function LoadingState({ label }: { label: string }) {
   );
 }
 
-export default function MarketPulseApp() {
+export default function MarketPulseApp({ isPresented }: MarketPulseAppProps) {
   const [currency, setCurrency] = useState<Currency>("usd");
   const [payload, setPayload] = useState<MarketPayload | null>(null);
   const [selectedId, setSelectedId] = useState("bitcoin");
@@ -136,6 +142,9 @@ export default function MarketPulseApp() {
   const [flash, setFlash] = useState<Record<string, "up" | "down">>({});
 
   const previousPrices = useRef<Map<string, number>>(new Map());
+  const lastSuccessfulFetchAt = useRef(0);
+  const lastSuccessfulCurrency = useRef<Currency | null>(null);
+  const lastHandledRequestVersion = useRef(-1);
 
   const fetchMarket = useCallback(
     async (lifecycleSignal: AbortSignal) => {
@@ -181,6 +190,8 @@ export default function MarketPulseApp() {
           ? current
           : (next.coins[0]?.id ?? current),
       );
+      lastSuccessfulFetchAt.current = Date.now();
+      lastSuccessfulCurrency.current = currency;
       setStatus("ready");
     } catch (caught) {
       // Swallow only lifecycle aborts (unmount/refresh); a client deadline
@@ -198,18 +209,28 @@ export default function MarketPulseApp() {
   }, [currency]);
 
   useEffect(() => {
+    if (!isPresented) return;
+
+    const isFresh =
+      lastSuccessfulCurrency.current === currency &&
+      Date.now() - lastSuccessfulFetchAt.current < 90_000;
+    const refreshRequested =
+      lastHandledRequestVersion.current !== requestVersion;
+    if (isFresh && !refreshRequested) return;
+
+    lastHandledRequestVersion.current = requestVersion;
     const controller = new AbortController();
     void fetchMarket(controller.signal);
     return () => controller.abort();
-  }, [fetchMarket, requestVersion]);
+  }, [currency, fetchMarket, isPresented, requestVersion]);
 
   useEffect(() => {
-    if (!autoRefresh) return;
+    if (!autoRefresh || !isPresented) return;
     const interval = window.setInterval(() => {
       setRequestVersion((current) => current + 1);
     }, 90_000);
     return () => window.clearInterval(interval);
-  }, [autoRefresh]);
+  }, [autoRefresh, isPresented]);
 
   useEffect(() => {
     if (!flash || !Object.keys(flash).length) return;

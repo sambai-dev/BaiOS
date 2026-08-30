@@ -36,6 +36,23 @@ type SubsurfacePalette = {
   dataFont: string;
 };
 
+type SubsurfaceCanvasMetrics = {
+  context: CanvasRenderingContext2D;
+  width: number;
+  height: number;
+  pixelRatio: number;
+  palette: SubsurfacePalette;
+  backgroundLayer: HTMLCanvasElement;
+  foregroundLayer: HTMLCanvasElement;
+  sweepLayer: HTMLCanvasElement;
+  subX: number;
+  gateWidth: number;
+  gapHeight: number;
+  bandHeight: number;
+  bodyWidth: number;
+  bodyHeight: number;
+};
+
 type SubsurfaceLabProps = {
   isActive: boolean;
   prefersReducedMotion: boolean;
@@ -57,19 +74,42 @@ function initialModel(): GameModel {
   };
 }
 
-function configureCanvas(canvas: HTMLCanvasElement) {
+function createCanvasLayer(
+  width: number,
+  height: number,
+  pixelRatio: number,
+  alpha: boolean,
+) {
+  const layer = document.createElement("canvas");
+  layer.width = Math.max(1, Math.round(width * pixelRatio));
+  layer.height = Math.max(1, Math.round(height * pixelRatio));
+  const context = layer.getContext("2d", { alpha });
+  if (!context) return null;
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  return { canvas: layer, context };
+}
+
+function canvasPixelRatio(width: number, height: number) {
+  const ratioCap = width * height > 650_000 ? 1.5 : 2;
+  return Math.min(window.devicePixelRatio || 1, ratioCap);
+}
+
+function configureCanvas(
+  canvas: HTMLCanvasElement,
+): SubsurfaceCanvasMetrics | null {
   const rect = canvas.getBoundingClientRect();
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
   const width = Math.max(1, rect.width);
   const height = Math.max(1, rect.height);
+  const pixelRatio = canvasPixelRatio(width, height);
   const nextWidth = Math.round(width * pixelRatio);
   const nextHeight = Math.round(height * pixelRatio);
   if (canvas.width !== nextWidth || canvas.height !== nextHeight) {
     canvas.width = nextWidth;
     canvas.height = nextHeight;
   }
-  const context = canvas.getContext("2d");
-  context?.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  const context = canvas.getContext("2d", { alpha: false });
+  if (!context) return null;
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   const style = window.getComputedStyle(canvas);
   const palette: SubsurfacePalette = {
     carbon: style.getPropertyValue("--carbon").trim() || "#11110f",
@@ -79,7 +119,82 @@ function configureCanvas(canvas: HTMLCanvasElement) {
     signal: style.getPropertyValue("--signal").trim() || "#59df79",
     dataFont: style.getPropertyValue("--font-data").trim() || "monospace",
   };
-  return { context, width, height, palette };
+
+  const background = createCanvasLayer(width, height, pixelRatio, false);
+  const foreground = createCanvasLayer(width, height, pixelRatio, true);
+  const sweep = createCanvasLayer(92, 1, pixelRatio, true);
+  if (!background || !foreground || !sweep) return null;
+
+  const water = background.context.createLinearGradient(0, 0, 0, height);
+  water.addColorStop(0, palette.route);
+  water.addColorStop(0.58, palette.deep);
+  water.addColorStop(1, palette.carbon);
+  background.context.fillStyle = water;
+  background.context.fillRect(0, 0, width, height);
+
+  background.context.lineWidth = 1;
+  background.context.strokeStyle = "rgba(240, 239, 232, 0.13)";
+  for (let x = 0; x <= width; x += Math.max(34, width / 12)) {
+    background.context.beginPath();
+    background.context.moveTo(x, 0);
+    background.context.lineTo(x, height);
+    background.context.stroke();
+  }
+  for (let y = 0; y <= height; y += Math.max(28, height / 8)) {
+    background.context.beginPath();
+    background.context.moveTo(0, y);
+    background.context.lineTo(width, y);
+    background.context.stroke();
+  }
+
+  const bandHeight = Math.max(6, height * 0.045);
+  foreground.context.fillStyle = palette.carbon;
+  foreground.context.globalAlpha = 0.68;
+  foreground.context.fillRect(0, 0, width, bandHeight);
+  foreground.context.fillRect(0, height - bandHeight, width, bandHeight);
+  foreground.context.globalAlpha = 1;
+  foreground.context.fillStyle = palette.signal;
+  foreground.context.globalAlpha = 0.55;
+  foreground.context.fillRect(0, bandHeight, width, 1);
+  foreground.context.fillRect(0, height - bandHeight - 1, width, 1);
+  foreground.context.globalAlpha = 1;
+
+  foreground.context.fillStyle = "rgba(240, 239, 232, 0.78)";
+  foreground.context.strokeStyle = "rgba(240, 239, 232, 0.42)";
+  foreground.context.font = `10px ${palette.dataFont}, monospace`;
+  foreground.context.lineWidth = 1;
+  for (let metres = 0; metres <= 240; metres += 20) {
+    const y = bandHeight + (metres / 240) * (height - bandHeight * 2);
+    const major = metres % 60 === 0;
+    foreground.context.beginPath();
+    foreground.context.moveTo(8, y);
+    foreground.context.lineTo(major ? 18 : 13, y);
+    foreground.context.stroke();
+    if (major) foreground.context.fillText(`${metres}M`, 23, y + 3.5);
+  }
+
+  const sweepGradient = sweep.context.createLinearGradient(0, 0, 92, 0);
+  sweepGradient.addColorStop(0, "rgba(240, 239, 232, 0)");
+  sweepGradient.addColorStop(1, "rgba(240, 239, 232, 0.18)");
+  sweep.context.fillStyle = sweepGradient;
+  sweep.context.fillRect(0, 0, 92, 1);
+
+  return {
+    context,
+    width,
+    height,
+    pixelRatio,
+    palette,
+    backgroundLayer: background.canvas,
+    foregroundLayer: foreground.canvas,
+    sweepLayer: sweep.canvas,
+    subX: width * 0.2,
+    gateWidth: Math.max(24, width * 0.065),
+    gapHeight: gateGapHeight(height),
+    bandHeight,
+    bodyWidth: Math.max(38, width * 0.085),
+    bodyHeight: Math.max(16, height * 0.055),
+  };
 }
 
 /** Shared by renderer and collider so the visible gap is always the real gap. */
@@ -88,39 +203,27 @@ function gateGapHeight(height: number) {
 }
 
 function drawScene(
-  canvas: HTMLCanvasElement,
+  metrics: SubsurfaceCanvasMetrics,
   model: GameModel,
   timestamp: number,
   prefersReducedMotion: boolean,
 ) {
-  const { context, width, height, palette } = configureCanvas(canvas);
-  if (!context) return;
+  const {
+    context,
+    width,
+    height,
+    palette,
+    backgroundLayer,
+    foregroundLayer,
+    sweepLayer,
+    subX,
+    gateWidth,
+    gapHeight,
+    bodyWidth,
+    bodyHeight,
+  } = metrics;
+  context.drawImage(backgroundLayer, 0, 0, width, height);
 
-  // The water column: route light at the surface, falling to carbon at the floor.
-  const water = context.createLinearGradient(0, 0, 0, height);
-  water.addColorStop(0, palette.route);
-  water.addColorStop(0.58, palette.deep);
-  water.addColorStop(1, palette.carbon);
-  context.fillStyle = water;
-  context.fillRect(0, 0, width, height);
-
-  // Chart grid.
-  context.lineWidth = 1;
-  context.strokeStyle = "rgba(240, 239, 232, 0.13)";
-  for (let x = 0; x <= width; x += Math.max(34, width / 12)) {
-    context.beginPath();
-    context.moveTo(x, 0);
-    context.lineTo(x, height);
-    context.stroke();
-  }
-  for (let y = 0; y <= height; y += Math.max(28, height / 8)) {
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(width, y);
-    context.stroke();
-  }
-
-  const subX = width * 0.2;
   const subY = model.y * height;
 
   // Sonar ping rings radiate from the craft; frozen under reduced motion.
@@ -140,15 +243,9 @@ function drawScene(
 
   // The sonar sweep line.
   const sweep = prefersReducedMotion ? width * 0.5 : ((timestamp / 2600) % 1) * width;
-  const sweepGradient = context.createLinearGradient(sweep - 80, 0, sweep + 12, 0);
-  sweepGradient.addColorStop(0, "rgba(240, 239, 232, 0)");
-  sweepGradient.addColorStop(1, "rgba(240, 239, 232, 0.18)");
-  context.fillStyle = sweepGradient;
-  context.fillRect(sweep - 80, 0, 92, height);
+  context.drawImage(sweepLayer, sweep - 80, 0, 92, height);
 
   // Pressure gates: carbon columns with signal lamps marking the channel edge.
-  const gateWidth = Math.max(24, width * 0.065);
-  const gapHeight = gateGapHeight(height);
   for (const gate of model.gates) {
     const gateX = gate.x * width;
     const gapCenter = gate.gap * height;
@@ -170,37 +267,9 @@ function drawScene(
     }
   }
 
-  // Crush floor and surface ceiling: the channel limits made visible.
-  const bandHeight = Math.max(6, height * 0.045);
-  context.fillStyle = palette.carbon;
-  context.globalAlpha = 0.68;
-  context.fillRect(0, 0, width, bandHeight);
-  context.fillRect(0, height - bandHeight, width, bandHeight);
-  context.globalAlpha = 1;
-  context.fillStyle = palette.signal;
-  context.globalAlpha = 0.55;
-  context.fillRect(0, bandHeight, width, 1);
-  context.fillRect(0, height - bandHeight - 1, width, 1);
-  context.globalAlpha = 1;
-
-  // Depth ruler: 0M at the surface line, 240M at the floor.
-  context.fillStyle = "rgba(240, 239, 232, 0.78)";
-  context.strokeStyle = "rgba(240, 239, 232, 0.42)";
-  context.font = `10px ${palette.dataFont}, monospace`;
-  context.lineWidth = 1;
-  for (let metres = 0; metres <= 240; metres += 20) {
-    const y = bandHeight + (metres / 240) * (height - bandHeight * 2);
-    const major = metres % 60 === 0;
-    context.beginPath();
-    context.moveTo(8, y);
-    context.lineTo(major ? 18 : 13, y);
-    context.stroke();
-    if (major) context.fillText(`${metres}M`, 23, y + 3.5);
-  }
+  context.drawImage(foregroundLayer, 0, 0, width, height);
 
   // The craft.
-  const bodyWidth = Math.max(38, width * 0.085);
-  const bodyHeight = Math.max(16, height * 0.055);
   context.save();
   context.translate(subX, subY);
   context.rotate(Math.max(-0.22, Math.min(0.28, model.velocity * 0.55)));
@@ -231,6 +300,7 @@ function drawScene(
 
 export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId }: SubsurfaceLabProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const metricsRef = useRef<SubsurfaceCanvasMetrics | null>(null);
   const gameSurfaceRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<GameModel>(initialModel());
   const [status, setStatus] = useState<GameStatus>("idle");
@@ -252,19 +322,61 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
   }, []);
 
   useEffect(() => {
+    if (!isActive) {
+      metricsRef.current = null;
+      return;
+    }
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const draw = () => drawScene(canvas, gameRef.current, performance.now(), prefersReducedMotion);
-    draw();
-    const observer = new ResizeObserver(draw);
+
+    let configureFrame = 0;
+    let configureTimer = 0;
+    const configureNow = (force = false) => {
+      window.cancelAnimationFrame(configureFrame);
+      configureFrame = window.requestAnimationFrame(() => {
+        const rect = canvas.getBoundingClientRect();
+        const width = Math.max(1, rect.width);
+        const height = Math.max(1, rect.height);
+        const pixelRatio = canvasPixelRatio(width, height);
+        const current = metricsRef.current;
+        if (
+          !force &&
+          current &&
+          Math.abs(current.width - width) < 0.5 &&
+          Math.abs(current.height - height) < 0.5 &&
+          current.pixelRatio === pixelRatio
+        ) {
+          drawScene(current, gameRef.current, performance.now(), prefersReducedMotion);
+          return;
+        }
+
+        const metrics = configureCanvas(canvas);
+        if (!metrics) return;
+        metricsRef.current = metrics;
+        drawScene(metrics, gameRef.current, performance.now(), prefersReducedMotion);
+      });
+    };
+
+    const scheduleConfigure = () => {
+      window.clearTimeout(configureTimer);
+      configureTimer = window.setTimeout(() => configureNow(), 100);
+    };
+
+    configureNow(true);
+    const observer = new ResizeObserver(scheduleConfigure);
     observer.observe(canvas);
-    return () => observer.disconnect();
-  }, [prefersReducedMotion, status, themeId]);
+    window.addEventListener("resize", scheduleConfigure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", scheduleConfigure);
+      window.cancelAnimationFrame(configureFrame);
+      window.clearTimeout(configureTimer);
+    };
+  }, [isActive, prefersReducedMotion, themeId]);
 
   useEffect(() => {
     if (status !== "playing" || !isActive) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvasRef.current) return;
 
     let animationFrame = 0;
     let lastTimestamp = performance.now();
@@ -296,6 +408,11 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
     const loop = (timestamp: number) => {
       const delta = Math.min(0.034, (timestamp - lastTimestamp) / 1000);
       lastTimestamp = timestamp;
+      const metrics = metricsRef.current;
+      if (!metrics) {
+        animationFrame = window.requestAnimationFrame(loop);
+        return;
+      }
       const model = gameRef.current;
       model.velocity += 0.72 * delta;
       model.y += model.velocity * delta;
@@ -320,19 +437,19 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
       // normalized collider half-gap widens on short canvases. Without
       // this, the kill zone extends past the drawn channel ("invisible
       // walls" flanking every gate).
-      const surfaceHeight = Math.max(1, canvas.getBoundingClientRect().height);
+      const surfaceHeight = metrics.height;
       const collidingGate = model.gates.some((gate) => {
         const overlapsX = Math.abs(gate.x - 0.2) < 0.065;
-        const gapHalf = gateGapHeight(surfaceHeight) / 2 / surfaceHeight;
+        const gapHalf = metrics.gapHeight / 2 / surfaceHeight;
         return overlapsX && (model.y < gate.gap - gapHalf || model.y > gate.gap + gapHalf);
       });
       if (model.y < 0.045 || model.y > 0.955 || collidingGate) {
-        drawScene(canvas, model, timestamp, prefersReducedMotion);
+        drawScene(metrics, model, timestamp, prefersReducedMotion);
         finishRun();
         return;
       }
 
-      drawScene(canvas, model, timestamp, prefersReducedMotion);
+      drawScene(metrics, model, timestamp, prefersReducedMotion);
       animationFrame = window.requestAnimationFrame(loop);
     };
 

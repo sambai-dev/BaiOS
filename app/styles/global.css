@@ -117,7 +117,7 @@ template {
   position: absolute;
   z-index: -1;
   inset: 0;
-  background-image: url("/textures/carbon-grain.webp");
+  background-image: url("../assets/carbon-grain.webp");
   background-size: 640px 640px;
   content: "";
   mix-blend-mode: screen;
@@ -216,23 +216,12 @@ template {
 
 .hero-line {
   overflow: hidden;
-  padding-bottom: 0.06em;
+  padding-bottom: 0.2em;
+  margin-bottom: -0.14em;
 }
 
 .hero-line-inner {
   display: inline-block !important;
-  transform: translateY(112%);
-  animation: hero-rise 680ms var(--ease-out-expo) forwards;
-}
-
-.hero-line:nth-child(2) .hero-line-inner {
-  animation-delay: 90ms;
-}
-
-@keyframes hero-rise {
-  to {
-    transform: translateY(0);
-  }
 }
 
 .hero-period {
@@ -412,7 +401,7 @@ template {
   grid-template-columns:
     minmax(18rem, 2.1fr) minmax(14rem, 1.15fr) minmax(8rem, 0.8fr);
   gap: clamp(2rem, 5vw, 6rem);
-  align-items: end;
+  align-items: start;
 }
 
 .public-index::before {
@@ -821,7 +810,7 @@ template {
   position: absolute;
   z-index: -1;
   inset: 0;
-  background-image: url("/textures/carbon-grain.webp");
+  background-image: url("../assets/carbon-grain.webp");
   background-size: 640px 640px;
   content: "";
   mix-blend-mode: screen;

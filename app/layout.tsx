@@ -2,13 +2,6 @@
 // Attribution and additional terms: see NOTICE.md.
 
 import "@/app/styles/global.css";
-import "@/app/styles/workbench-os.css";
-import "@/app/styles/workbench-menu-bar.css";
-import "@/app/styles/market-pulse-app.css";
-import "@/app/styles/book-consult-app.css";
-import "@/app/styles/case-study-sandbox-app.css";
-import "@/app/styles/agent-workflow-app.css";
-import "@/app/styles/search-app.css";
 import type { Metadata, Viewport } from "next";
 import { Archivo, Archivo_Black, Azeret_Mono } from "next/font/google";
 

@@ -6,7 +6,7 @@ import {
   isWorkspaceId,
   type WorkbenchAppId,
   type WorkspaceId,
-} from "./workbench-system";
+} from "./workbench-identifiers";
 
 export type WorkbenchDeepLink = Readonly<{
   /** True when the URL asks for the Workbench to open at all. */

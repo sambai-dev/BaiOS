@@ -60,16 +60,34 @@ type MarketPayload = {
 };
 
 const fallbackCache = new Map<SupportedCurrency, MarketPayload>();
+const NO_STORE = "no-store";
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
-function parseCurrency(request: Request): SupportedCurrency {
-  const requested = new URL(request.url).searchParams.get("currency")?.toLowerCase();
-  return SUPPORTED_CURRENCIES.includes(requested as SupportedCurrency)
-    ? (requested as SupportedCurrency)
-    : "usd";
+type CurrencyResult =
+  | { ok: true; currency: SupportedCurrency }
+  | { ok: false; error: string };
+
+function parseCurrency(request: Request): CurrencyResult {
+  const searchParams = new URL(request.url).searchParams;
+  const unsupported = [...searchParams.keys()].find((key) => key !== "currency");
+  if (unsupported) {
+    return { ok: false, error: `Unsupported query parameter: ${unsupported}.` };
+  }
+
+  const values = searchParams.getAll("currency");
+  if (!values.length) return { ok: true, currency: "usd" };
+  if (values.length !== 1) {
+    return { ok: false, error: "Expected exactly one currency parameter." };
+  }
+
+  const requested = values[0];
+  if (!SUPPORTED_CURRENCIES.includes(requested as SupportedCurrency)) {
+    return { ok: false, error: "Currency must be either usd or nzd." };
+  }
+  return { ok: true, currency: requested as SupportedCurrency };
 }
 
 function parseMarket(value: CoinGeckoMarket) {
@@ -128,7 +146,14 @@ async function fetchWithTimeout(url: string, init: RequestInit): Promise<Respons
 }
 
 export async function GET(request: Request) {
-  const currency = parseCurrency(request);
+  const parsedCurrency = parseCurrency(request);
+  if (!parsedCurrency.ok) {
+    return NextResponse.json(
+      { error: parsedCurrency.error },
+      { status: 400, headers: { "Cache-Control": NO_STORE } },
+    );
+  }
+  const { currency } = parsedCurrency;
   const query = new URLSearchParams({
     vs_currency: currency,
     ids: COIN_IDS.join(","),
@@ -196,6 +221,13 @@ export async function GET(request: Request) {
       },
     });
   } catch (caught) {
+    if (request.signal.aborted) {
+      return new Response(null, {
+        status: 499,
+        headers: { "Cache-Control": NO_STORE },
+      });
+    }
+
     console.error("[api/crypto] upstream failure:", caught);
     const fallback = fallbackCache.get(currency);
     if (fallback) {
@@ -215,7 +247,7 @@ export async function GET(request: Request) {
       },
       {
         status: 503,
-        headers: { "Cache-Control": "no-store" },
+        headers: { "Cache-Control": NO_STORE },
       },
     );
   }

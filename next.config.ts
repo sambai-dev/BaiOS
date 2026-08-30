@@ -32,6 +32,15 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   devIndicators: false,
   outputFileTracingRoot: process.cwd(),
+  async redirects() {
+    return [
+      {
+        source: "/resume/SamBai_Resume.pdf",
+        destination: "/resume/SamBai_Resume.d85c4735.pdf",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {
@@ -39,10 +48,9 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       {
-        // The resume URL is content-versioned via a ?v= hash query, so it is
-        // safe to cache immutably; a new hash busts the cache by changing
-        // the full URL.
-        source: "/resume/SamBai_Resume.pdf",
+        // The content hash is part of the filename, so this response can be
+        // cached immutably without making the legacy stable URL stale.
+        source: "/resume/SamBai_Resume.d85c4735.pdf",
         headers: [
           {
             key: "Cache-Control",

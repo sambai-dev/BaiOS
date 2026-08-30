@@ -3,4 +3,7 @@
 
 "use client";
 
+import "@/app/styles/workbench-os.css";
+import "@/app/styles/workbench-menu-bar.css";
+
 export { default } from "./WorkbenchOSV3";

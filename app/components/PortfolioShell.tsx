@@ -3,7 +3,6 @@
 
 "use client";
 
-import { AnimatePresence, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -12,8 +11,8 @@ import {
   type WorkbenchDeepLink,
 } from "@/app/lib/workbench-deep-link";
 
-const loadWorkbenchOS = () => import("@/app/components/WorkbenchOS");
-const WorkbenchOS = dynamic(loadWorkbenchOS, { ssr: false });
+const loadWorkbenchOverlay = () => import("@/app/components/WorkbenchOverlay");
+const WorkbenchOverlay = dynamic(loadWorkbenchOverlay, { ssr: false });
 
 function RollingClock({ time }: { time: string }) {
   return (
@@ -28,13 +27,13 @@ function RollingClock({ time }: { time: string }) {
 
 export default function PortfolioShell() {
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState(false);
+  const [hasOpenedWorkbench, setHasOpenedWorkbench] = useState(false);
   const [newZealandTime, setNewZealandTime] = useState("--:--");
   const [workbenchOrigin, setWorkbenchOrigin] = useState({ x: 72, y: 72 });
   const [deepLink, setDeepLink] = useState<WorkbenchDeepLink | null>(null);
-  const prefersReducedMotion = useReducedMotion();
   const openerRef = useRef<HTMLButtonElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
   const workbenchInvokerRef = useRef<HTMLElement | null>(null);
+  const workbenchPreloadTimerRef = useRef<number | null>(null);
 
   const timeFormatter = useMemo(
     () =>
@@ -48,7 +47,11 @@ export default function PortfolioShell() {
   );
 
   const openWorkbench = useCallback((invoker?: HTMLElement | null) => {
-    void loadWorkbenchOS();
+    if (workbenchPreloadTimerRef.current !== null) {
+      window.clearTimeout(workbenchPreloadTimerRef.current);
+      workbenchPreloadTimerRef.current = null;
+    }
+    void loadWorkbenchOverlay();
     workbenchInvokerRef.current =
       invoker?.isConnected ? invoker : openerRef.current;
 
@@ -59,7 +62,22 @@ export default function PortfolioShell() {
         y: apertureBounds.top + apertureBounds.height / 2,
       });
     }
+    setHasOpenedWorkbench(true);
     setIsWorkbenchOpen(true);
+  }, []);
+
+  const scheduleWorkbenchPreload = useCallback(() => {
+    if (workbenchPreloadTimerRef.current !== null) return;
+    workbenchPreloadTimerRef.current = window.setTimeout(() => {
+      workbenchPreloadTimerRef.current = null;
+      void loadWorkbenchOverlay();
+    }, 120);
+  }, []);
+
+  const cancelWorkbenchPreload = useCallback(() => {
+    if (workbenchPreloadTimerRef.current === null) return;
+    window.clearTimeout(workbenchPreloadTimerRef.current);
+    workbenchPreloadTimerRef.current = null;
   }, []);
 
   const closeWorkbench = useCallback(() => {
@@ -106,6 +124,15 @@ export default function PortfolioShell() {
     const interval = window.setInterval(tick, 30_000);
     return () => window.clearInterval(interval);
   }, [timeFormatter]);
+
+  useEffect(
+    () => () => {
+      if (workbenchPreloadTimerRef.current !== null) {
+        window.clearTimeout(workbenchPreloadTimerRef.current);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!isWorkbenchOpen) return;
@@ -168,8 +195,9 @@ export default function PortfolioShell() {
             type="button"
             className="workbench-aperture"
             onClick={(event) => openWorkbench(event.currentTarget)}
-            onFocus={() => void loadWorkbenchOS()}
-            onMouseEnter={() => void loadWorkbenchOS()}
+            onFocus={() => void loadWorkbenchOverlay()}
+            onMouseEnter={scheduleWorkbenchPreload}
+            onMouseLeave={cancelWorkbenchPreload}
             aria-label="Open the Workbench"
             aria-haspopup="dialog"
             aria-expanded={isWorkbenchOpen}
@@ -254,8 +282,9 @@ export default function PortfolioShell() {
               className="index-link"
               type="button"
               onClick={(event) => openWorkbench(event.currentTarget)}
-              onFocus={() => void loadWorkbenchOS()}
-              onMouseEnter={() => void loadWorkbenchOS()}
+              onFocus={() => void loadWorkbenchOverlay()}
+              onMouseEnter={scheduleWorkbenchPreload}
+              onMouseLeave={cancelWorkbenchPreload}
             >
               <span className="index-link-text">Open Workbench</span>
               <span className="index-arrow" aria-hidden="true">
@@ -303,7 +332,7 @@ export default function PortfolioShell() {
             </a>
             <a
               className="index-link"
-              href="/resume/SamBai_Resume.pdf?v=d85c4735"
+              href="/resume/SamBai_Resume.d85c4735.pdf"
               target="_blank"
               rel="noreferrer"
             >
@@ -316,18 +345,16 @@ export default function PortfolioShell() {
         </div>
       </section>
 
-      <AnimatePresence onExitComplete={restoreWorkbenchFocus}>
-        {isWorkbenchOpen && (
-          <WorkbenchOS
-            closeButtonRef={closeRef}
-            deepLink={deepLink}
-            onClose={closeWorkbench}
-            prefersReducedMotion={Boolean(prefersReducedMotion)}
-            revealOrigin={workbenchOrigin}
-            time={newZealandTime}
-          />
-        )}
-      </AnimatePresence>
+      {hasOpenedWorkbench && (
+        <WorkbenchOverlay
+          deepLink={deepLink}
+          onClose={closeWorkbench}
+          onExitComplete={restoreWorkbenchFocus}
+          open={isWorkbenchOpen}
+          revealOrigin={workbenchOrigin}
+          time={newZealandTime}
+        />
+      )}
     </main>
   );
 }

@@ -3,6 +3,8 @@
 
 "use client";
 
+import "@/app/styles/book-consult-app.css";
+
 import {
   type KeyboardEvent,
   type MouseEvent as ReactMouseEvent,

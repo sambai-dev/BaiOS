@@ -10,6 +10,10 @@ const WIKI_SEARCH_URL = "https://en.wikipedia.org/w/api.php";
 const WIKI_SUMMARY_URL = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 const MAX_QUERY = 300;
 const UPSTREAM_TIMEOUT_MS = 8_000;
+const SEARCH_REVALIDATE_SECONDS = 600;
+const SEARCH_SUCCESS_CACHE_CONTROL =
+  "public, max-age=0, s-maxage=600, stale-while-revalidate=86400";
+const NO_STORE = "no-store";
 const USER_AGENT =
   "sambai.dev-workbench-search/1.0 (https://www.sambai.dev; contact: sambai.codes@gmail.com)";
 
@@ -68,16 +72,38 @@ function safeUrl(value: unknown, max: number): string {
   }
 }
 
-function upstreamSignal(request: Request): AbortSignal {
-  return AbortSignal.any([request.signal, AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)]);
+function normalizeQuery(value: string | null): string {
+  return clamp(value, MAX_QUERY).trim().replace(/\s+/gu, " ");
+}
+
+function searchSuccess(body: unknown, cache = true) {
+  return NextResponse.json(body, {
+    headers: {
+      "Cache-Control": cache ? SEARCH_SUCCESS_CACHE_CONTROL : NO_STORE,
+    },
+  });
+}
+
+function searchError(error: string, status: number) {
+  return NextResponse.json(
+    { error },
+    { status, headers: { "Cache-Control": NO_STORE } },
+  );
 }
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const query = clamp(url.searchParams.get("q"), MAX_QUERY).trim();
+  const query = normalizeQuery(url.searchParams.get("q"));
   if (!query) {
-    return NextResponse.json({ error: "Missing ?q= query." }, { status: 400 });
+    return searchError("Missing ?q= query.", 400);
   }
+
+  // One absolute deadline covers both serial Wikipedia phases. Previously
+  // each fetch received a fresh eight seconds, allowing roughly 16 seconds.
+  const signal = AbortSignal.any([
+    request.signal,
+    AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+  ]);
 
   try {
     const searchUrl = `${WIKI_SEARCH_URL}?${new URLSearchParams({
@@ -89,14 +115,12 @@ export async function GET(request: Request) {
     })}`;
     const searchResponse = await fetch(searchUrl, {
       headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-      signal: upstreamSignal(request),
+      next: { revalidate: SEARCH_REVALIDATE_SECONDS },
+      signal,
     });
     if (!searchResponse.ok) {
       await searchResponse.body?.cancel().catch(() => {});
-      return NextResponse.json(
-        { error: "Upstream search provider unavailable." },
-        { status: 502 },
-      );
+      return searchError("Upstream search provider unavailable.", 502);
     }
     const searchData = (await searchResponse.json()) as {
       query?: {
@@ -106,7 +130,7 @@ export async function GET(request: Request) {
     const hits = (searchData.query?.search ?? []).filter((hit) => hit.title);
 
     if (!hits.length) {
-      return NextResponse.json({
+      return searchSuccess({
         query,
         heading: "",
         abstract: { text: "", source: "", url: "" },
@@ -127,51 +151,57 @@ export async function GET(request: Request) {
       `${WIKI_SUMMARY_URL}${encodeURIComponent(title)}?redirect=true`,
       {
         headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-        signal: upstreamSignal(request),
+        next: { revalidate: SEARCH_REVALIDATE_SECONDS },
+        signal,
       },
     );
+    let summaryCacheable = true;
     if (summaryResponse.ok) {
       summary = (await summaryResponse.json()) as typeof summary;
     } else {
       // Release the unread body so the pooled socket is not pinned until GC.
       await summaryResponse.body?.cancel().catch(() => {});
+      // Do not pin a transiently incomplete abstract in the shared CDN cache.
+      summaryCacheable = false;
     }
 
-    return NextResponse.json({
-      query,
-      heading: title.slice(0, 200),
-      abstract: {
-        text: clamp(summary.extract, 1200),
-        source: "Wikipedia",
-        url: safeUrl(summary.content_urls?.desktop?.page, 500),
+    return searchSuccess(
+      {
+        query,
+        heading: title.slice(0, 200),
+        abstract: {
+          text: clamp(summary.extract, 1200),
+          source: "Wikipedia",
+          url: safeUrl(summary.content_urls?.desktop?.page, 500),
+        },
+        answer: "",
+        definition: { text: "", url: "" },
+        related: hits.slice(1, 8).map((hit) => ({
+          title: clamp(hit.title, 200),
+          text: clamp(hit.snippet, 400),
+          url: `https://en.wikipedia.org/wiki/${encodeURIComponent(
+            (hit.title ?? "").replace(/ /g, "_"),
+          )}`,
+        })),
       },
-      answer: "",
-      definition: { text: "", url: "" },
-      related: hits.slice(1, 8).map((hit) => ({
-        title: clamp(hit.title, 200),
-        text: clamp(hit.snippet, 400),
-        url: `https://en.wikipedia.org/wiki/${encodeURIComponent(
-          (hit.title ?? "").replace(/ /g, "_"),
-        )}`,
-      })),
-    });
+      summaryCacheable,
+    );
   } catch (caught) {
     // A client disconnect (request.signal) means nobody is listening; only a
     // genuine upstream timeout or failure deserves an error log/status.
-    if (caught instanceof Error && caught.name === "AbortError") {
-      return new Response(null, { status: 499 });
+    const reason = signal.reason ?? caught;
+    const name = reason instanceof Error ? reason.name : "";
+    if (name === "AbortError" || request.signal.aborted) {
+      return new Response(null, {
+        status: 499,
+        headers: { "Cache-Control": NO_STORE },
+      });
     }
-    if (caught instanceof Error && caught.name === "TimeoutError") {
+    if (name === "TimeoutError") {
       console.error("[api/search] upstream timed out");
-      return NextResponse.json(
-        { error: "The search provider took too long to respond." },
-        { status: 504 },
-      );
+      return searchError("The search provider took too long to respond.", 504);
     }
     console.error("[api/search] upstream failure:", caught);
-    return NextResponse.json(
-      { error: "Could not reach the search provider." },
-      { status: 502 },
-    );
+    return searchError("Could not reach the search provider.", 502);
   }
 }

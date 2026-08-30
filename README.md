@@ -79,6 +79,7 @@ BaiOS/
 │   │   └── search/route.ts         # Wikipedia search/summary proxy
 │   ├── components/
 │   │   ├── PortfolioShell.tsx      # Public front door + Workbench launcher
+│   │   ├── WorkbenchOverlay.tsx    # Lazy motion/Workbench boundary
 │   │   ├── WorkbenchOSV3.tsx       # Workbench OS (windows, menus, Atlas, search)
 │   │   ├── WorkbenchMenuBar.tsx    # App-aware menu system
 │   │   ├── WorkbenchMissionControl.tsx
@@ -93,12 +94,15 @@ BaiOS/
 │   │   ├── ArchiveApp.tsx          # Archive: writable local file system
 │   │   └── ControlCenterApp.tsx    # Control: theme/session/backup settings
 │   ├── lib/
+│   │   ├── workbench-identifiers.ts # Lightweight deep-link ID guards
 │   │   ├── workbench-system.ts     # App registry, workspaces, themes, types
 │   │   ├── workbench-window-manager.ts
 │   │   ├── workbench-backup.ts     # Versioned JSON backup validate/import/export
 │   │   ├── workbench-files.ts      # Archive file system logic
 │   │   └── workbench-sound.ts      # Opt-in sound engine
-│   ├── styles/                     # global.css + per-app stylesheets (Tailwind v4)
+│   ├── assets/carbon-grain.webp    # Hashed carbon grain background texture
+│   ├── styles/                     # global.css + lazy per-app stylesheets (Tailwind v4)
+│   ├── favicon.ico                 # Browser favicon generated from icon.svg
 │   ├── layout.tsx                  # Metadata, JSON-LD, fonts
 │   ├── page.tsx                    # Homepage
 │   ├── sitemap.ts                  # Sitemap metadata route
@@ -107,8 +111,7 @@ BaiOS/
 │   ├── licenses/FONTS-OFL-1.1.txt  # Deployable font copyright/license text
 │   ├── robots.txt                  # Crawler policy and sitemap location
 │   ├── third-party-notices.txt     # Deployable dependency/content notices
-│   ├── textures/carbon-grain.webp  # Carbon grain background texture
-│   └── resume/SamBai_Resume.pdf    # Résumé (one-year immutable cache; versioned URL)
+│   └── resume/SamBai_Resume.d85c4735.pdf # Content-hashed résumé with immutable cache
 ├── scripts/build_resume.py         # Résumé DOCX generator (PDF export is separate)
 ├── requirements-resume.txt         # Pinned direct dependency for résumé generation
 ├── licenses/                       # Third-party license texts
@@ -186,7 +189,7 @@ Core Workbench controls have keyboard paths: menu bars use arrow-key movement, l
 
 ## Deployment
 
-Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) using this repository's `next.config.ts`, including custom security headers, output tracing, image formats, and résumé caching. Configure the two OpenRouter variables above to enable Agent; the optional CoinGecko key can improve upstream allowance but is not required. The résumé PDF uses a one-year immutable cache header, so its manually maintained query-version token in `PortfolioShell.tsx` must change whenever the PDF is replaced.
+Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) using this repository's `next.config.ts`, including custom security headers, output tracing, image formats, and résumé caching. Configure the two OpenRouter variables above to enable Agent; the optional CoinGecko key can improve upstream allowance but is not required. The résumé PDF uses a content hash in its filename and a one-year immutable cache header; the legacy stable URL redirects temporarily so future résumé versions cannot be pinned behind a cached redirect.
 
 ### Résumé source generation
 
@@ -222,5 +225,5 @@ Modified network deployments must offer their corresponding source code under th
 ## Troubleshooting
 
 - **Styles not loading?** Ensure `@import "tailwindcss"` is at the top of `app/styles/global.css` and restart the dev server after config changes.
-- **Textures not showing?** The carbon grain lives at `public/textures/carbon-grain.webp` and is referenced from `app/styles/global.css`.
+- **Textures not showing?** The carbon grain lives at `app/assets/carbon-grain.webp` and is referenced from the global and Workbench CSS bundles.
 - **Workbench state lost?** State is browser-local by design. Control → Export backs up the session and Archive only; separately stored Brief/Vector preferences, sound state, and game scores are not exported.

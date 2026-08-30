@@ -236,7 +236,7 @@
 .os-desktop::before {
   position: absolute;
   inset: 0;
-  background-image: url("/textures/carbon-grain.webp");
+  background-image: url("../assets/carbon-grain.webp");
   background-size: 640px 640px;
   content: "";
   mix-blend-mode: multiply;

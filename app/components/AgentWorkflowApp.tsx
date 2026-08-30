@@ -3,6 +3,8 @@
 
 "use client";
 
+import "@/app/styles/agent-workflow-app.css";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playSound } from "../lib/workbench-sound";
 
@@ -13,6 +15,10 @@ type RunOutcome =
   "idle" | "requesting" | "streaming" | "complete" | "aborted" | "error";
 type PromptSource = AgentPreset | "custom";
 type LastRun = { prompt: string; source: PromptSource };
+
+type AgentWorkflowAppProps = {
+  isPresented: boolean;
+};
 
 const PROVIDER_TARGET_BADGE =
   "Provider target · OpenRouter · server-side route";
@@ -74,7 +80,9 @@ function stripThinking(text: string): string {
     .replace(/<think>[\s\S]*$/g, "");
 }
 
-export default function AgentWorkflowApp() {
+export default function AgentWorkflowApp({
+  isPresented,
+}: AgentWorkflowAppProps) {
   const [selectedPreset, setSelectedPreset] = useState<AgentPreset | null>(
     "dashboard",
   );
@@ -92,6 +100,7 @@ export default function AgentWorkflowApp() {
 
   const abortRef = useRef<AbortController | null>(null);
   const clockRef = useRef<number | null>(null);
+  const runStartedAtRef = useRef<number | null>(null);
 
   const stopClock = useCallback(() => {
     if (clockRef.current !== null) {
@@ -108,6 +117,17 @@ export default function AgentWorkflowApp() {
     [stopClock],
   );
 
+  useEffect(() => {
+    stopClock();
+    const startedAt = runStartedAtRef.current;
+    if (!isRunning || !isPresented || startedAt === null) return;
+
+    const updateElapsed = () => setElapsedMs(Date.now() - startedAt);
+    updateElapsed();
+    clockRef.current = window.setInterval(updateElapsed, 120);
+    return stopClock;
+  }, [isPresented, isRunning, stopClock]);
+
   const runPrompt = useCallback(
     async (prompt: string, source: PromptSource) => {
       const submittedPrompt = prompt.trim();
@@ -122,15 +142,10 @@ export default function AgentWorkflowApp() {
       setEstimatedTokenCount(0);
       setElapsedMs(0);
       setCurrentPhaseIndex(0);
-      setIsRunning(true);
-
       const controller = new AbortController();
       abortRef.current = controller;
-      const startTimestamp = Date.now();
-      stopClock();
-      clockRef.current = window.setInterval(() => {
-        setElapsedMs(Date.now() - startTimestamp);
-      }, 120);
+      runStartedAtRef.current = Date.now();
+      setIsRunning(true);
 
       try {
         setCurrentPhaseIndex(1);
@@ -162,6 +177,7 @@ export default function AgentWorkflowApp() {
         const decoder = new TextDecoder();
         let buffer = "";
         let raw = "";
+        let receivedDone = false;
         // One keystroke tick per 96 characters of visible output; measured
         // against a high-water mark so a frozen visible length (while the
         // model is inside <think>…</think>) never machine-guns the sound.
@@ -182,18 +198,29 @@ export default function AgentWorkflowApp() {
             for (const line of event.split("\n")) {
               if (!line.startsWith("data:")) continue;
               const payload = line.slice(5).trim();
-              if (!payload || payload === "[DONE]") continue;
+              if (!payload) continue;
+              if (payload === "[DONE]") {
+                receivedDone = true;
+                continue;
+              }
               try {
                 const parsed = JSON.parse(payload) as {
                   choices?: Array<{ delta?: { content?: string } }>;
+                  error?: unknown;
                 };
+                if (typeof parsed.error === "string" && parsed.error.trim()) {
+                  throw new Error(parsed.error);
+                }
                 const delta = parsed.choices?.[0]?.delta?.content;
                 if (delta) {
                   raw += delta;
                   consume();
                 }
-              } catch {
-                /* ignore malformed keep-alive fragments */
+              } catch (caught) {
+                if (caught instanceof SyntaxError) {
+                  throw new Error("The model stream returned malformed data.");
+                }
+                throw caught;
               }
             }
           }
@@ -216,6 +243,15 @@ export default function AgentWorkflowApp() {
         handleEvents(buffer.split("\n\n"));
         buffer = "";
 
+        if (controller.signal.aborted) {
+          throw new DOMException("The run was stopped.", "AbortError");
+        }
+        if (!receivedDone) {
+          throw new Error(
+            "The model stream ended before confirming completion. Partial output may be incomplete.",
+          );
+        }
+
         setCurrentPhaseIndex(3);
         const visible = stripThinking(raw).trim();
         setStreamedText(visible || "(empty response from the model)");
@@ -232,12 +268,19 @@ export default function AgentWorkflowApp() {
               : "Run stopped before a response was received. No complete output is available.",
           );
         } else {
+          // Stop the server request if a typed stream error or malformed event
+          // arrives before completion, so the upstream generation cannot run
+          // invisibly after the UI has failed the run.
+          controller.abort();
           setRunOutcome("error");
           setErrorText((caught as Error).message);
           playSound("delete");
         }
       } finally {
         stopClock();
+        const startedAt = runStartedAtRef.current;
+        if (startedAt !== null) setElapsedMs(Date.now() - startedAt);
+        runStartedAtRef.current = null;
         abortRef.current = null;
         setIsRunning(false);
       }

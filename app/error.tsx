@@ -3,7 +3,6 @@
 
 "use client";
 
-import Link from "next/link";
 import { useEffect } from "react";
 
 export default function ErrorScreen({
@@ -30,9 +29,14 @@ export default function ErrorScreen({
           <button className="fallback-action" type="button" onClick={retry}>
             Try again <span aria-hidden="true">↻</span>
           </button>
-          <Link className="fallback-action fallback-action--quiet" href="/">
-            Return home <span aria-hidden="true">→</span>
-          </Link>
+          <form action="/">
+            <button
+              className="fallback-action fallback-action--quiet"
+              type="submit"
+            >
+              Return home <span aria-hidden="true">→</span>
+            </button>
+          </form>
         </div>
       </main>
     </>

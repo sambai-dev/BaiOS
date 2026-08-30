@@ -3,6 +3,8 @@
 
 "use client";
 
+import "@/app/styles/search-app.css";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playSound } from "../lib/workbench-sound";
 

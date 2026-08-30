@@ -371,6 +371,11 @@ export default function WorkbenchOSV3({
   >("fresh");
   const [lastSaved, setLastSaved] = useState("Not saved yet");
   const [isCompact, setIsCompact] = useState(false);
+  const [isDocumentVisible, setIsDocumentVisible] = useState(
+    () =>
+      typeof document === "undefined" ||
+      document.visibilityState === "visible",
+  );
   const [visitedWorkspaceIds, setVisitedWorkspaceIds] = useState<WorkspaceId[]>([
     "build",
   ]);
@@ -542,6 +547,16 @@ export default function WorkbenchOSV3({
     syncCompactMode();
     compactQuery.addEventListener("change", syncCompactMode);
     return () => compactQuery.removeEventListener("change", syncCompactMode);
+  }, []);
+
+  useEffect(() => {
+    const syncDocumentVisibility = () => {
+      setIsDocumentVisible(document.visibilityState === "visible");
+    };
+    syncDocumentVisibility();
+    document.addEventListener("visibilitychange", syncDocumentVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", syncDocumentVisibility);
   }, []);
 
   const hydrationDoneRef = useRef(false);
@@ -2305,6 +2320,9 @@ export default function WorkbenchOSV3({
     return () => document.removeEventListener("pointerdown", closeContext);
   }, [contextMenu]);
 
+  const isModalSurfaceOpen = isAtlasOpen || isPaletteOpen || isCloseGuardOpen;
+  const isWorkbenchPresented = isDocumentVisible && !isModalSurfaceOpen;
+
   const renderApp = (windowState: WorkbenchWindow) => {
     const instanceDomId = safeDomId(windowState.instanceId);
 
@@ -2509,8 +2527,10 @@ export default function WorkbenchOSV3({
       return (
         <SubsurfaceLab
           isActive={
+            isWorkbenchPresented &&
             activeWorkspaceId === windowState.workspaceId &&
-            activeInstanceId === windowState.instanceId
+            activeInstanceId === windowState.instanceId &&
+            !windowState.minimized
           }
           prefersReducedMotion={prefersReducedMotion}
           themeId={session.themeId}
@@ -2522,8 +2542,10 @@ export default function WorkbenchOSV3({
       return (
         <RailshiftLab
           isActive={
+            isWorkbenchPresented &&
             activeWorkspaceId === windowState.workspaceId &&
-            activeInstanceId === windowState.instanceId
+            activeInstanceId === windowState.instanceId &&
+            !windowState.minimized
           }
           prefersReducedMotion={prefersReducedMotion}
           themeId={session.themeId}
@@ -2541,7 +2563,16 @@ export default function WorkbenchOSV3({
     }
 
     if (windowState.appId === "pulse") {
-      return <MarketPulseApp />;
+      return (
+        <MarketPulseApp
+          isPresented={
+            isWorkbenchPresented &&
+            activeWorkspaceId === windowState.workspaceId &&
+            activeInstanceId === windowState.instanceId &&
+            !windowState.minimized
+          }
+        />
+      );
     }
 
     if (windowState.appId === "book") {
@@ -2552,6 +2583,7 @@ export default function WorkbenchOSV3({
       return (
         <CaseStudySandboxApp
           isActive={
+            isWorkbenchPresented &&
             activeWorkspaceId === windowState.workspaceId &&
             activeInstanceId === windowState.instanceId &&
             !windowState.minimized
@@ -2561,7 +2593,16 @@ export default function WorkbenchOSV3({
     }
 
     if (windowState.appId === "agent") {
-      return <AgentWorkflowApp />;
+      return (
+        <AgentWorkflowApp
+          isPresented={
+            isWorkbenchPresented &&
+            activeWorkspaceId === windowState.workspaceId &&
+            activeInstanceId === windowState.instanceId &&
+            !windowState.minimized
+          }
+        />
+      );
     }
 
     if (windowState.appId === "search") {
@@ -2735,7 +2776,6 @@ export default function WorkbenchOSV3({
     (windowState) =>
       windowState.workspaceId === activeWorkspaceId && !windowState.minimized,
   );
-  const isModalSurfaceOpen = isAtlasOpen || isPaletteOpen || isCloseGuardOpen;
   const revealClipOrigin = `${Math.round(revealOrigin.x)}px ${Math.round(
     revealOrigin.y,
   )}px`;

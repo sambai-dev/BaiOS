@@ -3,6 +3,8 @@
 
 "use client";
 
+import "@/app/styles/case-study-sandbox-app.css";
+
 import {
   type KeyboardEvent,
   useEffect,
