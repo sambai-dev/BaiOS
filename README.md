@@ -111,7 +111,7 @@ BaiOS/
 │   ├── licenses/FONTS-OFL-1.1.txt  # Deployable font copyright/license text
 │   ├── robots.txt                  # Crawler policy and sitemap location
 │   ├── third-party-notices.txt     # Deployable dependency/content notices
-│   └── resume/SamBai_Resume.d85c4735.pdf # Content-hashed résumé with immutable cache
+│   └── resume/SamBai_Resume.8aa80702.pdf # Content-hashed résumé with immutable cache
 ├── scripts/build_resume.py         # Résumé DOCX generator (PDF export is separate)
 ├── requirements-resume.txt         # Pinned direct dependency for résumé generation
 ├── licenses/                       # Third-party license texts

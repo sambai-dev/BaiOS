@@ -273,6 +273,13 @@ def add_skill_line(doc: Document, label: str, text: str):
     set_run_font(paragraph.add_run(text), size=9.2)
 
 
+def add_summary(doc: Document, text: str):
+    paragraph = doc.add_paragraph(style="Resume Detail")
+    set_paragraph_spacing(paragraph, before=0, after=1.5, exact_line=11.8)
+    paragraph.paragraph_format.keep_together = True
+    set_run_font(paragraph.add_run(text), size=9.45)
+
+
 def add_education(doc: Document):
     paragraph = doc.add_paragraph(style="Resume Detail")
     set_paragraph_spacing(paragraph, before=0, after=0, exact_line=12.4)
@@ -340,8 +347,8 @@ def build():
     properties.subject = "One-page startup-focused product engineering resume"
     properties.author = "Sam Bai"
     properties.keywords = (
-        "Product Engineer, Full Stack Engineer, Founding Engineer, TypeScript, React, "
-        "Next.js, PostgreSQL, AI systems, New Zealand"
+        "Product Engineer, Full Stack Engineer, Founding Engineer, TypeScript, Python, "
+        "React, Next.js, PostgreSQL, AI systems, open source, New Zealand"
     )
 
     num_id = add_real_bullet_numbering(doc)
@@ -385,6 +392,12 @@ def build():
     )
     set_bottom_border(links)
 
+    add_section_heading(doc, "Profile")
+    add_summary(
+        doc,
+        "Product engineer shipping production SaaS, AI tooling and systems software across TypeScript and Python.",
+    )
+
     add_section_heading(doc, "Experience")
     add_role_header(
         doc,
@@ -397,7 +410,7 @@ def build():
         "Founded and run a New Zealand software studio; lead product discovery, architecture, implementation, deployment and client support.",
     )
 
-    add_product_header(doc, "Rivet", "Construction operations - client project", "Jul 2026 - Present")
+    add_product_header(doc, "Rivet", "Construction operations - client project", "Aug 2026 - Present")
     add_bullet(
         doc,
         "Built and deployed a private construction-operations PWA for a New Zealand residential builder, joining project, task, exception, approval, calendar and notification workflows for the director and project managers.",
@@ -405,16 +418,11 @@ def build():
     )
     add_bullet(
         doc,
-        "Designed server-authoritative schedule proposals that recalculate before apply, reject stale changes and write dates, audit records and notification effects atomically in PostgreSQL.",
-        num_id,
-    )
-    add_bullet(
-        doc,
-        "Implemented scoped authentication and conflict-aware browser sync with IndexedDB outboxes, version checks and transactional Hono APIs on Cloudflare Workers.",
+        "Designed server-authoritative schedule proposals that reject stale changes and commit dates, audit records and notifications atomically; added scoped authentication and conflict-aware IndexedDB sync through transactional Hono APIs on Cloudflare Workers.",
         num_id,
     )
 
-    add_product_header(doc, "Trekky", "Job-search product", "Jan 2026 - Present")
+    add_product_header(doc, "Trekky", "Job-search product", "May 2026 - Present")
     add_bullet(
         doc,
         "Built and operate a live Next.js/TypeScript product for job discovery, application tracking, contacts, AI preparation, outcome analytics and review-first automation.",
@@ -427,50 +435,50 @@ def build():
     )
     add_bullet(
         doc,
-        "Cut default dashboard JavaScript from 341 KB to 233 KB gzip through route-level lazy loading.",
+        "Reduced initial dashboard JavaScript by 32% - from 341 KB to 233 KB gzip - through route-level code splitting and lazy loading.",
         num_id,
     )
 
     add_section_heading(doc, "Selected Projects")
-    add_product_header(doc, "Clearfold", "Pre-production digital-asset operations", "2026")
+    add_product_header(doc, "Rookhold", "Open-source bounded code execution", "Aug 2026 - Present")
     add_bullet(
         doc,
-        "Built exact-decimal TypeScript libraries for double-entry ledger rules, FIFO lots, portfolio valuation and versioned risk evaluation, with idempotency and reversal invariants.",
+        "Released v0.8.0 of an MIT-licensed bounded job runner for short-lived Python, Node and Bash execution with server-controlled time, memory, process, file and output limits.",
         num_id,
     )
     add_bullet(
         doc,
-        "Implemented a private Gemini assistant with cited conversation history and pgvector retrieval, with lexical fallback when embeddings are unavailable.",
+        "Shipped a unified CLI, Python and TypeScript SDKs, MCP adapter and offline receipt verifier, plus multi-platform binaries and a guarded Linux profile using gVisor and cgroup v2.",
         num_id,
     )
 
     add_product_header(doc, "BaiOS Workbench", "Open-source browser interface", "Dec 2025 - Present")
     add_bullet(
         doc,
-        "Built and deployed sambai.dev as a 16-app, three-workspace Workbench with multi-instance windows, drag, resize, snap, Atlas navigation and a searchable local archive.",
-        num_id,
-    )
-    add_bullet(
-        doc,
-        "Designed atomically committed browser-local state, cross-tab revision-conflict handling and schema-validated backup/import without implying remote sync.",
+        "Built and deployed sambai.dev as a 16-app, three-workspace Next.js Workbench with multi-instance windows, searchable local archives, atomic browser state, cross-tab conflict handling and schema-validated backup/import.",
         num_id,
     )
 
     add_section_heading(doc, "Open Source Contributions")
-    add_product_header(doc, "EdgarTools & Betaflight Configurator", "", "2026")
+    add_product_header(doc, "Upstream open source", "9 accepted changes across 5 public projects", "Aug 2026")
     add_bullet(
         doc,
-        "Built Blackbox MP4/WebM video export for Betaflight Configurator using WebCodecs, with overlay compositing, progress/ETA, cancellation and streaming saves; merged as PR #5468 for 2026.12.",
+        "Betaflight Configurator (3 PRs): shipped WebCodecs MP4/WebM export for Blackbox logs, added validated backward-compatible workspace-layout exports, and fixed an asynchronous Vitest teardown race.",
         num_id,
     )
     add_bullet(
         doc,
-        "Resolved a load-dependent Vitest teardown race through upstream CI and maintainer review; merged for Betaflight Configurator 2026.12.",
+        "EdgarTools (2 PRs): recovered pre-2013 SEC 13F CUSIPs lost to column drift - improving one filing from 5/217 to 215/217 rows - and stopped 497K prose footnotes becoming phantom fee records.",
         num_id,
     )
     add_bullet(
         doc,
-        "Repaired legacy SEC 13F TXT parsing so checksum-valid CUSIPs survive column drift; accepted upstream and released in EdgarTools v5.53.0.",
+        "HFlow & Omarchy Mac (2 PRs): added a conservative network-exposure warning for non-loopback IPv4/IPv6 binds and corrected macOS brightness-key labels in a keyboard-shortcut menu.",
+        num_id,
+    )
+    add_bullet(
+        doc,
+        "Hermes Agent (2 changes): fixed native-Windows Bot Mode delivery by closing unused subprocess stdin and surfaced persistent Group Chat holds after reload; the maintainer merged both commits with authorship preserved.",
         num_id,
     )
 
@@ -478,17 +486,17 @@ def build():
     add_skill_line(
         doc,
         "Languages & frameworks",
-        "TypeScript, JavaScript, Python, SQL, React, Next.js, Node.js, Vite, Hono, Tailwind CSS, TanStack Query, Router, Table and Virtual",
+        "TypeScript, JavaScript, Python, SQL, React, Next.js, Vue, Node.js, Vite, Hono, Tauri, Tailwind CSS, TanStack Query, Router, Table and Virtual",
     )
     add_skill_line(
         doc,
         "Data & systems",
-        "PostgreSQL (Neon), MongoDB Atlas, Mongoose, Redis, Drizzle ORM, IndexedDB/Dexie, role/capability authorisation, workers/queues, MCP, vector/lexical retrieval",
+        "PostgreSQL (Neon), MongoDB Atlas, Redis, Drizzle ORM, IndexedDB/Dexie, WebCodecs, MCP, gVisor, cgroup v2, role/capability authorisation, vector/lexical retrieval",
     )
     add_skill_line(
         doc,
         "Cloud & testing",
-        "Cloudflare Workers, R2, Hyperdrive, Vercel, GitHub Actions, Vitest, Playwright",
+        "Cloudflare Workers, R2, Hyperdrive, Vercel, GitHub Actions, Vitest, Pytest, Playwright",
     )
 
     add_section_heading(doc, "Education")

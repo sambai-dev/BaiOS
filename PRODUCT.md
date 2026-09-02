@@ -82,7 +82,7 @@ Workbench session and Archive data stay in this browser. There is no account, lo
 
 - Public portfolio and Workbench implementation in `app/`.
 - Workbench registry, session, window-manager, Archive, and backup behavior in `app/lib/`.
-- Résumé at `public/resume/SamBai_Resume.d85c4735.pdf`.
+- Résumé at `public/resume/SamBai_Resume.8aa80702.pdf`.
 - Solynth Labs positioning and company facts: https://solynthlabs.com/#services.
 - Approved visual composition: "Quiet Junction" (see DESIGN.md for tokens and component spec).
 - Public-surface composition brief: `app/page.tsx` renders the sparse front door described in this document.
