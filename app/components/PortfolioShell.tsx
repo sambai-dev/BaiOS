@@ -12,7 +12,15 @@ import {
 } from "@/app/lib/workbench-deep-link";
 
 const loadWorkbenchOverlay = () => import("@/app/components/WorkbenchOverlay");
-const WorkbenchOverlay = dynamic(loadWorkbenchOverlay, { ssr: false });
+const WorkbenchOverlay = dynamic(loadWorkbenchOverlay, {
+  ssr: false,
+  loading: () => (
+    <div className="workbench-loading" role="status" aria-live="polite">
+      <span className="identity-mark" aria-hidden="true">S/B</span>
+      <span>Opening Workbench…</span>
+    </div>
+  ),
+});
 
 function RollingClock({ time }: { time: string }) {
   return (
@@ -56,7 +64,7 @@ export default function PortfolioShell() {
     workbenchInvokerRef.current =
       invoker?.isConnected ? invoker : openerRef.current;
 
-    const apertureBounds = openerRef.current?.getBoundingClientRect();
+    const apertureBounds = workbenchInvokerRef.current?.getBoundingClientRect() ?? openerRef.current?.getBoundingClientRect();
     if (apertureBounds) {
       setWorkbenchOrigin({
         x: apertureBounds.left + apertureBounds.width / 2,
@@ -173,7 +181,7 @@ export default function PortfolioShell() {
     if (!isWorkbenchOpen) return;
 
     const syncWorkbenchOrigin = () => {
-      const apertureBounds = openerRef.current?.getBoundingClientRect();
+      const apertureBounds = workbenchInvokerRef.current?.getBoundingClientRect() ?? openerRef.current?.getBoundingClientRect();
       if (!apertureBounds) return;
       setWorkbenchOrigin({
         x: apertureBounds.left + apertureBounds.width / 2,
@@ -199,14 +207,32 @@ export default function PortfolioShell() {
 
         <header className="public-header">
           <div className="identity-block">
-            <p className="identity-name">Sam Bai</p>
-            <p>Founder &amp; Product Engineer, Solynth Labs</p>
+            <span className="identity-mark" aria-hidden="true">S/B</span>
+            <div>
+              <p className="identity-name">Sam Bai</p>
+              <p className="identity-role">Founder &amp; Product Engineer, Solynth Labs</p>
+            </div>
+          </div>
+          <div className="identity-location">
             <p>Hamilton, New Zealand</p>
             <p className="identity-time">
-              <span aria-hidden="true">NZT ·&nbsp;</span>
-              <span>
-                <RollingClock time={newZealandTime} />
+              <span>NZT</span>
+              <RollingClock time={newZealandTime} />
+            </p>
+          </div>
+        </header>
+
+        <div className="public-main">
+          <div className="hero-cluster">
+            <h1 className="hero-statement" aria-label="Sam designs and builds software.">
+              <span className="hero-line">Sam designs</span>
+              <span className="hero-line">and builds</span>
+              <span className="hero-line hero-line--last">
+                software<span className="hero-period" aria-hidden="true">.</span>
               </span>
+            </h1>
+            <p className="hero-intro">
+              A personal site: engineering thinking, design, and working experiments.
             </p>
           </div>
 
@@ -223,59 +249,31 @@ export default function PortfolioShell() {
             aria-expanded={isWorkbenchOpen}
           >
             <span className="aperture-bar">
-              <span>Workbench</span>
-              <span className="live-state">
-                <span className="live-dot" aria-hidden="true" />
-                <span aria-hidden="true">Open</span>
-              </span>
+              <span>BaiOS</span>
+              <span className="aperture-edition">Personal operating surface</span>
+            </span>
+            <span className="aperture-heading">
+              <span className="aperture-title">Workbench</span>
+              <span className="aperture-description">An open door to the way I work.</span>
             </span>
             <span className="aperture-body" aria-hidden="true">
-              <span className="aperture-column">
-                <span>BUILD / WORK</span>
-                <span>FIELD / LABS</span>
-                <span>NOTES / LOCAL</span>
+              <span className="aperture-route">
+                <span className="aperture-number">01</span><strong>Build</strong><span>Work &amp; systems</span>
               </span>
-              <span className="aperture-signal">
-                <span>ATLAS / MAP</span>
-                <span>ARCHIVE / BROWSER</span>
-                <span>SESSION / STATE</span>
+              <span className="aperture-route">
+                <span className="aperture-number">02</span><strong>Field</strong><span>Tools &amp; experiments</span>
+              </span>
+              <span className="aperture-route">
+                <span className="aperture-number">03</span><strong>Notes</strong><span>A little thinking space</span>
               </span>
             </span>
-            <span className="aperture-action">Open Workbench</span>
+            <span className="aperture-action">
+              <span>Open Workbench</span><span className="aperture-arrow" aria-hidden="true">↗</span>
+            </span>
           </button>
-        </header>
-
-        <div className="hero-cluster">
-          <h1
-            className="hero-statement"
-            aria-label="Sam designs and builds software."
-          >
-            <span className="hero-line">
-              <span className="hero-line-inner">Sam designs and</span>
-            </span>
-            <span className="hero-line">
-              <span className="hero-line-inner">
-                builds software
-                <span className="hero-period" aria-hidden="true">
-                  .
-                </span>
-              </span>
-            </span>
-          </h1>
-          <p className="hero-coordinates" aria-hidden="true">
-            37.7889°S · 175.4646°E · Hamilton NZ
-          </p>
         </div>
 
         <div className="public-index" id="primary-links">
-          <div className="index-intro">
-            <p className="index-label">Site</p>
-            <p className="index-statement">
-              A personal site: engineering thinking, design, and working
-              experiments.
-            </p>
-          </div>
-
           <nav className="index-group" aria-label="Primary links">
             <p className="index-label" aria-hidden="true">
               Direct
@@ -316,7 +314,7 @@ export default function PortfolioShell() {
             </button>
           </nav>
 
-          <nav className="index-group" aria-label="Social and résumé links">
+          <nav className="index-group index-group--elsewhere" aria-label="Social and résumé links">
             <p className="index-label" aria-hidden="true">
               Elsewhere
             </p>

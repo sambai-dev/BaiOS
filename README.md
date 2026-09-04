@@ -44,7 +44,7 @@ Requires Node.js 24, matching `.nvmrc`, `package.json`, and the Vercel project r
 | TypeScript    | 5.9     | Type safety                                |
 | Tailwind CSS  | v4      | Utility-first styling                      |
 | Framer Motion | 12.x    | Animations and transitions                 |
-| next/font     | Built in | Archivo, Archivo Black, Azeret Mono       |
+| next/font     | Built in | Self-hosted Archivo and Azeret Mono       |
 
 ---
 
@@ -64,7 +64,7 @@ https://www.sambai.dev/?workbench          # or ?app=pulse, ?workspace=field, ?o
 
 ### 2. Workbench (`WorkbenchOSV3`)
 
-An optional second-depth environment loaded dynamically (`ssr: false`) from the shell. It behaves like a small operating surface with draggable, resizable, and snappable windows, a menu bar, system search, Atlas (window overview), three themes, and a registry of working surfaces. The session and Archive persist in the browser. Pulse, Search, and Agent call network-backed services through server routes.
+An optional second-depth environment loaded dynamically (`ssr: false`) from the shell. It behaves like a small operating surface with draggable, resizable, and snappable windows, a menu bar, direct workspace navigation, system search, Atlas (window overview), three themes, and a registry of working surfaces. The session and Archive persist in the browser. Pulse, Search, and Agent call network-backed services through server routes.
 
 ---
 

@@ -31,10 +31,10 @@
 
 .book-header h2 {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(1.8rem, 3.8vw, 3.2rem);
-  font-weight: 400;
-  line-height: 0.9;
+  font-weight: 600;
+  line-height: 1.08;
   letter-spacing: -0.035em;
 }
 
@@ -42,7 +42,7 @@
   max-width: 38rem;
   margin: 0.45rem 0 0;
   color: #46463f;
-  font-size: 0.78rem;
+  font-size: var(--text-small);
   line-height: 1.4;
 }
 
@@ -60,7 +60,7 @@
   border: 1px solid var(--rule-dark);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.6rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
   transition:
     background 160ms ease,
@@ -107,7 +107,7 @@
   margin-bottom: 0.6rem;
   color: #5a5a53;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -152,7 +152,7 @@
 
 .book-model-head strong {
   max-width: 16rem;
-  font-size: 0.86rem;
+  font-size: var(--text-small);
   font-weight: 650;
   line-height: 1.25;
 }
@@ -162,7 +162,7 @@
   flex: 0 1 auto;
   color: var(--cobalt-deep);
   font-family: var(--font-data), monospace;
-  font-size: 0.53rem;
+  font-size: var(--text-micro);
   line-height: 1.35;
   text-align: right;
   text-transform: uppercase;
@@ -173,7 +173,7 @@
   max-width: 54ch;
   margin-top: 0.6rem;
   color: #45453e;
-  font-size: 0.76rem;
+  font-size: var(--text-small);
   line-height: 1.45;
 }
 
@@ -193,7 +193,7 @@
   background: transparent;
   border: 1px solid var(--rule-dark);
   cursor: pointer;
-  font-size: 0.76rem;
+  font-size: var(--text-small);
   line-height: 1.3;
   text-align: left;
   transition:
@@ -214,7 +214,7 @@
 .book-chip-mark {
   color: var(--cobalt);
   font-family: var(--font-data), monospace;
-  font-size: 0.75rem;
+  font-size: var(--text-small);
 }
 
 .book-inputs-grid {
@@ -228,7 +228,7 @@
   margin-bottom: 0.3rem;
   color: #4e4e47;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
 }
 
@@ -274,7 +274,7 @@
 .book-field-error {
   margin: 0.45rem 0 0;
   color: #8f3e29;
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   font-weight: 600;
   line-height: 1.4;
 }
@@ -299,7 +299,7 @@
   display: inline-block;
   color: var(--signal);
   font-family: var(--font-data), monospace;
-  font-size: 0.56rem;
+  font-size: var(--text-micro);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -308,9 +308,9 @@
   max-width: 20rem;
   margin: 0.4rem 0 0;
   color: white;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(1.45rem, 3vw, 2rem);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.025em;
 }
@@ -319,7 +319,7 @@
   max-width: 46ch;
   margin: 0.55rem 0 0;
   color: var(--ivory-muted);
-  font-size: 0.78rem;
+  font-size: var(--text-small);
   line-height: 1.45;
 }
 
@@ -341,7 +341,7 @@
 .book-summary-stats dt {
   color: var(--ivory-muted);
   font-family: var(--font-data), monospace;
-  font-size: 0.54rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
 }
 
@@ -349,7 +349,7 @@
   margin: 0.2rem 0 0;
   overflow-wrap: anywhere;
   color: white;
-  font-size: 0.88rem;
+  font-size: var(--text-body);
   font-weight: 550;
   line-height: 1.35;
 }
@@ -359,7 +359,7 @@
   margin: 1rem 0 1.5rem;
   color: var(--signal);
   font-family: var(--font-data), monospace;
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   line-height: 1.45;
   text-transform: uppercase;
 }
@@ -381,7 +381,7 @@
   padding: 0.6rem 1rem;
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   line-height: 1.3;
   text-align: center;
   text-decoration: none;
@@ -418,7 +418,7 @@
   color: var(--signal);
   background: transparent;
   border: 0;
-  font-size: 0.57rem;
+  font-size: var(--text-micro);
 }
 
 .book-cta-link:hover {
@@ -461,10 +461,10 @@
   max-width: 12ch;
   margin: 0.5rem 0 0;
   color: white;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(1.8rem, 5vw, 2.8rem);
-  font-weight: 400;
-  line-height: 0.98;
+  font-weight: 600;
+  line-height: 1.08;
   letter-spacing: -0.03em;
 }
 
@@ -472,7 +472,7 @@
   max-width: 58ch;
   margin: 0.9rem 0 0;
   color: var(--ivory-muted);
-  font-size: 0.82rem;
+  font-size: var(--text-small);
   line-height: 1.5;
 }
 
@@ -480,7 +480,7 @@
   margin: 1.15rem 0 1.6rem;
   padding-left: 1.1rem;
   color: #cfcecb;
-  font-size: 0.78rem;
+  font-size: var(--text-small);
   line-height: 1.7;
 }
 

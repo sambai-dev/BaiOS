@@ -33,12 +33,12 @@ describe("workbench session defaults", () => {
 
   it("gives the Now orientation enough room to lead the desktop", () => {
     expect(getWorkbenchApp("now")).toMatchObject({
-      defaultWidth: 540,
-      defaultHeight: 500,
+      defaultWidth: 650,
+      defaultHeight: 650,
     });
     expect(createDefaultWorkbenchSession().windows[0]).toMatchObject({
-      width: 540,
-      height: 500,
+      width: 650,
+      height: 650,
       x: 48,
       y: 36,
     });
@@ -121,8 +121,8 @@ describe("workbench session defaults", () => {
       restoreBounds: {
         x: 48,
         y: 36,
-        width: 540,
-        height: 500,
+        width: 650,
+        height: 650,
       },
     });
   });

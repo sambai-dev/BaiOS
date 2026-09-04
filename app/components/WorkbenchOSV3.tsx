@@ -17,6 +17,7 @@ import {
   useState,
 } from "react";
 import WorkbenchAppBoundary from "./WorkbenchAppBoundary";
+import WorkbenchIcon from "./WorkbenchIcon";
 import WorkbenchMenuBar, {
   type WorkbenchMenu,
 } from "./WorkbenchMenuBar";
@@ -2368,8 +2369,8 @@ export default function WorkbenchOSV3({
     if (windowState.appId === "now") {
       return (
         <div className="os-now">
-          <span className="os-now-kicker">Start here / choose a route</span>
-          <h2>Building the company and the products inside it.</h2>
+          <span className="os-now-kicker">Sam Bai / Currently</span>
+          <h2>Ideas into interfaces.<br />Systems into software.</h2>
           <p>
             I work with businesses on software direction and production while
             operating Solynth Labs and building Trekky.app.
@@ -2378,14 +2379,17 @@ export default function WorkbenchOSV3({
             <button type="button" onClick={() => openWindow("sandbox")}>
               <strong>See current work</strong>
               <span>Selected systems and active products</span>
+              <span className="os-now-action-arrow" aria-hidden="true">↗</span>
             </button>
             <button type="button" onClick={() => openWindow("method")}>
               <strong>Explore how I work</strong>
               <span>From product question to shipped software</span>
+              <span className="os-now-action-arrow" aria-hidden="true">↗</span>
             </button>
             <button type="button" onClick={() => openWindow("book")}>
               <strong>Start a project</strong>
               <span>Prepare a concise project brief</span>
+              <span className="os-now-action-arrow" aria-hidden="true">↗</span>
             </button>
           </nav>
           <dl className="os-signal-list">
@@ -2875,6 +2879,28 @@ export default function WorkbenchOSV3({
         portfolioButtonRef={closeButtonRef}
       />
 
+      <nav
+        className="os-workspace-strip"
+        aria-label="Workspaces"
+        aria-hidden={isModalSurfaceOpen || undefined}
+        inert={isModalSurfaceOpen || undefined}
+      >
+        <span className="os-workspace-label">Workspace</span>
+        {workspaces.map((workspace, index) => (
+          <button
+            key={workspace.id}
+            type="button"
+            aria-pressed={activeWorkspaceId === workspace.id}
+            title={`${workspace.description} Alt+${index + 1}`}
+            onClick={() => switchWorkspace(workspace.id)}
+          >
+            <span className="os-workspace-number" aria-hidden="true">0{index + 1}</span>
+            <span>{workspace.label}</span>
+          </button>
+        ))}
+        <span className="os-workspace-note">Session &amp; files stay in this browser</span>
+      </nav>
+
       <input
         ref={importInputRef}
         type="file"
@@ -2911,8 +2937,9 @@ export default function WorkbenchOSV3({
         }}
       >
         <div className="os-field-copy" aria-hidden="true">
-          <span>SAM / PERSONAL WORKBENCH</span>
-          <strong>Build.<br />Ship.<br />Learn.</strong>
+          <span>BAIOS / {activeWorkspace.label}</span>
+          <strong>{activeWorkspace.label}<span className="os-field-period">.</span></strong>
+          <p>{activeWorkspace.description}</p>
         </div>
         <span className="os-coordinate os-coordinate-top" aria-hidden="true">
           {activeWorkspace.label} / {visibleWindows.length.toString().padStart(2, "0")} LIVE
@@ -2932,11 +2959,11 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openArchiveAt(ROOT_FILE_ID)}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">AR</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="archive" /></span>
             <span>Archive</span>
           </button>
           <button type="button" className="os-desktop-object" onClick={openAtlas}>
-            <span className="os-desktop-object-mark" aria-hidden="true">AT</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="atlas" /></span>
             <span>Atlas</span>
           </button>
           <button
@@ -2944,7 +2971,7 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("lab")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">SS</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="lab" /></span>
             <span>Subsurface</span>
           </button>
           <button
@@ -2952,7 +2979,7 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("railshift")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">RS</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="railshift" /></span>
             <span>Railshift</span>
           </button>
           <button
@@ -2960,7 +2987,7 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("pulse")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">PX</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="pulse" /></span>
             <span>Pulse</span>
           </button>
           <button
@@ -2968,7 +2995,7 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("book")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">BR</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="book" /></span>
             <span>Brief</span>
           </button>
           <button
@@ -2976,7 +3003,7 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("sandbox")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">SY</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="sandbox" /></span>
             <span>Systems</span>
           </button>
           <button
@@ -2984,7 +3011,7 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("agent")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">AG</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="agent" /></span>
             <span>Agent</span>
           </button>
           <button
@@ -2992,7 +3019,7 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openWindow("control")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">CC</span>
+            <span className="os-desktop-object-mark"><WorkbenchIcon name="control" /></span>
             <span>Control</span>
           </button>
         </nav>
@@ -3037,8 +3064,19 @@ export default function WorkbenchOSV3({
             inert={isPaletteOpen || undefined}
           >
             <p>{activeWorkspace.label} is clear.</p>
-            <button type="button" onClick={() => openWindow("now")}>Open Now</button>
-            <button type="button" onClick={openPalette}>Search Workbench</button>
+            <span className="os-empty-description">{activeWorkspace.description}</span>
+            <button type="button" onClick={() => {
+              if (activeWorkspaceId === "notes") openArchiveAt(ROOT_FILE_ID);
+              else openWindow(activeWorkspaceId === "field" ? "lab" : "now");
+            }}>
+              {activeWorkspaceId === "notes" ? "Open Archive" : activeWorkspaceId === "field" ? "Play Subsurface" : "Open Now"}
+            </button>
+            <button type="button" onClick={() => {
+              if (activeWorkspaceId === "build") openPalette();
+              else openWindow(activeWorkspaceId === "notes" ? "scratch" : "vector");
+            }}>
+              {activeWorkspaceId === "notes" ? "Open Scratch" : activeWorkspaceId === "field" ? "Explore Vector" : "Search Workbench"}
+            </button>
           </div>
         )}
 
@@ -3117,7 +3155,8 @@ export default function WorkbenchOSV3({
                   onPointerDown={(event) => startDrag(event, windowState.instanceId)}
                   onDoubleClick={() => toggleMaximize(windowState.instanceId)}
                 >
-                  <span>{windowState.title}</span>
+                  <WorkbenchIcon name={windowState.appId} />
+                  <span className="os-window-title">{windowState.title}</span>
                   <span className="os-window-state">
                     {isActive ? "Active" : "Standby"}
                   </span>
@@ -3129,8 +3168,9 @@ export default function WorkbenchOSV3({
                       type="button"
                       aria-label={`Minimize ${windowState.title} window`}
                       onClick={() => minimizeWindow(windowState.instanceId)}
+                      title="Minimize window"
                     >
-                      Minimize
+                      <WorkbenchIcon name="minimize" />
                     </button>
                     <button
                       type="button"
@@ -3138,15 +3178,17 @@ export default function WorkbenchOSV3({
                         windowState.maximized ? "Restore" : "Maximize"
                       } ${windowState.title} window`}
                       onClick={() => toggleMaximize(windowState.instanceId)}
+                      title={windowState.maximized ? "Restore window" : "Maximize window"}
                     >
-                      {windowState.maximized ? "Restore" : "Maximize"}
+                      <WorkbenchIcon name={windowState.maximized ? "restore" : "maximize"} />
                     </button>
                     <button
                       type="button"
                       aria-label={`Close ${windowState.title} window`}
                       onClick={() => closeWindow(windowState.instanceId)}
+                      title="Close window"
                     >
-                      Close
+                      <WorkbenchIcon name="close" />
                     </button>
                   </div>
                 </div>
@@ -3199,7 +3241,7 @@ export default function WorkbenchOSV3({
         >
           <div className="os-dock-label">
             <span>{activeWorkspace.label}</span>
-            <span>Choose an application</span>
+            <span>Applications</span>
           </div>
           {workbenchApps.map((app) => {
             const instances = session.windows.filter(
@@ -3240,6 +3282,7 @@ export default function WorkbenchOSV3({
                   })
                 }
               >
+                <WorkbenchIcon name={app.id} />
                 <span>{app.label}</span>
                 <small>{status}</small>
               </button>

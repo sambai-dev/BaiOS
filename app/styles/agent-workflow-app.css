@@ -24,10 +24,10 @@
 
 .agent-header h2 {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(1.8rem, 3.8vw, 3.2rem);
-  font-weight: 400;
-  line-height: 0.9;
+  font-weight: 600;
+  line-height: 1.08;
   letter-spacing: -0.035em;
 }
 
@@ -35,7 +35,7 @@
   max-width: 36rem;
   margin: 0.45rem 0 0;
   color: #46463f;
-  font-size: 0.76rem;
+  font-size: var(--text-small);
   line-height: 1.4;
 }
 
@@ -53,7 +53,7 @@
   border: 1px solid var(--rule-dark);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
   transition:
     background 160ms ease,
@@ -92,7 +92,7 @@
   display: inline-block;
   color: var(--cobalt-deep);
   font-family: var(--font-data), monospace;
-  font-size: 0.52rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -105,7 +105,7 @@
 
 .agent-prompt-text {
   margin: 0.35rem 0 0.85rem;
-  font-size: 0.84rem;
+  font-size: var(--text-small);
   font-weight: 500;
   line-height: 1.45;
   color: #1e1e1a;
@@ -123,7 +123,7 @@
 .agent-model-badge {
   color: #66665e;
   font-family: var(--font-data), monospace;
-  font-size: 0.54rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -135,7 +135,7 @@
   border: 1px solid var(--cobalt);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.56rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   transition: background 160ms ease;
 }
@@ -168,7 +168,7 @@
   border-bottom: 1px solid rgba(240, 239, 232, 0.15);
   color: var(--ivory);
   font-family: var(--font-data), monospace;
-  font-size: 0.54rem;
+  font-size: var(--text-micro);
 }
 
 .agent-output-title {
@@ -191,7 +191,7 @@
   color: var(--ivory-muted);
   background: #151512;
   border-bottom: 1px solid rgba(240, 239, 232, 0.15);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   line-height: 1.45;
 }
 
@@ -207,7 +207,7 @@
   overflow: auto;
   color: #59df79;
   font-family: var(--font-data), monospace;
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   line-height: 1.5;
   white-space: pre-wrap;
 }
@@ -225,9 +225,9 @@
 
 .agent-sidebar h3 {
   margin: 0.35rem 0 0.55rem;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: 1.35rem;
-  font-weight: 400;
+  font-weight: 600;
   color: white;
 }
 
@@ -237,7 +237,7 @@
   color: var(--ivory-muted);
   border-top: 1px solid var(--rule-light);
   border-bottom: 1px solid var(--rule-light);
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
   line-height: 1.45;
 }
 
@@ -284,19 +284,19 @@
 .agent-step-idx {
   color: var(--ivory-muted);
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 
 .agent-step-head strong {
   flex: 1;
-  font-size: 0.74rem;
+  font-size: var(--text-micro);
   color: white;
 }
 
 .agent-tool-tag {
   color: var(--signal);
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -305,7 +305,7 @@
   color: var(--ivory);
   border: 1px solid currentColor;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -321,7 +321,7 @@
 .agent-step-card p {
   margin: 0;
   color: var(--ivory-muted);
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   line-height: 1.35;
 }
 
@@ -333,7 +333,7 @@
 
 .agent-telemetry-box h4 {
   margin: 0 0 0.35rem;
-  font-size: 0.74rem;
+  font-size: var(--text-micro);
   color: white;
   text-transform: uppercase;
   font-family: var(--font-data), monospace;
@@ -343,7 +343,7 @@
   margin: 0;
   color: var(--signal);
   font-family: var(--font-data), monospace;
-  font-size: 0.64rem;
+  font-size: var(--text-micro);
   line-height: 1.4;
 }
 

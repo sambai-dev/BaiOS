@@ -28,17 +28,17 @@
   margin-bottom: 0.5rem;
   color: var(--cobalt-deep);
   font-family: var(--font-data), monospace;
-  font-size: 0.52rem;
+  font-size: var(--text-micro);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .sandbox-header h2 {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(1.85rem, 4.2cqi, 3.45rem);
-  font-weight: 400;
-  line-height: 0.9;
+  font-weight: 600;
+  line-height: 1.08;
   letter-spacing: -0.035em;
 }
 
@@ -46,7 +46,7 @@
   max-width: 34rem;
   margin: 0.5rem 0 0;
   color: #46463f;
-  font-size: 0.76rem;
+  font-size: var(--text-small);
   line-height: 1.45;
 }
 
@@ -64,7 +64,7 @@
   border: 1px solid var(--rule-dark);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   letter-spacing: 0.055em;
   text-transform: uppercase;
   transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
@@ -127,7 +127,7 @@
   display: inline-block;
   color: var(--cobalt-deep);
   font-family: var(--font-data), monospace;
-  font-size: 0.52rem;
+  font-size: var(--text-small);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -135,9 +135,9 @@
 .sandbox-panel-head h3 {
   max-width: 33rem;
   margin: 0.38rem 0 0;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(1.4rem, 3cqi, 2.05rem);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.02em;
 }
@@ -146,7 +146,7 @@
   max-width: 42rem;
   margin: 0.5rem 0 1.15rem;
   color: #4b4b44;
-  font-size: 0.78rem;
+  font-size: var(--text-small);
   line-height: 1.5;
 }
 
@@ -187,13 +187,13 @@
 .sandbox-layer-grid button span {
   color: var(--cobalt-deep);
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   letter-spacing: 0.08em;
 }
 
 .sandbox-flow-track button strong,
 .sandbox-layer-grid button strong {
-  font-size: 0.76rem;
+  font-size: var(--text-small);
   font-weight: 650;
 }
 
@@ -231,7 +231,7 @@
 .sandbox-layer-detail p {
   margin: 0.45rem 0 0;
   color: #3f3f39;
-  font-size: 0.78rem;
+  font-size: var(--text-small);
   line-height: 1.5;
 }
 
@@ -243,7 +243,7 @@
   color: var(--ivory) !important;
   background: var(--carbon);
   font-family: var(--font-data), monospace;
-  font-size: 0.61rem !important;
+  font-size: var(--text-micro) !important;
   line-height: 1.55 !important;
 }
 
@@ -268,7 +268,7 @@
 .sandbox-sidebar-facts dt {
   color: #55554e;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -276,7 +276,7 @@
 .sandbox-facts-grid dd,
 .sandbox-sidebar-facts dd {
   margin: 0.3rem 0 0;
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   font-weight: 650;
   line-height: 1.35;
 }
@@ -297,15 +297,15 @@
   max-width: 18rem;
   margin: 0.45rem 0 0.9rem;
   color: var(--ivory);
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: 1.35rem;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.05;
 }
 
 .sandbox-sidebar p {
   color: var(--ivory-muted);
-  font-size: 0.76rem;
+  font-size: var(--text-small);
   line-height: 1.55;
 }
 
@@ -313,7 +313,7 @@
   margin: 0;
   padding: 0;
   color: var(--ivory-muted);
-  font-size: 0.74rem;
+  font-size: var(--text-micro);
   line-height: 1.55;
   list-style: none;
 }
@@ -336,7 +336,7 @@
   padding-left: 0.75rem;
   border-left: 2px solid var(--signal);
   font-family: var(--font-data), monospace;
-  font-size: 0.61rem !important;
+  font-size: var(--text-micro) !important;
 }
 
 .sandbox-architecture-status {
@@ -347,7 +347,7 @@
   padding: 0.75rem 0.85rem;
   border-bottom: 1px solid var(--rule-dark);
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   letter-spacing: 0.055em;
   text-transform: uppercase;
 }
@@ -387,7 +387,7 @@
 
 .sandbox-layer-detail h4 {
   margin: 0.35rem 0 0;
-  font-size: 0.95rem;
+  font-size: var(--text-body);
 }
 
 .sandbox-sidebar-facts {
@@ -434,7 +434,7 @@
   color: var(--ivory);
   background: var(--carbon);
   font-family: var(--font-data), monospace;
-  font-size: 0.56rem;
+  font-size: var(--text-micro);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -461,7 +461,7 @@
   border: 1px solid var(--rule-dark);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.56rem;
+  font-size: var(--text-small);
   letter-spacing: 0.055em;
   text-transform: uppercase;
   transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
@@ -485,7 +485,7 @@
 .sandbox-slider-control label {
   color: #55554e;
   font-family: var(--font-data), monospace;
-  font-size: 0.52rem;
+  font-size: var(--text-small);
   letter-spacing: 0.045em;
   text-transform: uppercase;
 }
@@ -498,7 +498,7 @@
 
 .sandbox-slider-head output {
   font-family: var(--font-data), monospace;
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   font-weight: 650;
 }
 
@@ -518,7 +518,7 @@
   border: 1px solid var(--cobalt);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   letter-spacing: 0.055em;
   text-transform: uppercase;
   transition: background 160ms ease;
