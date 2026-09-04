@@ -781,8 +781,16 @@ export default function RailshiftLab({
       const finalScore = Math.floor(model.score);
       commitStatus("crashed");
       setHud(hudFromModel(model, smoothedFps));
-      setBest((current) => {
-        const next = Math.max(current, finalScore);
+      // Read storage at commit time: two open instances racing setBest(c=>…)
+      // on stale per-instance state could otherwise downgrade the saved best.
+      setBest(() => {
+        let next = finalScore;
+        try {
+          const stored = Number(window.localStorage.getItem(BEST_SCORE_KEY));
+          if (Number.isFinite(stored)) next = Math.max(stored, finalScore);
+        } catch {
+          /* persistence is optional */
+        }
         try {
           window.localStorage.setItem(BEST_SCORE_KEY, String(next));
         } catch {
@@ -790,8 +798,15 @@ export default function RailshiftLab({
         }
         return next;
       });
-      setBestDistance((current) => {
-        const next = Math.max(current, Math.floor(model.distance));
+      setBestDistance(() => {
+        const finalDistance = Math.floor(model.distance);
+        let next = finalDistance;
+        try {
+          const stored = Number(window.localStorage.getItem(BEST_DISTANCE_KEY));
+          if (Number.isFinite(stored)) next = Math.max(stored, finalDistance);
+        } catch {
+          /* persistence is optional */
+        }
         try {
           window.localStorage.setItem(BEST_DISTANCE_KEY, String(next));
         } catch {

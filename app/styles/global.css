@@ -190,7 +190,7 @@ template {
 .hero-cluster {
   position: relative;
   align-self: center;
-  max-width: min(80vw, 96rem);
+  max-width: min(88vw, 96rem);
   margin: clamp(3rem, 6vh, 5rem) 0 clamp(2rem, 4vh, 3.5rem);
 }
 

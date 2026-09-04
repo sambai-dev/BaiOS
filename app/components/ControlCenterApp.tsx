@@ -164,7 +164,6 @@ export default function ControlCenterApp({
     <section
       className="control-center-app"
       aria-label="Workbench control center"
-      aria-busy={isSaving}
     >
       <header className="control-center-header">
         <div className="control-center-identity">
@@ -401,7 +400,6 @@ export default function ControlCenterApp({
                 type="button"
                 className="control-center-action control-center-action-primary"
                 onClick={onExportSession}
-                disabled={isSaving}
               >
                 <span>
                   <strong>Export session</strong>
@@ -415,7 +413,6 @@ export default function ControlCenterApp({
                 type="button"
                 className="control-center-action"
                 onClick={() => setPendingAction("import")}
-                disabled={isSaving}
                 aria-expanded={pendingAction === "import"}
                 aria-controls={
                   pendingAction === "import"
@@ -435,7 +432,6 @@ export default function ControlCenterApp({
                 type="button"
                 className="control-center-action"
                 onClick={() => setPendingAction("restore")}
-                disabled={isSaving}
                 aria-expanded={pendingAction === "restore"}
                 aria-controls={
                   pendingAction === "restore"
@@ -483,7 +479,7 @@ export default function ControlCenterApp({
 
             {isSaving ? (
               <p className="control-center-saving-note" role="status">
-                Session controls resume when the local save completes.
+                Saving the local session…
               </p>
             ) : null}
           </section>

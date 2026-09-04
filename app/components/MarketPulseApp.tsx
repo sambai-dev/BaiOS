@@ -67,8 +67,31 @@ function formatUpdateTime(value: string) {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+    timeZone: "Pacific/Auckland",
     timeZoneName: "short",
   }).format(date);
+}
+
+function createDeadlineSignal(ms: number): { signal: AbortSignal; cleanup: () => void } {
+  // AbortSignal.timeout / AbortSignal.any are missing on older Safari. Fall
+  // back to a plain controller + setTimeout so those browsers still get a
+  // deadline instead of a false "unavailable" error.
+  if (
+    typeof AbortSignal.timeout === "function" &&
+    typeof AbortSignal.any === "function"
+  ) {
+    const timeout = AbortSignal.timeout(ms);
+    return {
+      signal: timeout,
+      cleanup: () => {},
+    };
+  }
+  const controller = new AbortController();
+  const timer = window.setTimeout(
+    () => controller.abort(new DOMException("Timed out", "TimeoutError")),
+    ms,
+  );
+  return { signal: controller.signal, cleanup: () => window.clearTimeout(timer) };
 }
 
 function MarketChart({ coin }: { coin: MarketCoin }) {
@@ -77,6 +100,13 @@ function MarketChart({ coin }: { coin: MarketCoin }) {
   const paddingX = 6;
   const paddingY = 14;
   const values = coin.prices24h;
+  if (!values.length) {
+    return (
+      <p className="pulse-chart-empty" role="img" aria-label={`${coin.name} has no chart data for the last 24 hours`}>
+        No chart data for the last 24 hours.
+      </p>
+    );
+  }
   const minimum = Math.min(...values);
   const maximum = Math.max(...values);
   const span = Math.max(maximum - minimum, Math.abs(maximum) * 0.001, 1);
@@ -153,15 +183,24 @@ export default function MarketPulseApp({ isPresented }: MarketPulseAppProps) {
 
       // Client-side deadline: the route now bounds CoinGecko upstream, but
       // this keeps a stalled response from pinning the UI in loading forever.
-      const deadline = AbortSignal.timeout(12_000);
-      const signal = AbortSignal.any([lifecycleSignal, deadline]);
+      const { signal: deadline, cleanup: clearDeadline } =
+        createDeadlineSignal(12_000);
+      const combined =
+        typeof AbortSignal.any === "function"
+          ? AbortSignal.any([lifecycleSignal, deadline])
+          : lifecycleSignal;
 
       try {
         const response = await fetch(`/api/crypto?currency=${currency}`, {
           cache: "no-store",
-          signal,
+          signal: combined,
         });
-      const result: unknown = await response.json();
+        let result: unknown;
+        try {
+          result = await response.json();
+        } catch {
+          throw new Error("Market data returned an unreadable response.");
+        }
       if (!response.ok) {
         const message =
           result && typeof result === "object" && "error" in result
@@ -205,6 +244,8 @@ export default function MarketPulseApp({ isPresented }: MarketPulseAppProps) {
             ? caught.message
             : "Market data is unavailable right now.",
       );
+    } finally {
+      clearDeadline();
     }
   }, [currency]);
 
@@ -407,15 +448,18 @@ export default function MarketPulseApp({ isPresented }: MarketPulseAppProps) {
         <LoadingState label={loadingLabel} />
       )}
 
-      <footer className="pulse-footer" aria-live="polite">
+      <footer className="pulse-footer">
         <span>
           {payload?.stale ? "Cached market snapshot" : "CoinGecko market data"}
           {payload ? ` · ${formatUpdateTime(payload.sourceUpdatedAt)}` : ""}
         </span>
-        <a href="https://www.coingecko.com/" target="_blank" rel="noreferrer">
+        <a href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer">
           Data by CoinGecko
         </a>
       </footer>
+      <p className="sr-only" role="status">
+        {status === "error" && error ? `Market refresh failed: ${error}` : ""}
+      </p>
     </div>
   );
 }

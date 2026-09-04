@@ -277,11 +277,16 @@ export default function BookConsultApp() {
       projectNotes,
     };
 
-    try {
-      window.localStorage.setItem(BOOK_DRAFT_KEY, JSON.stringify(draft));
-    } catch {
-      /* The brief remains usable in-memory when storage is unavailable. */
-    }
+    // Debounce: name/email/notes fire per keystroke and localStorage writes
+    // are synchronous. Batch them so typing never janks.
+    const timer = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(BOOK_DRAFT_KEY, JSON.stringify(draft));
+      } catch {
+        /* The brief remains usable in-memory when storage is unavailable. */
+      }
+    }, 350);
+    return () => window.clearTimeout(timer);
   }, [
     serviceArea,
     selectedFocusAreas,
@@ -408,7 +413,10 @@ Email Sam Bai at Solynth Labs to discuss this brief.
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = "sam-bai-project-brief.md";
+    // Firefox blocks downloads from detached anchors. Mount briefly.
+    document.body.appendChild(anchor);
     anchor.click();
+    anchor.remove();
     URL.revokeObjectURL(url);
   };
 

@@ -39,11 +39,22 @@ export default class WorkbenchAppBoundary extends Component<
     return null;
   }
 
+  componentDidCatch(error: unknown) {
+    console.error(error);
+  }
+
+  private handleRetry = () => {
+    this.setState({ hasError: false });
+  };
+
   render() {
     if (this.state.hasError) {
       return (
         <div className="os-app-loading" role="alert" aria-atomic="true">
           <span>Application interrupted. Reload this app to try again.</span>
+          <button type="button" onClick={this.handleRetry}>
+            Reload app
+          </button>
         </div>
       );
     }

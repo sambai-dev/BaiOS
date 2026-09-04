@@ -8,6 +8,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -137,26 +138,41 @@ export default function ArchiveApp({
   const deleteDialogTitleId = useId();
   const deleteDialogDescriptionId = useId();
 
-  const fileIndex = indexWorkbenchFiles(files);
-  const requestedFolder = fileIndex.getNode(currentFolderId);
-  const currentFolder = isContainer(requestedFolder)
-    ? requestedFolder
-    : fileIndex.getNode(ROOT_FILE_ID);
-  const resolvedFolderId = currentFolder?.id ?? ROOT_FILE_ID;
-  const isTrashView =
-    resolvedFolderId === TRASH_FILE_ID ||
-    fileIndex.isNodeInTrash(resolvedFolderId);
+  // One memo over immutable inputs (files snapshot, ids, raw query) so the
+  // index, folder resolution, and search share a single cached read model.
+  // Deps stay primitive/immutable. The React Compiler cannot prove a frozen
+  // index object is never mutated, so it must not appear as a dep.
+  const { fileIndex, currentFolder, resolvedFolderId, isTrashView, displayItems } =
+    useMemo(() => {
+      const index = indexWorkbenchFiles(files);
+      const requested = index.getNode(currentFolderId);
+      const folder = isContainer(requested)
+        ? requested
+        : index.getNode(ROOT_FILE_ID);
+      const folderId = folder?.id ?? ROOT_FILE_ID;
+      const trashView =
+        folderId === TRASH_FILE_ID || index.isNodeInTrash(folderId);
+      const trimmedQuery = query.trim();
+      let items: readonly FileNode[];
+      if (!trimmedQuery) {
+        items = index.listChildren(folderId);
+      } else {
+        const results = index.search(trimmedQuery, {
+          includeTrash: trashView,
+        });
+        items = trashView
+          ? results.filter((node) => index.isNodeInTrash(node.id))
+          : results;
+      }
+      return {
+        fileIndex: index,
+        currentFolder: folder,
+        resolvedFolderId: folderId,
+        isTrashView: trashView,
+        displayItems: items,
+      };
+    }, [files, currentFolderId, query]);
   const normalizedQuery = query.trim();
-
-  const displayItems = (() => {
-    if (!normalizedQuery) return fileIndex.listChildren(resolvedFolderId);
-    const results = fileIndex.search(normalizedQuery, {
-      includeTrash: isTrashView,
-    });
-    return isTrashView
-      ? results.filter((node) => fileIndex.isNodeInTrash(node.id))
-      : results;
-  })();
 
   const renderedItems = displayItems.slice(0, renderedItemLimit);
   const renderedItemIds = new Set(renderedItems.map((node) => node.id));

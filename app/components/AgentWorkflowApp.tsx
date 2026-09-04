@@ -101,6 +101,8 @@ export default function AgentWorkflowApp({
   const abortRef = useRef<AbortController | null>(null);
   const clockRef = useRef<number | null>(null);
   const runStartedAtRef = useRef<number | null>(null);
+  const isRunningRef = useRef(false);
+  const askInputRef = useRef<HTMLInputElement>(null);
 
   const stopClock = useCallback(() => {
     if (clockRef.current !== null) {
@@ -131,7 +133,11 @@ export default function AgentWorkflowApp({
   const runPrompt = useCallback(
     async (prompt: string, source: PromptSource) => {
       const submittedPrompt = prompt.trim();
-      if (!submittedPrompt || isRunning) return;
+      if (!submittedPrompt || isRunningRef.current) return;
+      // Abort any orphaned controller before starting. The isRunning state
+      // closure can be stale on rapid double-run, the ref cannot.
+      abortRef.current?.abort();
+      isRunningRef.current = true;
       playSound("chime");
       setLastRun({ prompt: submittedPrompt, source });
       if (source === "custom") setSelectedPreset(null);
@@ -162,8 +168,15 @@ export default function AgentWorkflowApp({
         if (!response.ok || !response.body) {
           let message = "The AI service refused that request.";
           try {
-            const data = (await response.json()) as { error?: string };
-            if (data.error) message = data.error;
+            const contentType =
+              response.headers.get("content-type") ?? "";
+            if (contentType.includes("application/json")) {
+              const data = (await response.json()) as { error?: string };
+              if (data.error) message = data.error;
+            } else {
+              const text = await response.text();
+              if (text.trim()) message = text.trim().slice(0, 300);
+            }
           } catch {
             /* keep default */
           }
@@ -242,6 +255,11 @@ export default function AgentWorkflowApp({
         buffer += decoder.decode();
         handleEvents(buffer.split("\n\n"));
         buffer = "";
+        try {
+          reader.releaseLock();
+        } catch {
+          /* lock already released on abort */
+        }
 
         if (controller.signal.aborted) {
           throw new DOMException("The run was stopped.", "AbortError");
@@ -282,10 +300,16 @@ export default function AgentWorkflowApp({
         if (startedAt !== null) setElapsedMs(Date.now() - startedAt);
         runStartedAtRef.current = null;
         abortRef.current = null;
+        isRunningRef.current = false;
         setIsRunning(false);
+        // The Abort button unmounts when the run ends. Return focus so
+        // keyboard users are not dropped to <body>.
+        window.requestAnimationFrame(() => {
+          askInputRef.current?.focus({ preventScroll: true });
+        });
       }
     },
-    [isRunning, stopClock],
+    [stopClock],
   );
 
   const runPreset = useCallback(
@@ -385,6 +409,7 @@ export default function AgentWorkflowApp({
             }}
           >
             <input
+              ref={askInputRef}
               className="agent-ask-input"
               name="agent-prompt"
               type="text"

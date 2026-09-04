@@ -27,6 +27,7 @@ function RollingClock({ time }: { time: string }) {
 
 export default function PortfolioShell() {
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState(false);
+  const [isWorkbenchExiting, setIsWorkbenchExiting] = useState(false);
   const [hasOpenedWorkbench, setHasOpenedWorkbench] = useState(false);
   const [newZealandTime, setNewZealandTime] = useState("--:--");
   const [workbenchOrigin, setWorkbenchOrigin] = useState({ x: 72, y: 72 });
@@ -41,7 +42,7 @@ export default function PortfolioShell() {
         timeZone: "Pacific/Auckland",
         hour: "2-digit",
         minute: "2-digit",
-        hour12: false,
+        hourCycle: "h23",
       }),
     []
   );
@@ -63,6 +64,7 @@ export default function PortfolioShell() {
       });
     }
     setHasOpenedWorkbench(true);
+    setIsWorkbenchExiting(false);
     setIsWorkbenchOpen(true);
   }, []);
 
@@ -82,6 +84,7 @@ export default function PortfolioShell() {
 
   const closeWorkbench = useCallback(() => {
     setIsWorkbenchOpen(false);
+    setIsWorkbenchExiting(true);
     setDeepLink(null);
     if (typeof window !== "undefined") {
       const nextUrl = new URL(window.location.href);
@@ -121,8 +124,19 @@ export default function PortfolioShell() {
   useEffect(() => {
     const tick = () => setNewZealandTime(timeFormatter.format(new Date()));
     tick();
-    const interval = window.setInterval(tick, 30_000);
-    return () => window.clearInterval(interval);
+    let interval: number | undefined;
+    // Align to the next minute boundary so the clock never sits up to 30s stale.
+    const now = new Date();
+    const msToNextMinute =
+      (60 - now.getSeconds()) * 1_000 - now.getMilliseconds() + 250;
+    const timeout = window.setTimeout(() => {
+      tick();
+      interval = window.setInterval(tick, 60_000);
+    }, Math.max(250, msToNextMinute));
+    return () => {
+      if (timeout !== undefined) window.clearTimeout(timeout);
+      if (interval !== undefined) window.clearInterval(interval);
+    };
   }, [timeFormatter]);
 
   useEffect(
@@ -134,8 +148,18 @@ export default function PortfolioShell() {
     [],
   );
 
+  const handleWorkbenchExitComplete = useCallback(() => {
+    setIsWorkbenchExiting(false);
+    restoreWorkbenchFocus();
+  }, [restoreWorkbenchFocus]);
+
+  // Keep the public surface inert (and scroll-locked) for the full overlay
+  // lifecycle, including the exit reveal. Otherwise background links become
+  // interactive while the Workbench is still animating out.
+  const isBackgroundLocked = isWorkbenchOpen || isWorkbenchExiting;
+
   useEffect(() => {
-    if (!isWorkbenchOpen) return;
+    if (!isBackgroundLocked) return;
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -143,7 +167,7 @@ export default function PortfolioShell() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [isWorkbenchOpen]);
+  }, [isBackgroundLocked]);
 
   useEffect(() => {
     if (!isWorkbenchOpen) return;
@@ -166,8 +190,8 @@ export default function PortfolioShell() {
       <section
         className="public-surface"
         aria-label="Sam Bai portfolio"
-        aria-hidden={isWorkbenchOpen || undefined}
-        inert={isWorkbenchOpen ? true : undefined}
+        aria-hidden={isBackgroundLocked || undefined}
+        inert={isBackgroundLocked ? true : undefined}
       >
         <a className="skip-link" href="#primary-links">
           Skip to links
@@ -180,13 +204,9 @@ export default function PortfolioShell() {
             <p>Hamilton, New Zealand</p>
             <p className="identity-time">
               <span aria-hidden="true">NZT ·&nbsp;</span>
-              <time
-                dateTime={
-                  newZealandTime === "--:--" ? undefined : newZealandTime
-                }
-              >
+              <span>
                 <RollingClock time={newZealandTime} />
-              </time>
+              </span>
             </p>
           </div>
 
@@ -249,8 +269,11 @@ export default function PortfolioShell() {
 
         <div className="public-index" id="primary-links">
           <div className="index-intro">
-            <p className="index-label">Status</p>
-            <p className="index-statement">Open to B2B software projects.</p>
+            <p className="index-label">Site</p>
+            <p className="index-statement">
+              A personal site: engineering thinking, design, and working
+              experiments.
+            </p>
           </div>
 
           <nav className="index-group" aria-label="Primary links">
@@ -259,8 +282,8 @@ export default function PortfolioShell() {
             </p>
             <a
               className="index-link index-link--email"
-              href="mailto:sambai.codes@gmail.com?subject=Project%20enquiry"
-              aria-label="Email Sam about a software project"
+              href="mailto:sambai.codes@gmail.com?subject=Hello"
+              aria-label="Email Sam"
             >
               <span className="index-link-text">sambai.codes@gmail.com</span>
               <span className="index-arrow" aria-hidden="true">
@@ -271,7 +294,7 @@ export default function PortfolioShell() {
               className="index-link"
               href="https://solynthlabs.com"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <span className="index-link-text">Solynth Labs</span>
               <span className="index-arrow" aria-hidden="true">
@@ -301,7 +324,7 @@ export default function PortfolioShell() {
               className="index-link"
               href="https://github.com/sambai-dev"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <span className="index-link-text">GitHub</span>
               <span className="index-arrow" aria-hidden="true">
@@ -312,7 +335,7 @@ export default function PortfolioShell() {
               className="index-link"
               href="https://github.com/sambai-dev/BaiOS"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <span className="index-link-text">BaiOS Source</span>
               <span className="index-arrow" aria-hidden="true">
@@ -323,7 +346,7 @@ export default function PortfolioShell() {
               className="index-link"
               href="https://www.linkedin.com/in/sam-bai1/"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <span className="index-link-text">LinkedIn</span>
               <span className="index-arrow" aria-hidden="true">
@@ -334,7 +357,7 @@ export default function PortfolioShell() {
               className="index-link"
               href="/resume/SamBai_Resume.8aa80702.pdf"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <span className="index-link-text">Résumé</span>
               <span className="index-arrow" aria-hidden="true">
@@ -349,7 +372,7 @@ export default function PortfolioShell() {
         <WorkbenchOverlay
           deepLink={deepLink}
           onClose={closeWorkbench}
-          onExitComplete={restoreWorkbenchFocus}
+          onExitComplete={handleWorkbenchExitComplete}
           open={isWorkbenchOpen}
           revealOrigin={workbenchOrigin}
           time={newZealandTime}

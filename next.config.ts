@@ -3,6 +3,15 @@
 
 import type { NextConfig } from "next";
 
+// React's development build uses eval() for debugging features, so the
+// local dev server needs 'unsafe-eval'. Production never uses eval(), so
+// the deployed policy stays without it.
+const scriptSrc = [
+  "'self'",
+  "'unsafe-inline'",
+  ...(process.env.NODE_ENV === "development" ? ["'unsafe-eval'"] : []),
+].join(" ");
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -13,7 +22,7 @@ const contentSecurityPolicy = [
   "img-src 'self' data: blob:",
   "media-src 'self'",
   "object-src 'none'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src ${scriptSrc}`,
   "style-src 'self' 'unsafe-inline'",
   "worker-src 'self' blob:",
 ].join("; ");

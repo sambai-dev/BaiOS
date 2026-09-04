@@ -8,21 +8,21 @@ web
 
 ## Users
 
-The primary audience is prospective B2B software clients and collaborators evaluating Sam Bai's judgment, range, and ability to move from an unclear software question to a working product. Hiring teams and peers are a secondary audience and should still be able to reach the résumé, GitHub, and LinkedIn.
+This is a personal website. The primary audience is anyone curious how Sam Bai thinks and builds: peers, collaborators, and hiring teams evaluating judgment, range, and the ability to move from an unclear software question to working software. Visitors should be able to reach the résumé, GitHub, and LinkedIn, and optionally go deeper in the Workbench.
 
 ## Product Purpose
 
 This personal portfolio helps people understand who Sam is, see how he thinks across product direction, design engineering, and production, and choose a clear next step: email Sam, visit Solynth Labs, or open his personal Workbench.
 
-Success means the public surface communicates identity and current focus through the exact statement “Sam designs and builds software.” and the status “Open to B2B software projects.” It provides direct routes to a conventional email address, Solynth Labs, and the optional Workbench. Trekky remains a deeper proof surface inside the Workbench rather than another competing message at arrival. The Workbench is evidence in itself: a functioning browser-based environment whose windowing, local files, tools, experiments, and recovery controls reveal how Sam thinks about software.
+Success means the public surface communicates identity and current focus through the exact statement “Sam designs and builds software.” and the personal framing “A personal site: engineering thinking, design, and working experiments.” It provides direct routes to a conventional email address, Solynth Labs, and the optional Workbench. Trekky remains a deeper proof surface inside the Workbench rather than another competing message at arrival. The Workbench is evidence in itself: a functioning browser-based environment whose windowing, local files, tools, experiments, and recovery controls reveal how Sam thinks about software.
 
 ## Positioning
 
-Sam is Founder & Product Engineer at Solynth Labs. He works across consultation and hands-on production: clarifying software decisions, shaping systems, building interfaces and workflows, and operating owned products. The personal portfolio should show the human judgment behind Solynth rather than duplicate the company sales site.
+Sam is Founder & Product Engineer at Solynth Labs. He works across hands-on production: clarifying software decisions, shaping systems, building interfaces and workflows, and operating owned products. The personal portfolio shows the human judgment behind the work: engineering thinking, design skills, and working experiments, rather than duplicating the company site.
 
 ## Operating Context
 
-- B2B software consultation and production through Solynth Labs.
+- Personal engineering work and production through Solynth Labs.
 - Product direction, software systems, AI workflows, design engineering, and production delivery.
 - Working capability across React, Next.js, TypeScript, Node.js, PostgreSQL, Drizzle ORM, Supabase, Neon, Cloudflare, React Native, iOS, Android, and SaaS systems.
 - Building and operating Trekky.app as a Solynth Labs product.
@@ -92,7 +92,7 @@ Workbench session and Archive data stay in this browser. There is no account, lo
 1. Lead with identity and judgment, not a logo wall, project grid, or generic claims.
 2. Make the public path immediately legible; make personality optional and discoverable.
 3. Show software as manipulable systems, with interaction revealing how the work behaves.
-4. Use progressive disclosure so a fast-moving client gets clarity and a curious expert finds depth.
+4. Use progressive disclosure so a fast-moving visitor gets clarity and a curious expert finds depth.
 5. Keep every claim and artifact truthful, and let specificity, not decoration, create personality.
 6. Treat local data honestly: disclose its scope, provide backup and recovery, and never imply an account, remote storage, or sync for that data. Disclose network-backed tools separately.
 7. Preserve each task across responsive modes; change the interaction model instead of shrinking desktop chrome until it fails.

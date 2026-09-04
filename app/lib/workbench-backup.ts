@@ -295,7 +295,9 @@ function isStrictWindow(value: unknown): value is StrictWorkbenchWindowInput {
     value.instanceId.length > 160 ||
     !isWorkbenchAppId(value.appId) ||
     typeof value.title !== "string" ||
+    value.title.trim().length === 0 ||
     value.title.length > 240 ||
+    /[\u0000-\u001f\u007f]/.test(value.title) ||
     !isWorkspaceId(value.workspaceId) ||
     !isFiniteNumber(
       value.x,
@@ -326,7 +328,13 @@ function isStrictWindow(value: unknown): value is StrictWorkbenchWindowInput {
     dataEntries.length <= 30 &&
     dataEntries.every(
       ([key, item]) =>
-        key.length > 0 && key.length <= 120 && typeof item === "string",
+        key.length > 0 &&
+        key.length <= 120 &&
+        key !== "__proto__" &&
+        key !== "constructor" &&
+        key !== "prototype" &&
+        typeof item === "string" &&
+        item.length <= 524_288,
     )
   );
 }
@@ -346,6 +354,7 @@ export function parseStrictWorkbenchSession(value: unknown): WorkbenchSession | 
     !Array.isArray(value.windows) ||
     value.windows.length > MAX_WINDOW_COUNT ||
     typeof value.scratch !== "string" ||
+    value.scratch.length > 524_288 ||
     (value.methodStep !== "clarify" &&
       value.methodStep !== "shape" &&
       value.methodStep !== "ship" &&
@@ -389,17 +398,29 @@ export function parseStrictWorkbenchSession(value: unknown): WorkbenchSession | 
     if (activeInstanceId !== null && typeof activeInstanceId !== "string") {
       return null;
     }
-    if (
-      typeof activeInstanceId === "string" &&
-      !windows.some(
+    if (typeof activeInstanceId === "string") {
+      if (
+        !windows.some(
+          (windowState) =>
+            windowState.instanceId === activeInstanceId &&
+            windowState.workspaceId === workspaceId &&
+            windowState.open &&
+            !windowState.minimized,
+        )
+      ) {
+        return null;
+      }
+    } else {
+      // A null active instance while visible windows exist would be silently
+      // auto-filled by the lenient parser below. Reject it here so strict
+      // validation never returns an object that differs from its input.
+      const hasVisible = windows.some(
         (windowState) =>
-          windowState.instanceId === activeInstanceId &&
           windowState.workspaceId === workspaceId &&
           windowState.open &&
           !windowState.minimized,
-      )
-    ) {
-      return null;
+      );
+      if (hasVisible) return null;
     }
   }
 

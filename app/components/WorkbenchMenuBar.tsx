@@ -101,8 +101,17 @@ export default function WorkbenchMenuBar({
       Math.max(bounds.left, MENU_GUTTER),
       Math.max(MENU_GUTTER, window.innerWidth - popupWidth - MENU_GUTTER),
     );
+    // Clamp vertically: a short viewport must not push the popup off-screen.
+    const estimatedHeight = Math.min(
+      window.innerHeight - MENU_GUTTER * 2,
+      320,
+    );
+    const top = Math.min(
+      bounds.bottom,
+      Math.max(MENU_GUTTER, window.innerHeight - estimatedHeight - MENU_GUTTER),
+    );
 
-    setMenuPosition({ left, top: bounds.bottom });
+    setMenuPosition({ left, top });
   }, []);
 
   const focusMenuItem = useCallback((menuId: string, itemIndex: number) => {
@@ -179,13 +188,20 @@ export default function WorkbenchMenuBar({
   const selectItem = useCallback(
     (item: WorkbenchMenuItem) => {
       if (item.disabled) return;
-      const triggerIndex = openMenuIndex;
-      if (triggerIndex !== null) {
-        triggerRefs.current[triggerIndex]?.focus({ preventScroll: true });
-      }
+      // Run the action first so it can claim focus (palette, guard, dialog);
+      // only fall back to the trigger when focus was not moved.
       setOpenMenuIndex(null);
       setActiveItemIndex(-1);
       item.onSelect();
+      window.requestAnimationFrame(() => {
+        const active = document.activeElement;
+        if (active === document.body || active === null) {
+          const triggerIndex = openMenuIndex;
+          if (triggerIndex !== null) {
+            triggerRefs.current[triggerIndex]?.focus({ preventScroll: true });
+          }
+        }
+      });
     },
     [openMenuIndex],
   );
@@ -328,7 +344,7 @@ export default function WorkbenchMenuBar({
     >
       <div className="wmb-leading">
         <span className="wmb-mark" aria-hidden="true">S/B</span>
-        <div className="wmb-context" aria-live="polite">
+        <div className="wmb-context">
           <span className="wmb-context-name">Workbench</span>
           <strong>{activeAppLabel}</strong>
         </div>
@@ -382,7 +398,7 @@ export default function WorkbenchMenuBar({
       <div className="wmb-system" role="group" aria-label="System controls">
         <div className="wmb-system-data">
           <span className="wmb-workspace"><i aria-hidden="true" />{workspaceLabel}</span>
-          <time>{time}</time>
+          <span>{time}</span>
         </div>
         <button
           type="button"

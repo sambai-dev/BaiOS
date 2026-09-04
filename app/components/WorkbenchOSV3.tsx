@@ -540,7 +540,8 @@ export default function WorkbenchOSV3({
   );
 
   useEffect(() => {
-    window.requestAnimationFrame(() => overlayRef.current?.focus());
+    const frame = window.requestAnimationFrame(() => overlayRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -1354,7 +1355,10 @@ export default function WorkbenchOSV3({
       const anchor = document.createElement("a");
       anchor.href = href;
       anchor.download = `sam-workbench-${workbenchBackupDateFormat.format(new Date())}.json`;
+      // Firefox blocks downloads from detached anchors. Mount briefly.
+      document.body.appendChild(anchor);
       anchor.click();
+      anchor.remove();
       URL.revokeObjectURL(href);
       setNotice("Session backup exported with local Archive content.");
       return true;
@@ -1774,17 +1778,24 @@ export default function WorkbenchOSV3({
   }, [commitWindowResult, getDesktopBounds, updateSession]);
 
   useEffect(() => {
+    let frame = 0;
     const fitDesktopWindows = () => {
-      if (window.matchMedia("(max-width: 980px)").matches) return;
-      const bounds = getDesktopBounds();
-      if (!bounds) return;
-      updateSession((current) => ({
-        ...current,
-        windows: fitWindowsToBounds(current.windows, bounds),
-      }));
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        if (window.matchMedia("(max-width: 980px)").matches) return;
+        const bounds = getDesktopBounds();
+        if (!bounds) return;
+        updateSession((current) => ({
+          ...current,
+          windows: fitWindowsToBounds(current.windows, bounds),
+        }));
+      });
     };
     window.addEventListener("resize", fitDesktopWindows);
-    return () => window.removeEventListener("resize", fitDesktopWindows);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", fitDesktopWindows);
+    };
   }, [getDesktopBounds, updateSession]);
 
   const resizeWindowBy = useCallback(
@@ -2518,7 +2529,9 @@ export default function WorkbenchOSV3({
         const anchor = document.createElement("a");
         anchor.href = url;
         anchor.download = "scratch.txt";
+        document.body.appendChild(anchor);
         anchor.click();
+        anchor.remove();
         URL.revokeObjectURL(url);
       };
       return (

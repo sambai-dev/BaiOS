@@ -3,7 +3,18 @@
 
 "use client";
 
-export default function GlobalError({ retry }: { retry: () => void }) {
+import { useEffect } from "react";
+
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
   return (
     <html lang="en">
       <head>
@@ -51,7 +62,7 @@ export default function GlobalError({ retry }: { retry: () => void }) {
         </div>
         <button
           type="button"
-          onClick={retry}
+          onClick={reset}
           style={{
             background: "#4c5ce5",
             border: "1px solid #59df79",
@@ -66,6 +77,19 @@ export default function GlobalError({ retry }: { retry: () => void }) {
         >
           Try again
         </button>
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- global-error renders outside the router; next/link is unavailable when the root layout fails. */}
+        <a
+          href="/"
+          style={{
+            color: "#f0efe8",
+            fontFamily: "monospace",
+            fontSize: 13,
+            marginTop: 12,
+            display: "inline-block",
+          }}
+        >
+          Return home →
+        </a>
       </body>
     </html>
   );

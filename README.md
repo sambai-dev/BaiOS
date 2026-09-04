@@ -54,7 +54,7 @@ The site has two layers:
 
 ### 1. Public front door (`PortfolioShell`)
 
-A single sparse page (`app/page.tsx` → `app/components/PortfolioShell.tsx`) built around the direct statement “Sam designs and builds software.” It pairs Sam's role as Founder & Product Engineer at Solynth Labs with his current availability for B2B software projects and direct routes to email, résumé, GitHub, LinkedIn, Solynth Labs, and the optional Workbench.
+A single sparse page (`app/page.tsx` → `app/components/PortfolioShell.tsx`) built around the direct statement “Sam designs and builds software.” It pairs Sam's role as Founder & Product Engineer at Solynth Labs with a personal framing: engineering thinking, design, and working experiments, and direct routes to email, résumé, GitHub, LinkedIn, Solynth Labs, and the optional Workbench.
 
 Deep links open the Workbench directly:
 

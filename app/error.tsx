@@ -7,10 +7,10 @@ import { useEffect } from "react";
 
 export default function ErrorScreen({
   error,
-  retry,
+  reset,
 }: {
   error: Error & { digest?: string };
-  retry: () => void;
+  reset: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -26,7 +26,7 @@ export default function ErrorScreen({
           <p>Retry this view. Previously saved local data stays on this device.</p>
         </div>
         <div className="fallback-actions">
-          <button className="fallback-action" type="button" onClick={retry}>
+          <button className="fallback-action" type="button" onClick={reset}>
             Try again <span aria-hidden="true">↻</span>
           </button>
           <form action="/">

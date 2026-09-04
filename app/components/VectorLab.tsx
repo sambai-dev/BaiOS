@@ -347,6 +347,8 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
   };
 
   const handlePointerUp = (event: PointerEvent<HTMLCanvasElement>) => {
+    // A second finger lifting must not kill the first finger's drag.
+    if (dragRef.current?.pointerId !== event.pointerId) return;
     dragRef.current = null;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
@@ -441,7 +443,6 @@ export default function VectorLab({ idPrefix, themeId }: VectorLabProps = {}) {
                 <p
                   className={`os-vector-error${validation.vector ? " is-valid" : ""}`}
                   id={guidanceId}
-                  role="status"
                 >
                   {validation.vector ? "Range −3 to 3" : "Complete every value from −3 to 3"}
                 </p>

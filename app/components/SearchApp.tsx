@@ -52,6 +52,7 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
     () => new Set(),
   );
   const searchAbortRef = useRef<AbortController | null>(null);
+  const isLoadingRef = useRef(false);
 
   // Closing the window mid-request cancels the fetch instead of letting it
   // complete invisibly in the background.
@@ -65,7 +66,11 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
   const runSearch = useCallback(
     async (term: string) => {
       const trimmed = term.trim();
-      if (!trimmed || isLoading) return;
+      if (!trimmed || isLoadingRef.current) return;
+      // Abort any orphaned request. The isLoading state closure can be stale
+      // on rapid Enter presses, the ref cannot.
+      searchAbortRef.current?.abort();
+      isLoadingRef.current = true;
       playSound("chime");
       setQuery(trimmed);
       setIsLoading(true);
@@ -80,9 +85,12 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
           `/api/search?q=${encodeURIComponent(trimmed)}`,
           { signal: controller.signal },
         );
-        const data = (await response.json()) as SearchResult & {
-          error?: string;
-        };
+        let data: SearchResult & { error?: string };
+        try {
+          data = (await response.json()) as SearchResult & { error?: string };
+        } catch {
+          throw new Error("Search returned an unreadable response.");
+        }
         if (!response.ok) throw new Error(data.error ?? "Search failed.");
         if (!data.abstract.text && !data.answer && !data.related.length) {
           throw new Error("No Wikipedia results for that query.");
@@ -95,10 +103,11 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
         setErrorText((caught as Error).message);
         setStatusMessage("Wikipedia search finished with an error.");
       } finally {
+        isLoadingRef.current = false;
         setIsLoading(false);
       }
     },
-    [isLoading],
+    [],
   );
 
   const saveToArchive = useCallback(
@@ -237,7 +246,7 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
                     const itemText = item.text.trim() || `Wikipedia result ${index + 2}`;
 
                     return (
-                      <article key={`${index}-${item.url}`} className="search-row">
+                      <article key={`${index}-${item.url}-${item.title}`} className="search-row">
                         {itemUrl ? (
                           <a
                             className="search-row-link"

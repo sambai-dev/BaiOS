@@ -518,12 +518,15 @@ export default function SubsurfaceLab({ isActive, prefersReducedMotion, themeId 
         aria-label={`Subsurface depth game. ${accessibleStatus} Press Space, Enter, Arrow Up, or tap to rise.`}
       >
         <canvas ref={canvasRef} aria-hidden="true" />
-        <div className="subsurface-hud" aria-live="polite">
+        <div className="subsurface-hud" aria-hidden="true">
           <span>Depth control / manual</span>
           <span>Score {String(score).padStart(2, "0")}</span>
           <span>Best {String(best).padStart(2, "0")}</span>
           <span>Dives {String(divesPlayed).padStart(2, "0")}</span>
         </div>
+        <span className="sr-only" role="status">
+          {status === "crashed" ? `Signal lost. Score ${score}.` : ""}
+        </span>
         {status !== "playing" && (
           <div className="subsurface-overlay">
             <p>{status === "crashed" ? "Signal lost." : "Channel ready."}</p>
