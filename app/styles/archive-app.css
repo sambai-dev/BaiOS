@@ -55,15 +55,15 @@
 .archive-create label,
 .archive-rename label {
   font-family: var(--font-data), monospace;
-  font-size: 0.54rem;
+  font-size: var(--text-small);
   letter-spacing: 0.025em;
   text-transform: uppercase;
 }
 
 .archive-titlebar strong {
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: 1.55rem;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: -0.035em;
 }
 
@@ -106,7 +106,7 @@
 .archive-shell {
   display: grid;
   min-height: 0;
-  grid-template-columns: minmax(8.5rem, 0.25fr) minmax(19rem, 1.05fr) minmax(14rem, 0.62fr);
+  grid-template-columns: minmax(11rem, 0.25fr) minmax(19rem, 1.05fr) minmax(14rem, 0.62fr);
 }
 
 .archive-locations {
@@ -144,7 +144,7 @@
   background: transparent;
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -165,7 +165,7 @@
   color: var(--ivory-muted);
   border-top: 1px solid var(--rule-light);
   font-family: var(--font-data), monospace;
-  font-size: 0.5rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -223,7 +223,7 @@
   align-items: center;
   color: #55554f;
   font-family: var(--font-data), monospace;
-  font-size: 0.56rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -265,7 +265,7 @@
   border: 1px solid var(--rule-dark);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.52rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
 }
 
@@ -373,7 +373,7 @@
   border-top: 1px solid var(--rule-light);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   letter-spacing: 0.025em;
   text-align: left;
   text-transform: uppercase;
@@ -454,7 +454,7 @@
 .archive-item-copy strong {
   overflow: hidden;
   font-family: var(--font-body), sans-serif;
-  font-size: 0.78rem;
+  font-size: var(--text-small);
   font-weight: 620;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -464,7 +464,7 @@
   overflow: hidden;
   color: #5d5d56;
   font-family: var(--font-data), monospace;
-  font-size: 0.5rem;
+  font-size: var(--text-micro);
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -588,13 +588,13 @@
 }
 
 .archive-empty p {
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: 1.25rem;
 }
 
 .archive-empty small {
   font-family: var(--font-data), monospace;
-  font-size: 0.54rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -627,9 +627,9 @@
 .archive-preview-empty h2 {
   margin: 0.18rem 0 0;
   overflow-wrap: anywhere;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: 1.35rem;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1;
   letter-spacing: -0.035em;
 }
@@ -651,7 +651,7 @@
 .archive-preview-empty p {
   margin: 0.8rem 0;
   color: #3e3e38;
-  font-size: 0.76rem;
+  font-size: var(--text-small);
   line-height: 1.48;
 }
 
@@ -684,7 +684,7 @@
 .archive-preview-empty dl {
   overflow-wrap: anywhere;
   font-family: var(--font-data), monospace;
-  font-size: 0.55rem;
+  font-size: var(--text-micro);
   line-height: 1.35;
 }
 
@@ -768,7 +768,7 @@
 
 .archive-delete-confirm p {
   margin: 0 0 0.6rem;
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   line-height: 1.4;
 }
 
@@ -778,7 +778,7 @@
 
 .archive-delete-confirm p + p {
   color: rgba(255, 255, 255, 0.84);
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
 }
 
 .archive-delete-confirm button {
@@ -838,7 +838,7 @@
 
 @container workbench-app (max-width: 840px) {
   .archive-shell {
-    grid-template-columns: 7.5rem minmax(0, 1fr);
+    grid-template-columns: 10.5rem minmax(0, 1fr);
     grid-template-rows: minmax(18rem, 1fr) auto;
     overflow: auto;
   }

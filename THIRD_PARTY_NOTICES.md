@@ -32,7 +32,7 @@ Notable platform-selected production transitive packages include Sharp 0.35.4 (A
 
 ## Fonts
 
-The application loads these Google Fonts through `next/font/google`:
+The application self-hosts Archivo and Azeret Mono using `next/font/local`. Latin variable WOFF2 assets from Fontsource 5.3.0 and their original OFL notices are included in `app/fonts/`. Archivo Black remains listed for historical notices, but is no longer loaded:
 
 | Font | Copyright | License |
 | --- | --- | --- |

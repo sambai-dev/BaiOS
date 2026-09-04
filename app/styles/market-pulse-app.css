@@ -24,10 +24,10 @@
 
 .pulse-header h2 {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(2rem, 4vw, 3.75rem);
-  font-weight: 400;
-  line-height: 0.88;
+  font-weight: 600;
+  line-height: 1.08;
   letter-spacing: -0.035em;
 }
 
@@ -35,7 +35,7 @@
   max-width: 34rem;
   margin: 0.55rem 0 0;
   color: #46463f;
-  font-size: 0.78rem;
+  font-size: var(--text-small);
   line-height: 1.4;
 }
 
@@ -59,7 +59,7 @@
   border: 1px solid var(--rule-dark);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.56rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
 }
 
@@ -129,14 +129,14 @@
   color: white;
   background: var(--cobalt);
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
 .pulse-quote strong,
 .pulse-price strong {
-  font-family: var(--font-display), sans-serif;
-  font-weight: 400;
+  font-family: var(--font-body), sans-serif;
+  font-weight: 600;
   line-height: 1;
 }
 
@@ -156,7 +156,7 @@
 .pulse-quote small {
   margin-top: 0.25rem;
   color: #55554e;
-  font-size: 0.52rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -174,7 +174,7 @@
 
 .pulse-price span {
   margin-top: 0.28rem;
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
 }
 
 .pulse-price span[data-direction="positive"],
@@ -235,7 +235,7 @@
   justify-content: space-between;
   padding: 0.1rem 0 0.55rem;
   color: #5f5f57;
-  font-size: 0.5rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -263,14 +263,14 @@
 
 .pulse-stats dt {
   color: #5b5b54;
-  font-size: 0.48rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
 }
 
 .pulse-stats dd {
   margin-top: 0.35rem;
   overflow-wrap: anywhere;
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   font-weight: 600;
 }
 
@@ -293,7 +293,7 @@
   color: var(--ivory-muted);
   background: var(--carbon);
   border-bottom: 1px solid var(--rule-light);
-  font-size: 0.48rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -323,7 +323,7 @@
 
 .pulse-rank {
   color: var(--ivory-muted);
-  font-size: 0.48rem;
+  font-size: var(--text-micro);
 }
 
 .pulse-market-name,
@@ -341,7 +341,7 @@
 .pulse-market-name strong,
 .pulse-market-price strong {
   overflow: hidden;
-  font-size: 0.62rem;
+  font-size: var(--text-micro);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -350,7 +350,7 @@
 .pulse-market-price small {
   margin-top: 0.2rem;
   color: var(--ivory-muted);
-  font-size: 0.48rem;
+  font-size: var(--text-micro);
 }
 
 .pulse-market-rows button:hover small,
@@ -373,9 +373,9 @@
 
 .pulse-loading span,
 .pulse-error strong {
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(1.6rem, 4vw, 3rem);
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .pulse-loading div {
@@ -414,7 +414,7 @@
   padding: 0 0.75rem;
   color: #5b5b54;
   border-top: 1px solid var(--rule-dark);
-  font-size: 0.5rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -523,7 +523,7 @@
   border: 1px solid var(--rule-light);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.56rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }

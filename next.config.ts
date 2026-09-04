@@ -40,6 +40,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  allowedDevOrigins: ["terminal.local"],
   outputFileTracingRoot: process.cwd(),
   async redirects() {
     return [

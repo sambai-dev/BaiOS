@@ -12,8 +12,8 @@
   --control-center-signal: var(--signal, #59df79);
   --control-center-rule-dark: var(--rule-dark, rgba(17, 17, 15, 0.26));
   --control-center-rule-light: var(--rule-light, rgba(240, 239, 232, 0.24));
-  --control-center-body-size: 0.9rem;
-  --control-center-label-size: 0.58rem;
+  --control-center-body-size: var(--text-body);
+  --control-center-label-size: var(--text-small);
   container-name: control-center;
   container-type: inline-size;
   min-height: 100%;
@@ -65,8 +65,8 @@
 .control-center-session-panel h3,
 .control-center-confirmation h4 {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
-  font-weight: 400;
+  font-family: var(--font-body), sans-serif;
+  font-weight: 600;
   letter-spacing: -0.03em;
 }
 
@@ -277,7 +277,7 @@
 
 .control-center-option-copy strong {
   overflow: hidden;
-  font-size: 0.9rem;
+  font-size: var(--text-body);
   font-weight: 620;
   line-height: 1.2;
   text-overflow: ellipsis;

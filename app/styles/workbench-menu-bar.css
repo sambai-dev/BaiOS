@@ -12,11 +12,11 @@
   color: var(--ivory);
   background: var(--carbon);
   border-bottom: 1px solid var(--rule-light);
-  font-family: var(--font-data), monospace;
-  font-size: 0.62rem;
+  font-family: var(--font-body), sans-serif;
+  font-size: var(--text-small);
   line-height: 1;
   letter-spacing: 0.02em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .wmb-leading,
@@ -57,14 +57,14 @@
 
 .wmb-context span {
   color: var(--ivory-muted);
-  font-size: 0.52rem;
+  font-size: var(--text-micro);
 }
 
 .wmb-context strong {
   max-width: 11rem;
   overflow: hidden;
   color: white;
-  font-size: 0.64rem;
+  font-size: var(--text-micro);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -98,7 +98,7 @@
   color: var(--ivory-muted);
   background: transparent;
   border: 0;
-  border-right: 1px solid var(--rule-light);
+  border-right: 0;
   cursor: pointer;
   font: inherit;
   text-transform: inherit;
@@ -166,7 +166,7 @@
 .wmb-popup kbd {
   color: inherit;
   font-family: inherit;
-  font-size: 0.52rem;
+  font-size: var(--text-micro);
   font-weight: 500;
 }
 
@@ -218,7 +218,7 @@
 
 .wmb-popup-label strong {
   color: var(--cobalt-deep);
-  font-size: 0.54rem;
+  font-size: var(--text-small);
   font-weight: 650;
 }
 
@@ -338,7 +338,7 @@
     min-width: 0;
     padding: 0;
     border: 0;
-    font-size: 0.58rem;
+    font-size: var(--text-micro);
   }
 }
 
@@ -349,7 +349,7 @@
 
   .wmb-menu-trigger-wrap > button {
     padding: 0 0.62rem;
-    font-size: 0.58rem;
+    font-size: var(--text-small);
   }
 
   .wmb-menu-label {
@@ -376,4 +376,15 @@
   .wmb-system > button {
     transition-duration: 0.01ms !important;
   }
+}
+
+.wmb-context strong { font-size: var(--text-small); }
+.wmb-context span { font-size: var(--text-micro); }
+.wmb-system-data i { width: 0.35rem; height: 0.35rem; box-shadow: none; }
+.wmb-popup { width: min(21rem, calc(100vw - 1rem)); }
+.wmb-popup-label { font-size: var(--text-micro); }
+.wmb-popup-label strong { font-size: var(--text-micro); }
+.wmb-popup > button { font-size: var(--text-small); }
+@media (max-width: 520px) {
+  .wmb-menu-trigger-wrap > button { font-size: var(--text-small); padding-inline: 0.55rem; }
 }

@@ -56,10 +56,10 @@
 
 .mission-control-header h2 {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(2.1rem, 4vw, 4.4rem);
-  font-weight: 400;
-  line-height: 0.86;
+  font-weight: 600;
+  line-height: 1.08;
   letter-spacing: -0.04em;
 }
 
@@ -67,7 +67,7 @@
   max-width: 48rem;
   margin: 0.9rem 0 0;
   color: #4a4a43;
-  font-size: 0.66rem;
+  font-size: var(--text-micro);
   line-height: 1.55;
 }
 
@@ -82,7 +82,7 @@
 .mission-control-header-meta p {
   margin: 0;
   color: #606058;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 
 .mission-control-close {
@@ -94,7 +94,7 @@
   border-radius: 0;
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.6rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
   transition: color 150ms ease, background 150ms ease;
 }
@@ -137,7 +137,7 @@
   border-right: 1px solid var(--rule-light);
   border-radius: 0;
   cursor: pointer;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   transition: color 150ms ease, background 150ms ease;
 }
 
@@ -188,7 +188,7 @@
 .mission-control-panel-heading p {
   margin: 0;
   color: #55554e;
-  font-size: 0.58rem;
+  font-size: var(--text-micro);
 }
 
 .mission-control-panel-heading p:first-child {
@@ -211,7 +211,7 @@
   border-radius: 0;
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
+  font-size: var(--text-small);
   text-transform: uppercase;
   transition: color 150ms ease, background 150ms ease;
 }
@@ -348,7 +348,7 @@
   background: var(--carbon);
   border-bottom: 1px solid var(--rule-light);
   font-family: var(--font-data), monospace;
-  font-size: 0.45rem;
+  font-size: var(--text-micro);
   text-transform: uppercase;
 }
 
@@ -538,7 +538,7 @@
   color: var(--ivory);
   background: var(--carbon);
   font-family: var(--font-data), monospace;
-  font-size: 0.48rem;
+  font-size: var(--text-micro);
   text-align: center;
   text-transform: uppercase;
 }
@@ -566,7 +566,7 @@
 
 .mission-window-caption strong {
   overflow: hidden;
-  font-size: 0.64rem;
+  font-size: var(--text-micro);
   font-weight: 700;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -575,7 +575,7 @@
 
 .mission-window-caption small {
   color: #5c5c55;
-  font-size: 0.48rem;
+  font-size: var(--text-micro);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -596,17 +596,17 @@
 
 .mission-control-empty > span {
   color: var(--cobalt);
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(5rem, 12vw, 10rem);
-  line-height: 0.8;
+  line-height: 1.08;
 }
 
 .mission-control-empty h3 {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-size: clamp(2rem, 4vw, 3.6rem);
-  font-weight: 400;
-  line-height: 0.9;
+  font-weight: 600;
+  line-height: 1.08;
   letter-spacing: -0.035em;
 }
 
@@ -614,7 +614,7 @@
   max-width: 42ch;
   margin: 0.8rem 0 0;
   color: #4d4d46;
-  font-size: 0.84rem;
+  font-size: var(--text-small);
   line-height: 1.5;
 }
 
@@ -680,7 +680,7 @@
   .mission-control-description {
     max-width: 36rem;
     margin-top: 0.65rem;
-    font-size: 0.58rem;
+    font-size: var(--text-micro);
   }
 
   .mission-control-header-meta {

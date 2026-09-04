@@ -20,31 +20,31 @@ colors:
 typography:
   display:
     fontFamily: "Archivo, sans-serif"
-    fontSize: "clamp(4.75rem, 10vw, 11rem)"
-    fontWeight: 650
-    lineHeight: 0.88
+    fontSize: "clamp(3.5rem, 7.3vw, 6rem)"
+    fontWeight: 550
+    lineHeight: 0.99
     letterSpacing: "-0.04em"
   headline:
-    fontFamily: "Archivo Black, sans-serif"
+    fontFamily: "Archivo, sans-serif"
     fontSize: "clamp(1.8rem, 3vw, 3.45rem)"
     fontWeight: 400
     lineHeight: 0.92
     letterSpacing: "-0.03em"
   title:
-    fontFamily: "Archivo Black, sans-serif"
+    fontFamily: "Archivo, sans-serif"
     fontSize: "1.8rem"
     fontWeight: 560
     lineHeight: 1
     letterSpacing: "-0.04em"
   body:
     fontFamily: "Archivo, sans-serif"
-    fontSize: "0.9rem"
+    fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.48
     letterSpacing: "normal"
   label:
     fontFamily: "Azeret Mono, monospace"
-    fontSize: "0.58rem"
+    fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.45
     letterSpacing: "0.02em"
@@ -64,14 +64,14 @@ components:
     typography: "{typography.label}"
     rounded: "{rounded.none}"
     padding: "0 0.78rem"
-    height: "3.75rem"
+    height: "3.5rem"
   workbench-menu-trigger-active:
     backgroundColor: "{colors.signal}"
     textColor: "{colors.carbon}"
     typography: "{typography.label}"
     rounded: "{rounded.none}"
     padding: "0 0.78rem"
-    height: "3.75rem"
+    height: "3.5rem"
   dock-app:
     backgroundColor: "transparent"
     textColor: "{colors.ivory}"
@@ -100,7 +100,7 @@ components:
 
 **Creative North Star: "Quiet Junction"**
 
-Quiet Junction is a senior, authored operating environment disguised as a sparse public front door. Carbon grain, monumental ivory type, themeable route light, tiny operational readouts, and square rules create a private-feeling place where restraint carries more authority than a gallery of claims.
+Quiet Junction is a senior, authored operating environment disguised as a sparse public front door. Carbon grain, monumental ivory type, themeable route light, readable operational labels, and square rules create a private-feeling place where restraint carries more authority than a gallery of claims.
 
 The public layer stays quiet and exacting; the Workbench reveals the machinery behind the person. Workbench, Atlas, Archive, Control, the menu system, and the workspace language form an original clean-room visual and interaction vocabulary. Their windows, local tools, recoverable state, and three interactive labs make working software itself the personality without importing another product's names, icons, or trade dress.
 
@@ -120,7 +120,7 @@ The palette behaves like an operating signal system. Warm near-black and paper n
 
 ### Base Theme: Cobalt
 
-- **Cobalt Operational Light** (`colors.cobalt`): The default route color for the desktop field, active modules, selected rows, and the public Workbench aperture.
+- **Cobalt Operational Light** (`colors.cobalt`): The default route color for active modules, selected rows, and the public Workbench aperture. The desktop mixes 18% of this route color into carbon so working windows lead the field.
 - **Deep Cobalt** (`colors.cobalt-deep`): Quieter route metadata and secondary blue emphasis on ivory.
 - **Signal Green** (`colors.signal`): Live indicators, keyboard focus, active-window outlines, and immediate action.
 
@@ -150,7 +150,7 @@ The palette behaves like an operating signal system. Warm near-black and paper n
 
 **Display/Body Font:** Archivo (with sans-serif fallback)
 
-**Workbench Headline/Title Font:** Archivo Black (with sans-serif fallback)
+**Workbench Headline/Title Font:** Archivo, medium and semibold (with sans-serif fallback)
 
 **Label/Mono Font:** Azeret Mono (with monospace fallback)
 
@@ -158,10 +158,10 @@ The palette behaves like an operating signal system. Warm near-black and paper n
 
 ### Hierarchy
 
-- **Display** (650, `typography.display`, 0.88): Monumental public statements; keep lines short enough for the compressed rhythm to remain legible.
+- **Display** (550, `typography.display`, 0.99): Monumental public statements; keep lines short enough for the compressed rhythm to remain legible.
 - **Headline** (400, `typography.headline`, 0.92): Workbench app propositions and major window content headings.
 - **Title** (560, `typography.title`, 1): Compact lab and calculator titles where hierarchy must hold inside a window.
-- **Body** (400, `typography.body`, 1.48): Explanations and working copy; practical measures typically stop between 48ch and 62ch.
+- **Body** (400, `typography.body`, 1.6): Explanations and working copy; practical measures typically stop between 48ch and 62ch.
 - **Label** (400, `typography.label`, uppercase where operational): Menus, state, shortcuts, coordinates, field legends, HUD copy, and navigation metadata.
 
 ### Named Rules
@@ -188,8 +188,8 @@ The system is flat by default. Grain, field color, one-pixel rules, and active-s
 
 ### Shadow Vocabulary
 
-- **Aperture Rest** (`0 14px 36px rgba(0, 0, 0, 0.28)`): Holds the live Workbench aperture above the public field.
-- **Aperture Hover** (`0 20px 52px rgba(0, 0, 0, 0.42)`): Confirms the aperture can open without turning it into a card.
+- **Aperture Rest:** A one-pixel route rule gives the entrance its boundary without a resting shadow.
+- **Aperture Hover** (`0 20px 56px rgba(0, 0, 0, 0.28)`): Confirms the aperture can open without turning it into a card.
 - **Window Rest** (`0 22px 58px rgba(10, 10, 9, 0.32)`): Separates movable ivory windows from the route-color desktop.
 - **Window Active** (`0 28px 78px rgba(10, 10, 9, 0.46)`): Raises the focused window; a one-pixel signal outline carries the active state.
 - **Window Snapped** (`0 18px 48px rgba(10, 10, 9, 0.4)`): Holds a snapped window without making it appear as elevated as the freely focused state.
@@ -234,13 +234,23 @@ The form language is square and mechanical. Panels, windows, controls, text fiel
 
 ### Workbench Aperture
 
-The aperture is a small live instrument, not a promotional card. On desktop it rests at a compact 11.4rem width with its detail rows collapsed, then expands to `clamp(18rem, 22vw, 21rem)` on hover or focus to reveal its operational body and action. It uses carbon, a one-pixel cobalt border, a cobalt title strip, and a signal live dot; the width and border carry the invitation with no scale transform. Opening and closing use the aperture’s measured center as the origin of a 720ms circular reveal, so the transition remains spatially truthful after responsive gutter or viewport changes; reduced motion receives a 150ms opacity fade.
+The aperture is always visible beside the public statement. It has a maximum width of 24rem, a BaiOS identifier, a Workbench heading, three workspace descriptions, and a full-width cobalt “Open Workbench” action. No essential information depends on hover. Hover and focus lift the surface by four pixels with a stronger rule and structural shadow; reduced motion disables that lift. Opening and closing use the actual invoking control’s measured center for the existing 720ms circular reveal, or the 150ms reduced-motion fade.
 
 ### Public Front Door
 
-The public surface is a single quiet composition. The identity line is “Founder & Product Engineer, Solynth Labs” and the exact statement “Sam designs and builds software.” holds the center as two deliberate beats, breaking after “and.” The intro line is “A personal site: engineering thinking, design, and working experiments.” Direct links expose Sam's email address, Solynth Labs, and “Open Workbench” without conversion-copy wrappers. Desktop uses a responsive `clamp(4rem, 10vw, 12rem)` horizontal inset and a `clamp(4.75rem, 10vw, 11rem)` statement. The statement is uninterrupted display text with no embedded controls. Compact widths collapse the gutter, type, and line gap without changing the hierarchy; short viewports may scroll rather than clip controls. The front door carries no explanatory deck, project grid, or Workbench telemetry outside the aperture.
+The identity line remains “Founder & Product Engineer, Solynth Labs” and the exact statement “Sam designs and builds software.” is set in three lines: “Sam designs” / “and builds” / “software.” The display is capped at 6rem with a 0.99 line height. The intro remains “A personal site: engineering thinking, design, and working experiments.”
 
-The aperture uses differentiated, truthful labels: Build / Work, Field / Labs, Notes / Local, Atlas / Map, Archive / Browser, and Session / State. It avoids stale counts and claims that a fresh session has already been saved. Its visible action always says “Open Workbench.”
+The header pairs a square S/B identity mark with readable name and role information; Hamilton and the live New Zealand clock sit opposite it. The main composition pairs the statement with the visible Workbench entrance. Direct email, Solynth Labs, Workbench, GitHub, source, LinkedIn, and résumé routes anchor the lower rule. Below 700px, the entrance follows the statement and the link groups stack. Short viewports scroll naturally. The design retains carbon, ivory, cobalt, restrained grain, and square geometry, without adding a project grid or new commercial claims.
+
+### Workspace Strip
+
+A persistent navigation row beneath the menu bar exposes Build, Field, and Notes as semantic pressed buttons. Existing Alt+1–3 shortcuts and Go-menu routes remain. The active workspace has a route-tinted field and underline. The strip is measured outside the desktop, so window geometry is fitted to the remaining working area. Empty Field and Notes workspaces offer relevant existing tools; opening a workspace does not create windows or overwrite a saved session.
+
+### Shared Type and Icons
+
+Archivo and Azeret Mono are bundled as Latin variable WOFF2 assets using `next/font/local`; builds do not fetch Google Fonts. Controls use a 14px equivalent, body copy 16px, and secondary metadata no less than 12px through shared rem tokens. Application headings use Archivo with more open leading. The resizeable content windows respond to their own container width, including when narrowed on a large display. New content-window defaults provide room for the larger type; saved geometry is retained.
+
+A small shared set of original line icons identifies apps consistently in desktop shortcuts, title bars, and the dock. Window controls keep explicit accessible names and tooltips, with 44px targets. App names and the dock’s exact Closed, Suspended, Active, or Running status remain visible text.
 
 ### Workbench Menu Bar
 
@@ -248,7 +258,7 @@ The top bar combines the S/B mark, current app and workspace context, five app-a
 
 ### Workbench Window
 
-Windows use ivory content, carbon title bars, square clipping, structural shadow, and a signal outline when active. Desktop windows can be raised, dragged, minimized, closed, maximized/restored, resized, snapped left or right, or maximized through the top snap target. The resize grip supports arrow-key resizing in 12px steps and 32px steps with Shift. Closing marks an instance closed instead of deleting it: geometry and serialized app data remain available for a later reopen, while the closed instance leaves Atlas and the dock's running count. Scratch and Archive instance data can therefore recover after reopening. At the 60-instance capacity, opening a matching saved instance recovers it rather than creating another.
+Windows use ivory content, carbon title bars, square clipping, structural shadow, and a route-colored outline when active. Desktop windows can be raised, dragged, minimized, closed, maximized/restored, resized, snapped left or right, or maximized through the top snap target. The resize grip supports arrow-key resizing in 12px steps and 32px steps with Shift. Closing marks an instance closed instead of deleting it: geometry and serialized app data remain available for a later reopen, while the closed instance leaves Atlas and the dock's running count. Scratch and Archive instance data can therefore recover after reopening. At the 60-instance capacity, opening a matching saved instance recovers it rather than creating another.
 
 ### Workbench Dock
 

@@ -3,23 +3,20 @@
 
 import "@/app/styles/global.css";
 import type { Metadata, Viewport } from "next";
-import { Archivo, Archivo_Black, Azeret_Mono } from "next/font/google";
+import localFont from "next/font/local";
 
-const archivo = Archivo({
-  subsets: ["latin"],
+const archivo = localFont({
+  src: "./fonts/archivo-latin.woff2",
   variable: "--font-body",
+  weight: "100 900",
+  display: "swap",
 });
 
-const archivoBlack = Archivo_Black({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-display",
-  preload: false,
-});
-
-const azeretMono = Azeret_Mono({
-  subsets: ["latin"],
+const azeretMono = localFont({
+  src: "./fonts/azeret-mono-latin.woff2",
   variable: "--font-data",
+  weight: "100 900",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -83,9 +80,9 @@ const jsonLdString = JSON.stringify(jsonLd)
 
 const designContract = `<!--
 THESIS: Sam designs and builds software. The public front door states that plainly; the Workbench supplies the evidence.
-OWN-WORLD: Carbon grain, ivory condensed type, cobalt operational light, square rules, and a live Workbench console.
+OWN-WORLD: Carbon grain, ivory Archivo type, a quiet route-tinted desktop, square rules, and readable working tools.
 STORY: Meet Sam, understand Solynth, visit the company, enter the Workbench, or make contact.
-FIRST VIEWPORT: Identity sits top-left, a live aperture top-right, the statement owns the field, and useful links anchor the bottom.
+FIRST VIEWPORT: Readable identity above, a three-line statement beside a visible Workbench entrance, and useful links below.
 FORM: Quiet Junction, grounded direction 3, seed 18eae09c.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
 -->`;
@@ -96,7 +93,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${archivo.variable} ${archivoBlack.variable} ${azeretMono.variable}`}
+        className={`${archivo.variable} ${azeretMono.variable}`}
       >
         <template dangerouslySetInnerHTML={{ __html: designContract }} />
         <script
