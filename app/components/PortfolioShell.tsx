@@ -33,6 +33,7 @@ export default function PortfolioShell() {
   const [workbenchOrigin, setWorkbenchOrigin] = useState({ x: 72, y: 72 });
   const [deepLink, setDeepLink] = useState<WorkbenchDeepLink | null>(null);
   const openerRef = useRef<HTMLButtonElement>(null);
+  const apertureOriginRef = useRef<HTMLSpanElement>(null);
   const workbenchInvokerRef = useRef<HTMLElement | null>(null);
   const workbenchPreloadTimerRef = useRef<number | null>(null);
 
@@ -47,6 +48,17 @@ export default function PortfolioShell() {
     []
   );
 
+  const syncWorkbenchOrigin = useCallback(() => {
+    // The status dot stays anchored in the header while the preview expands.
+    // Measuring the whole preview would leave the exit point below the tab.
+    const bounds = apertureOriginRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+    setWorkbenchOrigin({
+      x: bounds.left + bounds.width / 2,
+      y: bounds.top + bounds.height / 2,
+    });
+  }, []);
+
   const openWorkbench = useCallback((invoker?: HTMLElement | null) => {
     if (workbenchPreloadTimerRef.current !== null) {
       window.clearTimeout(workbenchPreloadTimerRef.current);
@@ -56,17 +68,11 @@ export default function PortfolioShell() {
     workbenchInvokerRef.current =
       invoker?.isConnected ? invoker : openerRef.current;
 
-    const apertureBounds = openerRef.current?.getBoundingClientRect();
-    if (apertureBounds) {
-      setWorkbenchOrigin({
-        x: apertureBounds.left + apertureBounds.width / 2,
-        y: apertureBounds.top + apertureBounds.height / 2,
-      });
-    }
+    syncWorkbenchOrigin();
     setHasOpenedWorkbench(true);
     setIsWorkbenchExiting(false);
     setIsWorkbenchOpen(true);
-  }, []);
+  }, [syncWorkbenchOrigin]);
 
   const scheduleWorkbenchPreload = useCallback(() => {
     if (workbenchPreloadTimerRef.current !== null) return;
@@ -83,6 +89,7 @@ export default function PortfolioShell() {
   }, []);
 
   const closeWorkbench = useCallback(() => {
+    syncWorkbenchOrigin();
     setIsWorkbenchOpen(false);
     setIsWorkbenchExiting(true);
     setDeepLink(null);
@@ -97,7 +104,7 @@ export default function PortfolioShell() {
         `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`,
       );
     }
-  }, []);
+  }, [syncWorkbenchOrigin]);
 
   const restoreWorkbenchFocus = useCallback(() => {
     const invoker = workbenchInvokerRef.current;
@@ -150,13 +157,18 @@ export default function PortfolioShell() {
 
   const handleWorkbenchExitComplete = useCallback(() => {
     setIsWorkbenchExiting(false);
-    restoreWorkbenchFocus();
-  }, [restoreWorkbenchFocus]);
+  }, []);
 
   // Keep the public surface inert (and scroll-locked) for the full overlay
   // lifecycle, including the exit reveal. Otherwise background links become
   // interactive while the Workbench is still animating out.
   const isBackgroundLocked = isWorkbenchOpen || isWorkbenchExiting;
+
+  useEffect(() => {
+    // Focus is rejected while an ancestor is inert. Wait for React to commit
+    // the unlocked frontpage before returning keyboard control to the opener.
+    if (!isBackgroundLocked && hasOpenedWorkbench) restoreWorkbenchFocus();
+  }, [hasOpenedWorkbench, isBackgroundLocked, restoreWorkbenchFocus]);
 
   useEffect(() => {
     if (!isBackgroundLocked) return;
@@ -172,18 +184,9 @@ export default function PortfolioShell() {
   useEffect(() => {
     if (!isWorkbenchOpen) return;
 
-    const syncWorkbenchOrigin = () => {
-      const apertureBounds = openerRef.current?.getBoundingClientRect();
-      if (!apertureBounds) return;
-      setWorkbenchOrigin({
-        x: apertureBounds.left + apertureBounds.width / 2,
-        y: apertureBounds.top + apertureBounds.height / 2,
-      });
-    };
-
     window.addEventListener("resize", syncWorkbenchOrigin);
     return () => window.removeEventListener("resize", syncWorkbenchOrigin);
-  }, [isWorkbenchOpen]);
+  }, [isWorkbenchOpen, syncWorkbenchOrigin]);
 
   return (
     <main className="site-shell">
@@ -225,7 +228,7 @@ export default function PortfolioShell() {
             <span className="aperture-bar">
               <span>Workbench</span>
               <span className="live-state">
-                <span className="live-dot" aria-hidden="true" />
+                <span ref={apertureOriginRef} className="live-dot" aria-hidden="true" />
                 <span aria-hidden="true">Open</span>
               </span>
             </span>

@@ -31,7 +31,7 @@ export default function WorkbenchOverlay({
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <AnimatePresence onExitComplete={onExitComplete}>
+    <AnimatePresence custom={revealOrigin} onExitComplete={onExitComplete}>
       {open && (
         <WorkbenchOS
           closeButtonRef={closeButtonRef}

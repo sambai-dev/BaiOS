@@ -712,10 +712,6 @@ template {
     line-height: 0.9;
   }
 
-  .aperture-body {
-    display: none;
-  }
-
   .hero-coordinates {
     margin-top: 1rem;
   }

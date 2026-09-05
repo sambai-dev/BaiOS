@@ -3,7 +3,7 @@
 
 "use client";
 
-import { AnimatePresence, LazyMotion, domAnimation, m } from "framer-motion";
+import { AnimatePresence, LazyMotion, domAnimation, m, useIsPresent } from "framer-motion";
 import dynamic from "next/dynamic";
 import {
   type CSSProperties,
@@ -2876,6 +2876,7 @@ export default function WorkbenchOSV3({
   const hasOpenWorkspaceWindows = mountedWindows.some(
     (windowState) => windowState.workspaceId === activeWorkspaceId,
   );
+  const isPresent = useIsPresent();
   const revealClipOrigin = `${Math.round(revealOrigin.x)}px ${Math.round(
     revealOrigin.y,
   )}px`;
@@ -2886,6 +2887,7 @@ export default function WorkbenchOSV3({
       ref={overlayRef}
       tabIndex={-1}
       className="workbench-os"
+      inert={!isPresent || undefined}
       data-os-theme={session.themeId}
       role="dialog"
       aria-modal="true"
@@ -2900,11 +2902,13 @@ export default function WorkbenchOSV3({
           ? { opacity: 1 }
           : { clipPath: `circle(160vmax at ${revealClipOrigin})` }
       }
-      exit={
-        prefersReducedMotion
-          ? { opacity: 0 }
-          : { clipPath: `circle(0vmax at ${revealClipOrigin})` }
-      }
+      variants={{
+        closed: (origin: Readonly<{ x: number; y: number }> = revealOrigin) =>
+          prefersReducedMotion
+            ? { opacity: 0 }
+            : { clipPath: `circle(0vmax at ${Math.round(origin.x)}px ${Math.round(origin.y)}px)` },
+      }}
+      exit="closed"
       transition={{
         duration: prefersReducedMotion ? 0.15 : 0.72,
         ease: [0.16, 1, 0.3, 1],

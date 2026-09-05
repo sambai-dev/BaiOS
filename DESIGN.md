@@ -234,7 +234,7 @@ The form language is square and mechanical. Panels, windows, controls, text fiel
 
 ### Workbench Aperture
 
-The aperture rests as a compact embedded tab at the top-right of the public header. Hover or keyboard focus expands it to reveal the Work, Playground, and Notes routes and an Open Workbench action. Desktop expansion is positioned over the page so the header, headline, and links do not move. Touch layouts keep the action visible. The measured center still controls the circular Workbench reveal, with a short fade for reduced motion.
+The aperture rests as a compact embedded tab at the top-right of the public header. Hover or keyboard focus expands it to reveal the Work, Playground, and Notes routes and an Open Workbench action. Desktop expansion is positioned over the page so the header, headline, and links do not move. Touch layouts keep the action visible. The status dot anchors both the circular reveal and return, independently of the preview size; the return remeasures its position. Keyboard focus returns after the frontpage becomes interactive again. Reduced motion uses a short fade.
 
 ### Public Front Door
 
