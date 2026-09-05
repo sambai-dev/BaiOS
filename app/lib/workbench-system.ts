@@ -28,6 +28,7 @@ export type WorkbenchAppDefinition = {
   id: WorkbenchAppId;
   label: string;
   summary: string;
+  defaultWorkspaceId: WorkspaceId;
   keywords: string[];
   supportsMultiple: boolean;
   defaultWidth: number;
@@ -89,7 +90,7 @@ export const workspaces: Array<{
   {
     id: "notes",
     label: "Notes",
-    description: "Notes and files saved in this browser.",
+    description: "Notes, files, search, and personal tools.",
   },
 ];
 
@@ -122,6 +123,7 @@ export const workbenchThemes: Array<{
 export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "now",
+    defaultWorkspaceId: "build",
     label: "Welcome",
     summary: "Meet Sam and explore what he is working on.",
     keywords: ["now", "about", "current", "solynth", "trekky", "consulting"],
@@ -133,6 +135,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "stack",
+    defaultWorkspaceId: "build",
     label: "Tech stack",
     summary: "The languages, frameworks, and tools Sam uses.",
     keywords: ["stack", "react", "next", "typescript", "cloudflare", "mobile"],
@@ -144,6 +147,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "method",
+    defaultWorkspaceId: "build",
     label: "How I work",
     summary: "How Sam takes an idea from first questions to delivery.",
     keywords: ["method", "process", "product", "decision", "delivery"],
@@ -155,6 +159,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "scratch",
+    defaultWorkspaceId: "notes",
     label: "Notes",
     summary: "Write a note saved in this browser.",
     keywords: ["scratch", "note", "text", "idea", "draft"],
@@ -166,6 +171,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "console",
+    defaultWorkspaceId: "notes",
     label: "Terminal",
     summary: "Use text commands to open apps and manage this desktop.",
     keywords: ["console", "terminal", "command", "help", "system"],
@@ -177,6 +183,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "links",
+    defaultWorkspaceId: "build",
     label: "Contact & links",
     summary: "Email Sam, view his résumé, or visit his work.",
     keywords: ["links", "email", "github", "linkedin", "resume"],
@@ -188,6 +195,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "pulse",
+    defaultWorkspaceId: "field",
     label: "Market monitor",
     summary: "Check crypto prices and 24-hour changes from CoinGecko.",
     keywords: ["pulse", "crypto", "bitcoin", "ethereum", "price", "market", "coingecko"],
@@ -199,6 +207,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "book",
+    defaultWorkspaceId: "build",
     label: "Project brief",
     summary: "Outline your project and prepare an email enquiry.",
     keywords: [
@@ -223,6 +232,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "sandbox",
+    defaultWorkspaceId: "build",
     label: "Projects",
     summary: "Explore Trekky, this desktop, and a motion simulation.",
     keywords: [
@@ -244,6 +254,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "agent",
+    defaultWorkspaceId: "notes",
     label: "AI assistant",
     summary: "Send a prompt to an AI model and read its response.",
     keywords: [
@@ -264,6 +275,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "lab",
+    defaultWorkspaceId: "field",
     label: "Subsurface",
     summary: "Keep a small craft afloat and avoid obstacles.",
     keywords: ["game", "canvas", "depth", "sonar"],
@@ -275,6 +287,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "railshift",
+    defaultWorkspaceId: "field",
     label: "Railshift",
     summary: "Switch lanes, jump, and duck in an arcade runner.",
     keywords: ["game", "runner", "rail", "arcade", "canvas", "score"],
@@ -286,6 +299,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "vector",
+    defaultWorkspaceId: "field",
     label: "Vector lab",
     summary: "Explore two 3D vectors and calculate their products.",
     keywords: ["vector", "3d", "calculator", "math", "canvas"],
@@ -297,6 +311,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "archive",
+    defaultWorkspaceId: "notes",
     label: "Files",
     summary: "Create and organize notes and folders in this browser.",
     keywords: ["archive", "files", "folders", "notes", "documents", "local archive"],
@@ -308,6 +323,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "search",
+    defaultWorkspaceId: "notes",
     label: "Web search",
     summary: "Search Wikipedia and save useful results to Files.",
     keywords: ["search", "lookup", "summary", "wikipedia", "archive", "find"],
@@ -319,6 +335,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "control",
+    defaultWorkspaceId: "notes",
     label: "Settings",
     summary: "Change the theme, manage workspaces, and back up your data.",
     keywords: ["control", "settings", "theme", "session", "workspace", "restore"],

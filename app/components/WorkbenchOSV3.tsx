@@ -46,6 +46,11 @@ import {
 } from "../lib/workbench-files";
 import { type WorkbenchDeepLink } from "../lib/workbench-deep-link";
 import {
+  getWorkbenchSessionUrl,
+  openWorkbenchApplication,
+  organizeWorkbenchSession,
+} from "../lib/workbench-app-routing";
+import {
   createDefaultWorkbenchSession,
   getWorkbenchApp,
   isWorkbenchAppId,
@@ -67,7 +72,6 @@ import {
   focusWindow as focusManagedWindow,
   focusWindowOnly as focusManagedWindowOnly,
   minimizeWindow as minimizeManagedWindow,
-  openAppWindow,
   restoreWorkspaceWindows,
   snapWindow,
   switchWorkspaceActiveInstance,
@@ -234,27 +238,6 @@ const stackRows = [
   ["Product mode", "SaaS · Automation · AI-assisted workflows"],
 ] as const;
 
-const dockGroupLabels = ["Work", "Tools", "Labs"] as const;
-type DockGroup = (typeof dockGroupLabels)[number];
-const dockGroupByApp = {
-  now: "Work",
-  stack: "Work",
-  method: "Work",
-  links: "Work",
-  book: "Work",
-  sandbox: "Work",
-  scratch: "Tools",
-  console: "Tools",
-  pulse: "Tools",
-  agent: "Tools",
-  archive: "Tools",
-  search: "Tools",
-  control: "Tools",
-  lab: "Labs",
-  railshift: "Labs",
-  vector: "Labs",
-} satisfies Record<WorkbenchAppId, DockGroup>;
-
 const legacyAppLabels: Record<WorkbenchAppId, string> = {
   now: "Now", stack: "Stack", method: "Method", scratch: "Scratch",
   console: "Console", links: "Links", pulse: "Pulse", book: "Brief",
@@ -395,7 +378,7 @@ export default function WorkbenchOSV3({
   ]);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isAppLauncher, setIsAppLauncher] = useState(false);
-  const [launcherGroup, setLauncherGroup] = useState<"All" | DockGroup>("All");
+  const [launcherGroup, setLauncherGroup] = useState<"all" | WorkspaceId>("all");
   const [paletteQuery, setPaletteQuery] = useState("");
   const [paletteActiveIndex, setPaletteActiveIndex] = useState(0);
   const [isAtlasOpen, setIsAtlasOpen] = useState(false);
@@ -443,6 +426,9 @@ export default function WorkbenchOSV3({
   const importInputRef = useRef<HTMLInputElement>(null);
   const dragSession = useRef<DragSession | null>(null);
   const resizeSession = useRef<ResizeSession | null>(null);
+  // AnimatePresence keeps this component mounted during its exit animation.
+  // Stop late events before they can restore URLs cleared by PortfolioShell.
+  const closingRef = useRef(false);
   const snapZoneRef = useRef<WorkbenchSnapTarget | null>(null);
   const sessionRef = useRef(session);
   const filesRef = useRef(files);
@@ -462,17 +448,23 @@ export default function WorkbenchOSV3({
   );
 
   const replaceSession = useCallback((nextSession: WorkbenchSession) => {
-    const cloned = cloneSession(nextSession);
+    if (closingRef.current) return;
+    const cloned = cloneSession(organizeWorkbenchSession(nextSession));
     sessionRef.current = cloned;
     setSession(cloned);
     zCounter.current = Math.max(
       10,
       ...cloned.windows.map((windowState) => windowState.z + 1),
     );
+    const href = getWorkbenchSessionUrl(window.location.href, cloned);
+    if (href !== window.location.href) {
+      window.history.replaceState(window.history.state, "", href);
+    }
   }, []);
 
   const updateSession = useCallback(
     (updater: (current: WorkbenchSession) => WorkbenchSession) => {
+      if (closingRef.current) return;
       const next = updater(sessionRef.current);
       replaceSession({ ...next, updatedAt: Date.now() });
     },
@@ -661,34 +653,23 @@ export default function WorkbenchOSV3({
       blocked = true;
     }
 
+    loadedSession = organizeWorkbenchSession(loadedSession);
     if (deepLink?.workspaceId || deepLink?.appId) {
       const targetWorkspaceId =
-        deepLink.workspaceId ?? loadedSession.activeWorkspaceId;
-      let nextWindows = loadedSession.windows;
-      let nextActiveInstanceId =
-        loadedSession.activeInstances[targetWorkspaceId] ?? null;
+        deepLink.appId
+          ? getWorkbenchApp(deepLink.appId).defaultWorkspaceId
+          : deepLink.workspaceId ?? loadedSession.activeWorkspaceId;
+      loadedSession = { ...loadedSession, activeWorkspaceId: targetWorkspaceId };
       if (deepLink.appId) {
         try {
-          const opened = openAppWindow(
-            nextWindows,
+          loadedSession = openWorkbenchApplication(
+            loadedSession,
             deepLink.appId,
-            targetWorkspaceId,
-          );
-          nextWindows = opened.windows;
-          nextActiveInstanceId = opened.activeInstanceId;
+          ).session;
         } catch {
           // Window capacity reached, so fall back to the workspace switch alone.
         }
       }
-      loadedSession = {
-        ...loadedSession,
-        activeWorkspaceId: targetWorkspaceId,
-        activeInstances: {
-          ...loadedSession.activeInstances,
-          [targetWorkspaceId]: nextActiveInstanceId,
-        },
-        windows: nextWindows,
-      };
     }
 
     replaceSession(loadedSession);
@@ -915,13 +896,13 @@ export default function WorkbenchOSV3({
       appId: WorkbenchAppId,
       options: { forceNew?: boolean; focusConsole?: boolean } = {},
     ) => {
+      if (closingRef.current) return null;
       const current = sessionRef.current;
-      let result: WindowManagerResult;
+      let result: ReturnType<typeof openWorkbenchApplication>;
       try {
-        result = openAppWindow(
-          current.windows,
+        result = openWorkbenchApplication(
+          current,
           appId,
-          current.activeWorkspaceId,
           {
             forceNew: options.forceNew,
             z: zCounter.current,
@@ -931,62 +912,40 @@ export default function WorkbenchOSV3({
         setNotice("Workbench has reached its 60-window local session limit.");
         return null;
       }
-      commitWindowResult(result, current.activeWorkspaceId);
+      zCounter.current = result.nextZ;
+      updateSession(() => result.session);
       const instanceId = result.activeInstanceId;
       playSound("focus");
-      if (typeof window !== "undefined") {
-        const url = new URL(window.location.href);
-        url.searchParams.set("app", appId);
-        window.history.replaceState(window.history.state, "", url.toString());
-      }
       if (instanceId) {
         window.requestAnimationFrame(() => {
-          windowRefs.current[instanceId]?.focus();
-          if (options.focusConsole) {
-            consoleInputRefs.current[instanceId]?.focus();
-          }
+          window.requestAnimationFrame(() => {
+            windowRefs.current[instanceId]?.focus();
+            if (options.focusConsole) {
+              consoleInputRefs.current[instanceId]?.focus();
+            }
+          });
         });
       }
       setContextMenu(null);
       return instanceId;
     },
-    [commitWindowResult],
+    [updateSession],
   );
 
   const openArchiveAt = useCallback(
     (folderId: string, forceNew = false) => {
-      const current = sessionRef.current;
-      let result: WindowManagerResult;
-      try {
-        result = openAppWindow(
-          current.windows,
-          "archive",
-          current.activeWorkspaceId,
-          { forceNew, z: zCounter.current },
-        );
-      } catch {
-        setNotice("Workbench has reached its 60-window local session limit.");
-        return;
-      }
-      const instanceId = result.activeInstanceId;
-      const nextWindows = result.windows.map((windowState) =>
-        windowState.instanceId === instanceId
-          ? {
-              ...windowState,
-              data: { ...windowState.data, folderId },
-            }
-          : windowState,
-      );
-      commitWindowResult(
-        { ...result, windows: nextWindows },
-        current.activeWorkspaceId,
-      );
-      if (instanceId) {
-        focusManagedSurface(instanceId);
-      }
-      setContextMenu(null);
+      const instanceId = openWindow("archive", { forceNew });
+      if (!instanceId) return;
+      updateSession((current) => ({
+        ...current,
+        windows: current.windows.map((windowState) =>
+          windowState.instanceId === instanceId
+            ? { ...windowState, data: { ...windowState.data, folderId } }
+            : windowState,
+        ),
+      }));
     },
-    [commitWindowResult, focusManagedSurface],
+    [openWindow, updateSession],
   );
 
   const minimizeWindow = useCallback(
@@ -1104,6 +1063,7 @@ export default function WorkbenchOSV3({
 
   const switchWorkspace = useCallback(
     (workspaceId: WorkspaceId, focusSurface = true) => {
+      if (closingRef.current) return;
       const current = sessionRef.current;
       playSound("snap");
       const active = switchWorkspaceActiveInstance(
@@ -1147,6 +1107,7 @@ export default function WorkbenchOSV3({
 
   const selectAtlasWindow = useCallback(
     (instanceId: string, mode: "focus" | "raise" = "raise") => {
+      if (closingRef.current) return;
       const current = sessionRef.current;
       const target = current.windows.find(
         (windowState) => windowState.instanceId === instanceId,
@@ -1237,7 +1198,7 @@ export default function WorkbenchOSV3({
   const openApplications = useCallback(() => {
     openPalette();
     setIsAppLauncher(true);
-    setLauncherGroup("All");
+    setLauncherGroup(sessionRef.current.activeWorkspaceId);
   }, [openPalette]);
 
   const closePalette = useCallback(() => {
@@ -1329,6 +1290,8 @@ export default function WorkbenchOSV3({
     // This is the only path that abandons the in-memory session. It is reached
     // through the explicit destructive action in the guard and never writes to
     // storage, so an invalid stored payload remains available for recovery.
+    if (closingRef.current) return;
+    closingRef.current = true;
     closeGuardInvokerRef.current = null;
     setIsCloseGuardOpen(false);
     clearAppDeepLink();
@@ -1336,6 +1299,7 @@ export default function WorkbenchOSV3({
   }, [clearAppDeepLink, onClose]);
 
   const closePortfolio = useCallback(() => {
+    if (closingRef.current) return;
     if (storageBlocked) {
       openCloseGuard();
       return;
@@ -1355,6 +1319,7 @@ export default function WorkbenchOSV3({
       }
       return;
     }
+    closingRef.current = true;
     clearAppDeepLink();
     onClose();
   }, [
@@ -1436,11 +1401,12 @@ export default function WorkbenchOSV3({
           setNotice("That file is not a valid Workbench backup.");
           return;
         }
-        if (!persistPair(parsed.session, parsed.files, { force: true })) {
+        const importedSession = organizeWorkbenchSession(parsed.session);
+        if (!persistPair(importedSession, parsed.files, { force: true })) {
           setNotice("The backup was valid, but this browser could not store it.");
           return;
         }
-        replaceSession(parsed.session);
+        replaceSession(importedSession);
         replaceFiles(parsed.files);
         corruptStorageRef.current = { committed: null, session: null, files: null };
         setStorageBlocked(false);
@@ -1636,6 +1602,7 @@ export default function WorkbenchOSV3({
 
   useEffect(() => {
     const handlePointerMove = (event: PointerEvent) => {
+      if (closingRef.current) return;
       const resizing = resizeSession.current;
       const dragging = dragSession.current;
       if (
@@ -1828,8 +1795,10 @@ export default function WorkbenchOSV3({
   useEffect(() => {
     let frame = 0;
     const fitDesktopWindows = () => {
+      if (closingRef.current) return;
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
+        if (closingRef.current) return;
         if (window.matchMedia("(max-width: 980px)").matches) return;
         const bounds = getDesktopBounds();
         if (!bounds) return;
@@ -1961,7 +1930,7 @@ export default function WorkbenchOSV3({
       id: `app-${app.id}`,
       appId: app.id,
       label: `Open ${app.label}`,
-      meta: app.summary,
+      meta: `${workspaces.find((workspace) => workspace.id === app.defaultWorkspaceId)?.label} · ${app.summary}`,
       terms: `${app.id} ${app.summary} ${app.keywords.join(" ")}`,
       run: () =>
         openWindow(app.id, {
@@ -2079,7 +2048,7 @@ export default function WorkbenchOSV3({
     () =>
       paletteActions
         .filter((action) => !isAppLauncher || (
-          action.appId && (launcherGroup === "All" || dockGroupByApp[action.appId] === launcherGroup)
+          action.appId && (launcherGroup === "all" || getWorkbenchApp(action.appId).defaultWorkspaceId === launcherGroup)
         ))
         .map((action, index) => ({
           action,
@@ -2279,6 +2248,7 @@ export default function WorkbenchOSV3({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (closingRef.current) return;
       if (event.defaultPrevented) return;
       // Ignore OS key autorepeat: held keys must not re-toggle the OS,
       // re-run persistence, or spam shortcuts.
@@ -3488,17 +3458,17 @@ export default function WorkbenchOSV3({
                 </div>
                 {isAppLauncher && (
                   <div className="os-launcher-categories" role="group" aria-label="Application categories">
-                    {(["All", ...dockGroupLabels] as const).map((group) => (
+                    {[{ id: "all", label: "All" }, ...workspaces].map((group) => (
                       <button
                         type="button"
-                        key={group}
-                        aria-pressed={launcherGroup === group}
+                        key={group.id}
+                        aria-pressed={launcherGroup === group.id}
                         onClick={() => {
-                          setLauncherGroup(group);
+                          setLauncherGroup(group.id as "all" | WorkspaceId);
                           setPaletteActiveIndex(0);
                         }}
                       >
-                        {group}
+                        {group.label}
                       </button>
                     ))}
                   </div>
@@ -3527,7 +3497,9 @@ export default function WorkbenchOSV3({
                         onClick={() => runPaletteAction(action)}
                       >
                         <span>{isAppLauncher && action.appId ? getWorkbenchApp(action.appId).label : action.label}</span>
-                        <span>{action.meta}</span>
+                        <span>{isAppLauncher && action.appId && launcherGroup !== "all"
+                          ? getWorkbenchApp(action.appId).summary
+                          : action.meta}</span>
                       </button>
                     ))
                   ) : (

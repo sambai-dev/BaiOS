@@ -260,6 +260,8 @@ template {
   transform-origin: top right;
   transition:
     width 300ms var(--ease-out-expo),
+    height 300ms var(--ease-out-expo),
+    grid-template-rows 300ms var(--ease-out-expo),
     transform 300ms var(--ease-out-expo),
     box-shadow 300ms var(--ease-out-expo),
     border-color 150ms ease;
@@ -367,6 +369,22 @@ template {
   color: inherit;
   content: "↗";
   font-size: 1rem;
+}
+
+@media (min-width: 621px) {
+  .workbench-aperture {
+    --aperture-action-height: 2.8rem;
+
+    height: calc(2.6rem + 2px);
+    grid-template-rows: 2.6rem minmax(0, 1fr) 0;
+  }
+
+  .workbench-aperture:hover,
+  .workbench-aperture:focus-visible {
+    /* The action divider meets the fixed header rule, including its 1px edge. */
+    height: calc(100% + var(--aperture-action-height));
+    grid-template-rows: 2.6rem minmax(0, 1fr) var(--aperture-action-height);
+  }
 }
 
 .public-header::after {
