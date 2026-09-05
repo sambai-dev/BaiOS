@@ -114,7 +114,7 @@ const CaseStudySandboxApp = dynamic(() => import("./CaseStudySandboxApp"), {
 
 const AgentWorkflowApp = dynamic(() => import("./AgentWorkflowApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading AI assistant…</div>,
+  loading: () => <div className="os-app-loading">Loading Ask about Sam…</div>,
 });
 
 const SearchApp = dynamic(() => import("./SearchApp"), {
@@ -246,6 +246,9 @@ const legacyAppLabels: Record<WorkbenchAppId, string> = {
 };
 
 function getWindowDisplayTitle(windowState: WorkbenchWindow) {
+  if (windowState.appId === "agent" && windowState.title === "AI assistant") {
+    return getWorkbenchApp("agent").label;
+  }
   const legacyLabel = legacyAppLabels[windowState.appId];
   if (windowState.title === legacyLabel) return getWorkbenchApp(windowState.appId).label;
   const suffix = windowState.title.slice(legacyLabel.length);

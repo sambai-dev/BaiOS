@@ -54,7 +54,7 @@ describe("workbench session defaults", () => {
       keywords: expect.arrayContaining(["sandbox", "case study"]),
     });
     expect(getWorkbenchApp("agent")).toMatchObject({
-      label: "AI assistant",
+      label: "Ask about Sam",
     });
   });
 

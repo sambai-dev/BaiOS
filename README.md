@@ -7,7 +7,7 @@
 
 The name combines **Bai** with **OS**, with a visual nod to BIOS. The homepage leads with large type, generous spacing, plain descriptions, and direct links. Charcoal, ivory, cobalt, and clear controls connect it to the project pages and the more playful Workbench. [`DESIGN.md`](./DESIGN.md) describes the visual system; [`PRODUCT.md`](./PRODUCT.md) describes the product and behavior.
 
-Workbench session and Files data stay in the current browser. Market monitor, Web search, and AI assistant identify the external services they use.
+Workbench session and Files data stay in the current browser. Market monitor, Web search, and Ask about Sam identify the external services they use.
 
 ## Quick Start
 
@@ -31,7 +31,7 @@ npm run build
 npm run start
 ```
 
-Requires Node.js 24, matching `.nvmrc`, `package.json`, and the Vercel project runtime. No environment variables are required to start the site; AI assistant needs the configuration below.
+Requires Node.js 24, matching `.nvmrc`, `package.json`, and the Vercel project runtime. No environment variables are required to start the site; Ask about Sam needs the configuration below.
 
 `npm run dev` uses `next dev --webpack` for local stylesheet iteration. The production command remains `next build`, using Next.js's default build pipeline.
 
@@ -53,15 +53,17 @@ Requires Node.js 24, matching `.nvmrc`, `package.json`, and the Vercel project r
 
 `app/page.tsx` renders `PortfolioShell` with the shared global styles. The identity header gives Sam's role, Hamilton location, and New Zealand time. The large heading “Sam designs and builds software.” sits above Hamilton coordinates and a simple footer.
 
-The footer has three groups: **Site**, a short personal description; **Direct**, with email, Solynth Labs, and Open Workbench; and **Elsewhere**, with GitHub, BaiOS Source, LinkedIn, and Résumé. The compact header tab also opens Workbench.
+The footer has three groups: **Selected work**, with direct website links to Trekky, Rivet, and Clearfold plus **All projects** at `/work`; **Direct**, with email, Solynth Labs, and Open Workbench; and **Elsewhere**, with GitHub, BaiOS Source, LinkedIn, and Résumé. Selected work replaces the generic Site description while preserving the large headline. The compact header tab also opens Workbench.
 
 The orbit component and original cartridge artwork remain in the repository but are not rendered on the homepage. The supplied Clone was an interaction reference; its media, fonts, logos, and project identities are not used as portfolio content. All Workbench games and tools remain available.
 
 ### Project pages
 
-Five public pages live at `/work/trekky`, `/work/rookhold`, `/work/portly`, `/work/agentscope`, and `/work/baios`. Their content comes from `project-case-studies.ts` and renders through `app/work/[slug]/page.tsx`.
+The public directory at `/work` groups **Products & web apps** (Trekky, Rivet, Clearfold, Entangle, and RentAKL) and **Open-source tools** (Rookhold, Portly, and AgentScope). It distinguishes Rivet's private workspace requiring sign-in, Clearfold's preproduction preview, Entangle's research tool, and RentAKL's sample-listing demo. Website links open the products directly; project notes explain the work.
 
-Each page explains the project's purpose, implementation choices, and limits with interface evidence and useful links. Captures, sample data, README examples, and simulators are labeled for what they show. Images retain their proportions and offer full-size links.
+Nine public case pages cover those eight projects and BaiOS. Rivet, Clearfold, Entangle, and RentAKL join the five existing pages. Their content comes from `project-case-studies.ts` and `product-stories.ts` and renders through `app/work/[slug]/page.tsx`; `project-directory.css` styles the directory.
+
+First-person notes explain why Sam built each project, how it works, and the engineering choices and limits. The four new pages use text without invented interface images. Existing captures, sample data, README examples, and simulators are labeled for what they show. Images retain their proportions and offer full-size links. Source links point only to public repositories. Case-page headers and the Workbench Projects app provide an **All projects** link back to the directory.
 
 ### Workbench
 
@@ -84,7 +86,7 @@ Visible labels use Work, Playground, and Notes. Internal IDs such as `build`, `f
 BaiOS/
 ├── app/
 │   ├── api/
-│   │   ├── ai/route.ts               # OpenRouter text stream
+│   │   ├── ai/route.ts               # Topic classification and approved public summaries
 │   │   ├── crypto/route.ts           # CoinGecko market snapshots
 │   │   ├── crypto/history/route.ts   # Timestamped CoinGecko price history
 │   │   ├── crypto/sentiment/route.ts # CoinMarketCap Fear & Greed Index
@@ -104,13 +106,14 @@ BaiOS/
 │   │   ├── SubsurfaceLab.tsx         # Underwater research game
 │   │   ├── RailshiftLab.tsx          # Metropolitan waterfront runner
 │   │   ├── VectorLab.tsx             # Vector missions and exploration
-│   │   ├── AgentWorkflowApp.tsx      # AI assistant
+│   │   ├── AgentWorkflowApp.tsx      # Ask about Sam
 │   │   ├── SearchApp.tsx             # Web search and Save to Files
 │   │   ├── ArchiveApp.tsx            # Browser-local Files
 │   │   └── ControlCenterApp.tsx      # Settings and backup tools
 │   ├── lib/
 │   │   ├── portfolio-projects.ts     # Retained orbit entries and geometry
-│   │   ├── project-case-studies.ts   # Five public case pages
+│   │   ├── project-case-studies.ts   # Nine public case pages
+│   │   ├── product-stories.ts        # First-person product notes
 │   │   ├── workbench-system.ts       # App registry, workspaces, themes
 │   │   ├── workbench-app-routing.ts  # App-to-workspace routing
 │   │   ├── workbench-window-manager.ts
@@ -122,6 +125,7 @@ BaiOS/
 │   │   ├── subsurface-engine.ts      # Game simulation; scene in *-scene.ts
 │   │   ├── railshift-engine.ts       # Runner simulation; scene in *-scene.ts
 │   │   └── vector-lab-scene.ts        # On-demand Three.js vector scene
+│   ├── work/page.tsx                 # Public project directory
 │   ├── work/[slug]/page.tsx          # Public project pages
 │   ├── assets/carbon-grain.webp      # Carbon background texture
 │   ├── styles/                      # Global and lazy per-app stylesheets
@@ -157,7 +161,7 @@ The registry in `app/lib/workbench-system.ts` assigns every application a home w
 | --- | --- |
 | **Work** | Welcome, Tech stack, How I work, Contact & links, Project brief, Projects |
 | **Playground** | Market monitor, Subsurface, Railshift, Vector lab |
-| **Notes** | Notes, Terminal, AI assistant, Files, Web search, Settings |
+| **Notes** | Notes, Terminal, Ask about Sam, Files, Web search, Settings |
 
 A fresh session opens **Welcome** in Work. Playground and Notes begin empty. A validated saved session restores its windows and workspace state, with apps organized into their assigned workspace.
 
@@ -169,8 +173,8 @@ Notes, Vector lab, and Files support multiple instances through Shift-modified d
 - **Railshift** is an original Three.js runner through a dense metropolitan city, with trains and a dock-warden pursuer. Short park and waterfront districts interrupt the downtown skyline; a Ferris wheel belongs to the park, and a whale makes rare waterfront appearances. Change lanes, jump, slide, and collect gold. Rocket backpacks launch automatic flight; magnets pull nearby coins along visible curves. Shields, two lives, checkpoints, and coin-charged Overdrive provide recovery and progression. Arrow/WASD keys, Space, Shift, `P` to pause, swipes, and labeled touch controls are supported.
 - **Vector lab** combines a 3D scene with Dock, Thrust, and Lift missions and free Explore mode. Adjust vectors, compare addition, projection, angle, and cross product, then send a probe to test the result. Numeric calculations and mission checks remain usable without WebGL. Vector lab is available in Playground.
 - **Market monitor** shows eight crypto assets in USD or NZD, with 24H, 7D, and 30D price history. EMA 20 and EMA 50 overlays use observed sample periods, with the actual sampling cadence shown beside the chart. Pointer inspection and a keyboard/touch history slider expose individual observations. The watchlist sorts by market cap, gainers, or losers; a separate panel shows the actual CoinMarketCap Fear & Greed Index. Visible views refresh every 90 seconds, and stale data or unavailable services are labeled.
-- **Projects** contains interactive Trekky and BaiOS details and a labeled spring simulation. **Project brief** prepares an email enquiry without inventing a quote or delivery schedule.
-- **Web search** retrieves attributed Wikipedia results and can save them to Files. **AI assistant** streams the configured OpenRouter model's response and makes clear that prompts leave the browser.
+- **Projects** contains interactive Trekky and BaiOS details, a labeled spring simulation, and an **All projects** link to the public directory. **Project brief** prepares an email enquiry without inventing a quote or delivery schedule.
+- **Web search** retrieves attributed Wikipedia results and can save them to Files. **Ask about Sam** answers questions about Sam's public profile and projects using approved, surface-level summaries. Only the current question is sent to OpenRouter and NVIDIA. The model selects one to three approved topic IDs; the server validates the selection and returns the corresponding written summaries. The interface keeps up to five question-and-answer turns in memory, with Stop and Clear conversation controls. Earlier turns are not sent with a new question. Questions leave the browser, and the interface asks visitors to leave out confidential information.
 
 Games start only on request and pause when the application or page becomes inactive. Resume continues the current in-memory run. Sound is opt-in. Reduced motion removes nonessential movement, and 3D resources are released when no longer needed.
 
@@ -190,17 +194,17 @@ Project brief drafts, Vector's per-instance vectors/view/mission progress, sound
 | `GET /api/crypto/history` | CoinGecko timestamped price observations. Accepts an allowed `coin`, `currency=usd\|nzd`, and `days=1\|7\|30`; returns the actual sampling interval and source timestamp. |
 | `GET /api/crypto/sentiment` | CoinMarketCap's Fear & Greed Index with its source timestamp. Uses the keyless public endpoint by default or the authenticated endpoint when configured. |
 | `GET /api/search` | Queries Wikipedia, sanitizes summaries, and returns attributed result links. |
-| `POST /api/ai` | Validates and rate-limits a prompt, requests the configured OpenRouter model, and streams text without exposing provider credentials. |
+| `POST /api/ai` | Validates and rate-limits the current question, asks OpenRouter for a strict JSON selection of one to three approved topic IDs, and returns the matching public summaries after server validation. Model-written prose and arbitrary links are not forwarded to the visitor. |
 
 Market routes use bounded upstream timeouts, in-flight request deduplication, caching, failure backoff, and marked last-good fallbacks. They do not substitute invented prices or sentiment when no valid response is available.
 
 ### Environment configuration
 
-Copy `.env.example` to `.env.local` for local development, or configure the same server-only names on the deployment platform. Both OpenRouter variables are required to enable AI assistant. CoinGecko and CoinMarketCap keys are optional.
+Copy `.env.example` to `.env.local` for local development, or configure the same server-only names on the deployment platform. Both OpenRouter variables are required to enable Ask about Sam. The configured model is NVIDIA Nemotron 3 Super through OpenRouter, using the verified free model ID below. CoinGecko and CoinMarketCap keys are optional.
 
 ```dotenv
 OPENROUTER_API_KEY=<server-only-openrouter-key>
-OPENROUTER_MODEL=<provider/model-id>
+OPENROUTER_MODEL=nvidia/nemotron-3-super-120b-a12b:free
 
 # Optional CoinGecko demo API key
 COINGECKO_DEMO_API_KEY=<server-only-coingecko-demo-key>
@@ -209,9 +213,13 @@ COINGECKO_DEMO_API_KEY=<server-only-coingecko-demo-key>
 COINMARKETCAP_API_KEY=<server-only-coinmarketcap-key>
 ```
 
-Keep credentials server-only; never prefix them with `NEXT_PUBLIC_`. If either OpenRouter value is missing, `/api/ai` returns a service-unavailable response and the rest of BaiOS remains usable.
+Keep credentials server-only; never prefix them with `NEXT_PUBLIC_`. The chat route requires an API key and a named `:free` model, rejects missing settings or model IDs outside that format, sets the provider's maximum prompt and completion prices to zero, and disables fallback routing. It returns a service-unavailable response when configuration is invalid; the rest of BaiOS remains usable. Free-provider capacity can still be unavailable or rate-limited. No private GitHub token is required or used by the chat.
 
-The AI route uses an in-memory, per-instance request limiter. Restarts and horizontally scaled instances do not share its counter, so it is not a durable deployment-wide quota. Search and crypto routes have bounded upstream timeouts but no per-client request limiter. For a public deployment, configure durable upstream quota and spend controls with OpenRouter or an API gateway.
+The chat route accepts questions up to 2,000 characters and caps both the request body and upstream response at 32,000 bytes. A 55-second deadline bounds the request. Its in-memory controls allow 12 requests per minute per IP, four concurrent requests, and at most 1,000 tracked IP keys per instance. Restarts and horizontally scaled instances do not share this state, so these controls are not a durable deployment-wide quota. Search and crypto routes have bounded upstream timeouts but no per-client request limiter. Configure durable provider quotas or gateway controls where deployment-wide limits are needed.
+
+Ask about Sam uses a small set of approved public topics. It does not read source code, README architecture details, private repositories, or internal documents. It has no tools for browsing, running actions, accessing accounts, or following links. The server accepts only the allowed topic IDs from the model, then supplies fixed summaries. Replies render as plain text; model-provided HTML, code, and arbitrary links are not rendered or executed.
+
+Chat turns stay in component memory and are not saved in browser storage, Files, or Settings backups. The server does not log questions or upstream error bodies. The chat has no account or password store. OpenRouter and the model provider receive each submitted question under their own data policies, so visitors should not include confidential information. Clear conversation removes the visible local turns; it does not retract questions already sent to a provider. Stop cancels the browser request and stops waiting for a reply.
 
 ## Accessibility
 
@@ -221,7 +229,7 @@ Workbench menus use arrow-key movement, listboxes use roving selection, and the 
 
 ## Deployment
 
-Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) using this repository's `next.config.ts`, including custom security headers, output tracing, image formats, and résumé caching. Configure both OpenRouter variables to enable AI assistant; the market provider keys are optional.
+Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) using this repository's `next.config.ts`, including custom security headers, output tracing, image formats, and résumé caching. Configure both OpenRouter variables to enable Ask about Sam; the market provider keys are optional.
 
 The résumé PDF uses a content hash in its filename and a one-year immutable cache header. The legacy stable URL redirects temporarily so future résumé versions cannot be pinned behind a cached redirect.
 

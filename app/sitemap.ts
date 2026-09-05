@@ -17,6 +17,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    {
+      url: "https://www.sambai.dev/work",
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
     ...caseStudies.map(({ slug }) => ({
       url: `https://www.sambai.dev/work/${slug}`,
       changeFrequency: "monthly" as const,

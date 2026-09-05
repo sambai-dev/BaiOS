@@ -57,6 +57,40 @@
   line-height: 1.5;
 }
 
+.sandbox-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.sandbox-projects-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.9rem;
+  color: var(--text-on-route);
+  background: var(--cobalt);
+  border: 1px solid var(--cobalt);
+  font-size: 0.8rem;
+  font-weight: 550;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.sandbox-projects-link:hover {
+  background: var(--cobalt-deep);
+  border-color: var(--cobalt-deep);
+}
+
+.sandbox-projects-link:focus-visible {
+  outline: 3px solid var(--carbon);
+  outline-offset: 3px;
+}
+
 .sandbox-tabs {
   display: flex;
   flex: 0 0 auto;
@@ -581,6 +615,10 @@
 
   .sandbox-tabs {
     width: 100%;
+  }
+
+  .sandbox-header-actions {
+    align-items: flex-start;
   }
 
   .sandbox-tabs button {

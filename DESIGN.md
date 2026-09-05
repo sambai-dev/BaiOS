@@ -73,9 +73,9 @@ Archivo supplies the main reading and interface voice. Archivo Black is used sel
 
 Public and case-page titles can be large; app headings use calmer weights and proportions so they fit a window. Body text has room to wrap, and control labels remain readable at compact sizes. Labels use sentence case except where a short cartridge or data treatment deliberately calls for capitals.
 
-The visible names are Workbench, Work, Playground, Notes, Applications, Window overview, Files, Settings, Projects, Project brief, Web search, and AI assistant. Older names such as Atlas, Archive, Control, and Sandbox remain internal compatibility identifiers, not competing navigation names. Visitor-authored titles and notes are preserved.
+The visible names are Workbench, Work, Playground, Notes, Applications, Window overview, Files, Settings, Projects, Project brief, Web search, and Ask about Sam. Older names such as Atlas, Archive, Control, and Sandbox remain internal compatibility identifiers, not competing navigation names. Visitor-authored titles and notes are preserved.
 
-Copy explains what the visitor can do: “Open Workbench,” “Save to Files,” “Email Sam,” “Start riding,” or “Test this setup.” Project writing describes actual work and limitations. Demo labels, external service use, and browser-local storage are explicit without turning every introduction into implementation documentation.
+Copy explains what the visitor can do: “Open Workbench,” “Save to Files,” “Email Sam,” “Start riding,” or “Test this setup.” First-person project notes explain why Sam built the software, how it works, and the engineering choices and limitations in plain language without em dashes. Demo labels, external service use, and browser-local storage are explicit without turning every introduction into implementation documentation.
 
 ## Shared Layout
 
@@ -89,7 +89,7 @@ Screenshots retain their native proportions on project pages. Dense interface ex
 
 “Sam designs and builds software.” leads the page in large ivory type with a cobalt full stop. Hamilton coordinates sit beneath the headline. The identity header names Sam, his role at Solynth Labs, Hamilton, New Zealand, and the local time.
 
-The footer has three groups separated from the hero by a fine rule. Site describes “A personal site: engineering thinking, design, and working experiments.” Direct contains email, Solynth Labs, and Open Workbench. Elsewhere contains GitHub, BaiOS Source, LinkedIn, and Résumé. The headline and footer reflow on narrow screens.
+The footer has three groups separated from the hero by a fine rule. Selected work replaces the generic Site description with direct website links to Trekky, Rivet, and Clearfold and an All projects link to `/work`. Direct contains email, Solynth Labs, and Open Workbench. Elsewhere contains GitHub, BaiOS Source, LinkedIn, and Résumé. The original giant headline remains unchanged; the headline and footer reflow on narrow screens.
 
 The compact header tab and Open Workbench footer link offer the desktop as an optional next step.
 
@@ -103,7 +103,9 @@ Thumbnails are readable entry points rather than evidence of a product interface
 
 ## Public Project Pages
 
-Trekky, Rookhold, Portly, AgentScope, and BaiOS have public pages under `/work/`. A project page combines a clear identity and purpose, an interface preview, factual details and links, readable sections explaining the work, and navigation to the next project, portfolio, or Workbench.
+The plain public directory at `/work` uses readable rows grouped into Products & web apps (Trekky, Rivet, Clearfold, Entangle, and RentAKL) and Open-source tools (Rookhold, Portly, and AgentScope). Status labels distinguish Rivet's private workspace requiring sign-in, Clearfold's preproduction preview, Entangle's research tool, and RentAKL's sample-listing demo. Direct website links and project-note links make their destinations clear. `project-directory.css` defines this surface.
+
+Nine case pages cover those eight projects and BaiOS. Rivet, Clearfold, Entangle, and RentAKL join the five existing pages with text-only notes and no invented interface images. `project-case-studies.ts` and `product-stories.ts` supply the content. A project page combines a clear identity and purpose, factual details and links, readable first-person sections explaining the work, and navigation to the next project, portfolio, or Workbench. The All projects link in each case-page header returns to the directory. Source links appear only for public repositories.
 
 Trekky uses an ivory reading surface with dark ink and its genuine earlier light-theme sample dashboard. Other project pages use charcoal. Shared typography, square controls, cobalt actions, and layout keep these variants connected.
 
@@ -129,7 +131,7 @@ Window overview shows workspaces and open windows with clear behavior choices. F
 
 ## Project and Utility Windows
 
-**Projects** pairs Trekky and Workbench introductions with original artwork, readable headings, sentence-case tabs, and interactive workflow or architecture details. A charcoal sidebar adds context. The Motion tab remains a labeled spring simulation with stiffness, damping, presets, and a clear trigger. Short windows scroll; narrow windows stack their content.
+**Projects** pairs Trekky and Workbench introductions with original artwork, readable headings, sentence-case tabs, and interactive workflow or architecture details. Its All projects header link opens the public directory. A charcoal sidebar adds context. The Motion tab remains a labeled spring simulation with stiffness, damping, presets, and a clear trigger. Short windows scroll; narrow windows stack their content.
 
 **How I work** uses Clarify, Shape, Ship, and Learn tabs with meaningful descriptions. **Tech stack** describes the actual tools and areas of work. **Project brief** helps a visitor describe a project and email Sam, without calculating a price or promising timing.
 
@@ -137,7 +139,9 @@ Window overview shows workspaces and open windows with clear behavior choices. F
 
 **Market monitor** pairs an ivory toolbar with a charcoal price chart and watchlist. Signed change, chart labels, USD/NZD controls, refresh state, CoinGecko attribution, and cached-data timestamps describe the data accurately.
 
-**Web search** queries Wikipedia and saves attributed excerpts to Files. **AI assistant** uses readable presets, Send and Stop actions, prompt and response areas, and clear request status. It identifies OpenRouter, warns against confidential prompts, labels token figures as estimates, and states that the response has not been independently checked.
+**Web search** queries Wikipedia and saves attributed excerpts to Files. **Ask about Sam** uses suggested questions, a readable conversation area, labeled input, and Send, Stop, and Clear conversation controls. It keeps up to five turns in memory and shows clear pending, stopped, and unavailable states. Input accepts up to 2,000 characters. Replies are plain text assembled from approved public summaries about Sam and his projects.
+
+The chat's name and suggested questions describe its narrow purpose. The model selects approved topics rather than writing the visible answer. The interface identifies OpenRouter and the model provider, explains that only the current question is sent, and asks visitors to leave out passwords and confidential information. Clear conversation removes the turns from this page; provider data policies still apply to submitted questions. The chat does not present tools, browsing, source-code access, account access, or actions it cannot perform.
 
 ## Railshift
 
@@ -169,6 +173,6 @@ Each Vector instance stores valid vectors, camera view, selected mission, and co
 
 Session and Files state are validated and committed together after a short debounce. The bounded window registry remembers workspaces, geometry, appearance, serialized app data, Notes, and How I work state. Backup import checks the pair before replacement; corrupt or conflicting data has an explicit recovery path.
 
-Settings backups cover session and Files only. Separate brief drafts, Vector state, sound preference, game records, and transient component state have their own lifecycles. Local session and Files data have no account, upload, or remote sync. Market monitor, Web search, and AI assistant use separate network services and disclose those boundaries.
+Settings backups cover session and Files only. Separate brief drafts, Vector state, sound preference, game records, and transient component state have their own lifecycles. Local session and Files data have no account, upload, or remote sync. Market monitor, Web search, and Ask about Sam use separate network services and disclose those boundaries.
 
 Visible focus, readable control names, semantic headings, keyboard routes, status announcements, and validation remain part of every surface. Permanent deletion names its consequence. Responsive layouts preserve tasks and access to controls. The homepage uses labeled navigation and a skip link to its footer; spatial tools retain numeric controls. Motion has a clear purpose, stops when not needed, and respects reduced motion.

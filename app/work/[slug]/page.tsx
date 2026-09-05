@@ -34,7 +34,7 @@ export async function generateMetadata({
   const project = getCaseStudy(slug);
   if (!project) notFound();
 
-  const title = `${project.title} — Sam Bai`;
+  const title = `${project.title} | Sam Bai`;
   const url = `/work/${project.slug}`;
 
   return {
@@ -46,13 +46,13 @@ export async function generateMetadata({
       description: project.summary,
       url,
       type: "article",
-      images: [{ url: project.cover, alt: project.coverAlt }],
+      ...(project.cover ? { images: [{ url: project.cover, alt: project.coverAlt ?? project.title }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: project.summary,
-      images: [project.cover],
+      ...(project.cover ? { images: [project.cover] } : {}),
     },
   };
 }
@@ -84,16 +84,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <a className="skip-link" href="#project-content">Skip to project</a>
 
       <header className="project-case-header project-case-gutter">
-        <Link className="project-case-back" href="/" prefetch={false}>
+        <Link className="project-case-back" href="/work" prefetch={false}>
           <Arrow direction="left" />
-          <span>Back to portfolio</span>
+          <span>All projects</span>
         </Link>
         <Link className="project-case-wordmark" href="/" prefetch={false}>Sam Bai</Link>
-        <Link className="project-case-workbench" href="/?workspace=build" prefetch={false}>
-          <span className="project-case-status" aria-hidden="true" />
-          <span>Open Workbench</span>
+        <a className="project-case-workbench" href="mailto:sambai.codes@gmail.com">
+          <span>Get in touch</span>
           <Arrow />
-        </Link>
+        </a>
       </header>
 
       <main id="project-content">
@@ -120,7 +119,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </div>
         </section>
 
-        <figure className="project-case-cover project-case-gutter">
+        {project.cover && <figure className="project-case-cover project-case-gutter">
           <div className="project-case-media-bar">
             <span>{project.title}</span>
             <span>Interface preview</span>
@@ -134,7 +133,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           >
             <Image
               src={project.cover}
-              alt={project.coverAlt}
+              alt={project.coverAlt ?? `${project.title} interface`}
               fill
               sizes="(max-width: 700px) 94vw, 91vw"
               loading="eager"
@@ -147,7 +146,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               Full-size image <Arrow />
             </a>
           </figcaption>
-        </figure>
+        </figure>}
 
         <section className="project-case-story project-case-gutter" id="about-project" aria-labelledby="project-overview">
           <div className="project-case-overview">
@@ -202,15 +201,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         {nextProject && nextProject.slug !== project.slug && (
           <section className="project-case-next project-case-gutter" aria-labelledby="next-project-title">
             <p className="project-case-label">Next project</p>
-            <Link href={`/work/${nextProject.slug}`} prefetch={false} className="project-case-next-link">
+            <Link href={`/work/${nextProject.slug}`} prefetch={false} className={`project-case-next-link${nextProject.cover ? "" : " project-case-next-link--text"}`}>
               <div className="project-case-next-copy">
                 <h2 id="next-project-title">{nextProject.title}</h2>
                 <p>{nextProject.tagline}</p>
                 <span className="project-case-next-action">View project <Arrow direction="right" /></span>
               </div>
-              <div className="project-case-next-image" data-project={nextProject.slug}>
-                <Image src={nextProject.cover} alt={nextProject.coverAlt} fill sizes="(max-width: 700px) 90vw, 38vw" />
-              </div>
+              {nextProject.cover && <div className="project-case-next-image" data-project={nextProject.slug}>
+                <Image src={nextProject.cover} alt={nextProject.coverAlt ?? `${nextProject.title} interface`} fill sizes="(max-width: 700px) 90vw, 38vw" />
+              </div>}
             </Link>
           </section>
         )}

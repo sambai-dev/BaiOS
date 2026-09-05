@@ -4,6 +4,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -263,13 +264,25 @@ export default function PortfolioShell() {
         </div>
 
         <div className="public-index" id="primary-links">
-          <div className="index-intro">
-            <p className="index-label">Site</p>
-            <p className="index-statement">
-              A personal site: engineering thinking, design, and working
-              experiments.
-            </p>
-          </div>
+          <nav className="index-intro index-group index-work" aria-label="Selected products">
+            <p className="index-label">Selected work</p>
+            <a className="index-link" href="https://trekky.app/" target="_blank" rel="noopener noreferrer">
+              <span className="index-link-text">Trekky <span className="index-work-purpose">· Job search</span></span>
+              <span className="index-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a className="index-link" href="https://rivet-workspace.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Rivet construction workspace, sign-in required">
+              <span className="index-link-text">Rivet <span className="index-work-purpose">· Construction</span></span>
+              <span className="index-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a className="index-link" href="https://clearfold.vercel.app/" target="_blank" rel="noopener noreferrer">
+              <span className="index-link-text">Clearfold <span className="index-work-purpose">· Product preview</span></span>
+              <span className="index-arrow" aria-hidden="true">↗</span>
+            </a>
+            <Link className="index-link" href="/work" prefetch={false}>
+              <span className="index-link-text">All projects &amp; the thinking behind them</span>
+              <span className="index-arrow" aria-hidden="true">→</span>
+            </Link>
+          </nav>
 
           <nav className="index-group" aria-label="Primary links">
             <p className="index-label" aria-hidden="true">

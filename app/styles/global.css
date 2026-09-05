@@ -453,6 +453,9 @@ template {
   letter-spacing: -0.01em;
 }
 
+.index-work { max-width: 25rem; }
+.index-work-purpose { color: var(--ivory-muted); }
+
 .index-group {
   display: flex;
   flex-direction: column;

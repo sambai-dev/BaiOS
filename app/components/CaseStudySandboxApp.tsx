@@ -5,6 +5,7 @@
 
 import "@/app/styles/case-study-sandbox-app.css";
 
+import Link from "next/link";
 import {
   type KeyboardEvent,
   useEffect,
@@ -326,29 +327,34 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
     <div className="sandbox-app">
       <header className="sandbox-header">
         <div>
-          <span className="sandbox-header-index">Selected work</span>
-          <h2>Projects &amp; experiments.</h2>
-          <p>Trekky, the Workbench, and a small motion experiment.</p>
+          <span className="sandbox-header-index">Project details</span>
+          <h2>Inside the projects.</h2>
+          <p>A closer look at Trekky and the Workbench.</p>
         </div>
-        <div className="sandbox-tabs" role="tablist" aria-label="Projects and experiments">
-          {CASE_TABS.map((tab, index) => (
-            <button
-              key={tab.id}
-              ref={(node) => {
-                tabRefs.current[index] = node;
-              }}
-              id={`sandbox-tab-${tab.id}`}
-              type="button"
-              role="tab"
-              aria-controls={`sandbox-panel-${tab.id}`}
-              aria-selected={activeTab === tab.id}
-              tabIndex={activeTab === tab.id ? 0 : -1}
-              onClick={() => selectTab(tab.id, index)}
-              onKeyDown={(event) => handleTabKeyDown(event, index)}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="sandbox-header-actions">
+          <Link className="sandbox-projects-link" href="/work">
+            View all projects <span aria-hidden="true">→</span>
+          </Link>
+          <div className="sandbox-tabs" role="tablist" aria-label="Projects and experiments">
+            {CASE_TABS.map((tab, index) => (
+              <button
+                key={tab.id}
+                ref={(node) => {
+                  tabRefs.current[index] = node;
+                }}
+                id={`sandbox-tab-${tab.id}`}
+                type="button"
+                role="tab"
+                aria-controls={`sandbox-panel-${tab.id}`}
+                aria-selected={activeTab === tab.id}
+                tabIndex={activeTab === tab.id ? 0 : -1}
+                onClick={() => selectTab(tab.id, index)}
+                onKeyDown={(event) => handleTabKeyDown(event, index)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 

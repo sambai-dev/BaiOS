@@ -449,6 +449,8 @@
   background: var(--carbon-soft);
 }
 
+.project-case-next-link--text { grid-template-columns: minmax(0, 1fr); }
+
 .project-case-next h2 {
   font-family: var(--font-display), sans-serif;
   font-size: clamp(2.75rem, 5.5vw, 6rem);

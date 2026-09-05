@@ -12,7 +12,7 @@ This is Sam Bai's personal website. Peers, collaborators, and hiring teams use i
 
 ## Product Purpose
 
-The portfolio introduces Sam's product design and engineering work. The minimal homepage gives his identity, a large headline, and direct links. Project pages explain the problem, implementation choices, and limits with actual interface evidence. The optional Workbench lets visitors use tools, games, and experiments directly.
+The portfolio introduces Sam's product design and engineering work. The minimal homepage gives his identity, a large headline, and direct links. The public project directory leads to real products and first-person notes explaining the problem, implementation choices, and limits, with actual interface evidence where available. The optional Workbench lets visitors use tools, games, and experiments directly.
 
 The homepage leads with typography, space, and plain language. Charcoal, ivory, cobalt, and clear controls connect it to the project pages and the more playful browser desktop.
 
@@ -30,7 +30,7 @@ The writing uses a direct personal voice and specific descriptions. Headings, la
 
 The headline is “Sam designs and builds software.” The identity header gives Sam's name, Founder & Product Engineer role at Solynth Labs, Hamilton location, and New Zealand time. Hamilton coordinates appear beneath the headline.
 
-The footer contains Site, Direct, and Elsewhere. Site reads “A personal site: engineering thinking, design, and working experiments.” Direct links to Sam's email, Solynth Labs, and Open Workbench. Elsewhere links to GitHub, BaiOS Source, LinkedIn, and Résumé. The headline and footer adapt to small screens.
+The footer contains Selected work, Direct, and Elsewhere. Selected work replaces the generic Site description with direct website links to Trekky, Rivet, and Clearfold plus All projects at `/work`. Direct links to Sam's email, Solynth Labs, and Open Workbench. Elsewhere links to GitHub, BaiOS Source, LinkedIn, and Résumé. The original giant headline remains unchanged; the headline and footer adapt to small screens.
 
 Workbench remains available through the compact header tab and the Open Workbench footer link. Games, Market monitor, Vector lab, and the other desktop applications remain available through Workbench.
 
@@ -40,7 +40,11 @@ Personal Notes and visitor-created files remain local Workbench content.
 
 ## Project Pages
 
-Five public case pages describe Trekky, Rookhold, Portly, AgentScope, and BaiOS. Their content lives in `app/lib/project-case-studies.ts` and renders through `app/work/[slug]/page.tsx`. Each page has a clear title and purpose, source-backed project details, an interface preview, readable sections about the work, useful links, and routes back to the portfolio and Workbench.
+The plain public directory at `/work` groups Products & web apps (Trekky, Rivet, Clearfold, Entangle, and RentAKL) and Open-source tools (Rookhold, Portly, and AgentScope). Rivet is a private workspace requiring sign-in, Clearfold is a preproduction preview, Entangle is a research tool, and RentAKL is a demo using sample listings. Visitors can open each website directly or read its project notes.
+
+Nine public case pages describe those eight projects and BaiOS. Rivet, Clearfold, Entangle, and RentAKL join the five existing pages. Their content lives in `app/lib/project-case-studies.ts` and `app/lib/product-stories.ts` and renders through `app/work/[slug]/page.tsx`. Each page has a clear title and purpose, source-backed project details, useful links, and routes back to the portfolio and Workbench. The All projects link in each case-page header returns to `/work`.
+
+First-person notes explain why Sam built each project, how it works, and the engineering decisions and tradeoffs in human language without em dashes. The four new pages are text-only and do not use invented interface images. Repository links are provided only for public source; private repositories are not linked.
 
 Trekky's page uses light ivory surfaces and a genuine earlier light-theme sample dashboard, labeled as an empty sample board. Other project pages remain dark while sharing the same typography and controls.
 
@@ -56,15 +60,21 @@ Three workspaces organize applications:
 
 - **Work:** About Sam, current projects, technical background, process, and contact.
 - **Playground:** Subsurface, Railshift, Vector lab, and Market monitor.
-- **Notes:** Notes, Files, Terminal, Web search, AI assistant, and Settings.
+- **Notes:** Notes, Files, Terminal, Web search, Ask about Sam, and Settings.
 
 The app registry assigns each app a home workspace. Applications uses All, Work, Playground, and Notes categories. Launching through the launcher, shortcuts, Files, or a shared link opens or focuses the app in its assigned workspace. An app link takes precedence over a conflicting workspace parameter. Restored windows are organized into their app's workspace while retaining IDs, content, geometry, and open or minimized state. The active window follows its move; an empty selected workspace stays selected.
 
-Visible app names are Welcome, Tech stack, How I work, Notes, Terminal, Contact & links, Market monitor, Project brief, Projects, AI assistant, Subsurface, Railshift, Vector lab, Files, Web search, and Settings. Internal IDs and commands remain compatible with saved sessions and earlier links. Custom window and file names remain visitor-owned.
+Visible app names are Welcome, Tech stack, How I work, Notes, Terminal, Contact & links, Market monitor, Project brief, Projects, Ask about Sam, Subsurface, Railshift, Vector lab, Files, Web search, and Settings. Internal IDs and commands remain compatible with saved sessions and earlier links. Custom window and file names remain visitor-owned.
 
 Desktop windows support focus, dragging, resizing, minimizing, closing, maximizing, restoring, and snapping. Overview shows open windows across workspaces. Focus one minimizes siblings; Bring to front preserves them; Show all restores minimized windows. At compact widths, one active window is visible and the taskbar switches tasks. Open inactive apps remain in the session and outside the interaction and accessibility trees until reactivated.
 
-Projects inside the Workbench provides interactive Trekky and BaiOS details plus a labeled spring simulation. Project brief helps prepare an email enquiry without inventing a quote or delivery schedule. Market monitor uses CoinGecko for its eight-asset watchlist and timestamped 24-hour, 7-day, and 30-day charts in USD or NZD. EMA 20 and EMA 50 overlays use the actual sample cadence, with a visible explanation, pointer inspection, and keyboard-accessible history slider. Its Fear & Greed panel reads the genuine CoinMarketCap index through the documented keyless public API. Each provider has its own source timestamp and honest cached or unavailable state; automatic refresh runs only while the app and browser tab are visible. Web search uses Wikipedia and can save attributed results to Files. AI assistant sends prompts to OpenRouter and identifies its response as not independently checked.
+Projects inside the Workbench provides interactive Trekky and BaiOS details plus a labeled spring simulation, with an All projects link to the public directory. Project brief helps prepare an email enquiry without inventing a quote or delivery schedule. Market monitor uses CoinGecko for its eight-asset watchlist and timestamped 24-hour, 7-day, and 30-day charts in USD or NZD. EMA 20 and EMA 50 overlays use the actual sample cadence, with a visible explanation, pointer inspection, and keyboard-accessible history slider. Its Fear & Greed panel reads the genuine CoinMarketCap index through the documented keyless public API. Each provider has its own source timestamp and honest cached or unavailable state; automatic refresh runs only while the app and browser tab are visible. Web search uses Wikipedia and can save attributed results to Files. Ask about Sam helps visitors learn about Sam's public profile and projects through approved, surface-level summaries. It sends only the current question to OpenRouter and NVIDIA; earlier turns are not resent.
+
+Ask about Sam keeps up to five question-and-answer turns in memory. Suggested questions make its scope clear, Stop cancels the browser request, and Clear conversation removes the visible turns. Chat content is not written to browser storage, Files, or Settings backups. The internal app ID remains `agent` so existing links and sessions keep working.
+
+The model classifies a question into one to three approved topic IDs using strict JSON. The server validates those IDs and supplies fixed public summaries; the model does not write the answer shown to the visitor. The chat does not load source code, README architecture details, private GitHub repositories, or internal documents. It cannot browse, follow links, call tools, or perform actions. Replies use plain text and approved content, with no model-provided HTML or arbitrary links. Unsupported questions receive a short explanation of the chat's scope.
+
+Questions are sent to OpenRouter and the NVIDIA model provider, whose data policies apply. The interface asks visitors to leave out passwords and confidential information. The chat has no account or password store and uses no private GitHub token. The server does not log questions or upstream error bodies. Clear and Stop do not retract information already sent to a provider.
 
 ## Games and Vector Lab
 
@@ -86,7 +96,7 @@ Session and Files are validated and saved together. Imports are size-limited and
 
 Backup coverage is specific: it includes workspace/session state and Files. Project brief drafts, Vector's per-instance vectors, view and mission progress, sound preference, game records, and transient component state have separate lifecycles. In-progress games and temporary interface state are not promised to survive a reload or appear in the backup.
 
-Market monitor, Web search, and AI assistant make network requests. Their service use does not imply that local files or desktop sessions are uploaded. Provider, source, cached-data, estimate, and generated-output labels describe what actually happened.
+Market monitor, Web search, and Ask about Sam make network requests. Their service use does not imply that local files or desktop sessions are uploaded. Ask about Sam sends only the submitted question to OpenRouter and the model provider, and retains no saved chat history. Provider, source, cached-data, estimate, and generated-output labels describe what actually happened.
 
 ## Interaction and Accessibility
 
@@ -96,6 +106,7 @@ Market monitor, Web search, and AI assistant make network requests. Their servic
 - F3 opens Overview, Ctrl/Cmd+K opens search, and Alt+1 through Alt+3 switch workspaces. Escape closes the top transient surface or Workbench when focus is not in a typing control.
 - Window resize handles support arrow-key resizing in 12px steps and 32px with Shift. Window and workspace actions also have labeled controls.
 - Files supports keyboard traversal and file actions, including Home, End, Enter, F2, and Delete, with confirmation for permanent deletion.
+- Ask about Sam provides labeled input, suggested questions, a 2,000-character limit, Send, Stop, Clear conversation, and readable pending or failure states. Provider privacy information stays beside the input, and chat replies render as plain text.
 - Games expose keyboard and touch controls, visible instructions, pause, and outcome messages. Vector retains coordinate inputs and keyboard adjustment alongside direct manipulation.
 - Focus indicators, semantic headings and control states, live status messages, input validation, reduced motion, and readable mobile layouts are part of the product.
 
@@ -103,7 +114,8 @@ Market monitor, Web search, and AI assistant make network requests. Their servic
 
 - Homepage: `app/components/PortfolioShell.tsx` and `app/styles/global.css`.
 - Retained orbit exploration: `app/components/ProjectOrbit.tsx` and `app/lib/portfolio-projects.ts`; not rendered on the homepage.
-- Project pages: `app/work/[slug]/page.tsx` and `app/lib/project-case-studies.ts`.
+- Project directory: `app/work/page.tsx` and `app/styles/project-directory.css`.
+- Project pages: `app/work/[slug]/page.tsx`, `app/lib/project-case-studies.ts`, and `app/lib/product-stories.ts`.
 - Original thumbnails: `app/components/ProjectThumbnail.tsx`; interface and gameplay evidence: `public/portfolio-media/`.
 - Desktop, apps, games, renderers, state, and recovery: `app/components/`, `app/lib/`, and their tests.
 - Résumé: `public/resume/SamBai_Resume.8aa80702.pdf`.

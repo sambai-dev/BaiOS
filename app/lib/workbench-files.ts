@@ -376,7 +376,7 @@ const defaultNodes: readonly FileNode[] = [
   {
     id: "shortcut-agent",
     kind: "app",
-    name: "AI assistant",
+    name: "Ask about Sam",
     parentId: "folder-experiments",
     appId: "agent",
     createdAt: DEFAULT_TIMESTAMP,

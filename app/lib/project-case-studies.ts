@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Attribution and additional terms: see NOTICE.md.
 
+import { webProductStories } from "./product-stories";
+
 export type ProjectCaseStudy = {
   slug: string;
   title: string;
@@ -12,18 +14,19 @@ export type ProjectCaseStudy = {
   links: { label: string; href: string }[];
   sections: { title: string; body: string }[];
   facts: { label: string; value: string }[];
-  cover: string;
-  coverAlt: string;
+  cover?: string;
+  coverAlt?: string;
 };
 
 export const caseStudies: ProjectCaseStudy[] = [
+  ...webProductStories,
   {
     slug: "rookhold",
     title: "Rookhold",
     eyebrow: "Execution infrastructure",
     tagline: "Run code. Set limits. Keep the evidence.",
     summary:
-      "A bounded job runner for applications and AI agents that need to execute short scripts, follow their output, and retain a verifiable record of the result.",
+      "I built Rookhold to run short scripts with resource limits, live output, and a verifiable record of the result.",
     year: "2026",
     stack: ["Rust", "Tokio", "Axum", "SQLite", "gVisor", "Python", "TypeScript"],
     links: [
@@ -34,24 +37,24 @@ export const caseStudies: ProjectCaseStudy[] = [
     ],
     sections: [
       {
-        title: "A small script still needs a boundary",
+        title: "Put a boundary around each job",
         body:
-          "Generated code, user-defined transforms, and code evaluators share a practical problem: a short piece of source can consume resources, read files, or keep running indefinitely. Rookhold gives these jobs a separate execution path with server-controlled limits on time, memory, processes, files, and output.",
+          "A short script can still consume too much memory, read files, or keep running indefinitely. I built Rookhold around that problem: give generated code, user-defined transforms, and evaluators a separate execution path, with the server setting limits on time, memory, processes, files, and output.",
       },
       {
-        title: "One job, from admission to result",
+        title: "Keep the job history together",
         body:
-          "The Rust service connects scoped authentication, a bounded queue, fair scheduling, execution, and durable results. Python, Node, and Bash jobs expose live output and cancellation through the same API used by the CLI, SDKs, MCP adapter, and embedded dashboard. SQLite holds the job state and ordered event history, so a disconnected client can catch up.",
+          "I use one Rust service for scoped authentication, a bounded queue, fair scheduling, execution, and durable results. Python, Node, and Bash jobs share an API for live output and cancellation across the CLI, SDKs, MCP adapter, and dashboard. SQLite keeps the job state and ordered events, so a disconnected client can catch up without losing its place.",
       },
       {
-        title: "Evidence that travels with the job",
+        title: "Make the result checkable",
         body:
-          "Finished jobs record the controls the executor actually observed. A receipt can be bound to a signed DSSE/in-toto statement using Ed25519, with an offline verifier for checking the exact bytes. A durable outbox separates saving a result from signing it, so a restart can resume unfinished attestation work.",
+          "A completed job records the controls the executor actually observed. Its receipt can be bound to a signed DSSE/in-toto statement using Ed25519. I included an offline verifier to check the exact bytes. Saving the result and signing it are separate steps, with a durable outbox letting a restarted service finish pending attestation work.",
       },
       {
-        title: "A deliberate scope",
+        title: "Keep execution narrowly scoped",
         body:
-          "The released system runs short, stateless jobs on one node. Guarded execution requires a configured Linux x86_64 service with gVisor and the documented host setup; the local development mode has no isolation boundary. Persistent workspaces, interactive terminals, and multi-node scheduling sit outside the current design.",
+          "I kept the released system focused on short, stateless jobs on one node. That leaves persistent workspaces, interactive terminals, and multi-node scheduling outside its scope. Guarded execution requires Linux x86_64, gVisor, and the documented host setup. The local development mode has no isolation boundary.",
       },
     ],
     facts: [
@@ -69,7 +72,7 @@ export const caseStudies: ProjectCaseStudy[] = [
     eyebrow: "Developer tools",
     tagline: "Know what is running on localhost.",
     summary:
-      "A terminal workspace that brings listening ports, host processes, Docker containers, health checks, and logs into one view.",
+      "I built Portly to bring local ports, processes, Docker containers, health checks, and logs into one terminal view.",
     year: "2026",
     stack: ["Rust", "Ratatui", "Crossterm", "Tokio", "sysinfo", "Bollard"],
     links: [
@@ -79,24 +82,24 @@ export const caseStudies: ProjectCaseStudy[] = [
     ],
     sections: [
       {
-        title: "The answer was scattered across terminals",
+        title: "A port number is only part of the answer",
         body:
-          "Finding the owner of port 3000 is easy. Understanding its memory use, checking whether it responds, finding its logs, and noticing a related container takes more context switching. Portly joins that information around the service you are trying to inspect.",
+          "Finding the process on port 3000 is straightforward. Checking its memory use, response, logs, and related container takes more digging. I put that information around the service being inspected, so the terminal can answer the next question as well as the first.",
       },
       {
-        title: "Discover, inspect, act",
+        title: "Make actions deliberate",
         body:
-          "Host processes and Docker containers appear as first-class rows with ports, CPU trends, memory, and optional health checks. Keyboard and mouse controls support filtering, sorting, and log inspection. Process termination and container actions require an explicit second step; the process path also checks that the PID still owns the expected port before killing it.",
+          "Host processes and Docker containers have the same row structure: ports, CPU trends, memory, and optional health checks. Keyboard and mouse controls handle filtering, sorting, and logs. I require a second step before terminating a process or acting on a container. Before killing a process, Portly also checks that its PID still owns the expected port.",
       },
       {
-        title: "Keep a slow collector out of the way",
+        title: "Keep collection separate from rendering",
         body:
-          "Independent collectors feed an Elm-style model and update loop, while rendering stays free of I/O. Each collector owns its rows, so a failed Docker request cannot erase host processes. Log messages carry a generation number, preventing an old follower from writing into a newly opened pane. A JSON snapshot mode makes the same discovery useful in scripts.",
+          "I separated the collectors from the Elm-style model and update loop, keeping I/O out of rendering. Each collector owns its rows, so a failed Docker request cannot erase host processes. Log messages carry a generation number to stop an old follower writing into a newly opened pane. The same discovery can also produce a JSON snapshot for scripts.",
       },
       {
-        title: "Useful defaults, visible limits",
+        title: "Show what the system can actually tell us",
         body:
-          "Portly ships binaries for Windows, macOS, and Linux. TCP listeners are its reliable core; UDP ownership varies by operating system. Health probes are opt-in plain HTTP checks against localhost. CPU cells remain blank until enough real samples exist, and stale data is marked instead of made to look current.",
+          "Portly ships binaries for Windows, macOS, and Linux. I focused on TCP listeners as the reliable core; UDP ownership varies by operating system. Health probes are opt-in plain HTTP checks against localhost. CPU cells stay blank until enough real samples exist, and stale data is labeled. This leaves some cells empty, but keeps the interface honest about what it knows.",
       },
     ],
     facts: [
@@ -114,7 +117,7 @@ export const caseStudies: ProjectCaseStudy[] = [
     eyebrow: "Runtime observability",
     tagline: "See what an agent actually does.",
     summary:
-      "A Rust and eBPF observability system that follows process execution, file access, and outbound connections, then surfaces policy violations in a live dashboard.",
+      "I built AgentScope to show what an agent executes, which files it opens, and where it connects, with policy alerts alongside the activity.",
     year: "2026",
     stack: ["Rust", "eBPF", "Aya", "Tokio", "Axum", "Server-Sent Events"],
     links: [
@@ -124,24 +127,24 @@ export const caseStudies: ProjectCaseStudy[] = [
     ],
     sections: [
       {
-        title: "Look beyond the agent's own logs",
+        title: "Look beyond what the agent reports",
         body:
-          "An autonomous coding agent can install packages, read credentials, and contact remote hosts. Its application logs only describe what the process chooses to report. AgentScope explores another source of evidence: Linux kernel tracepoints for process execution, file opens, and outbound connections.",
+          "An autonomous coding agent can install packages, read credentials, and contact remote hosts. Its own logs only show what it reports. I use Linux kernel tracepoints to observe process execution, file opens, and outbound connections, giving AgentScope a source of evidence outside those application logs.",
       },
       {
-        title: "Turn events into something an operator can read",
+        title: "Give the events enough context",
         body:
-          "eBPF probes send bounded records through a ring buffer to a Rust collector. A declarative policy engine flags selected processes, secret paths, and network destinations. The embedded dashboard brings together a process tree, network map, file-access timeline, violations feed, and a live policy editor, with REST and Server-Sent Events exposing the same data.",
+          "The eBPF probes send bounded records through a ring buffer to a Rust collector. I connect those records to a declarative policy engine that flags selected processes, secret paths, and network destinations. The dashboard combines a process tree, network map, file-access timeline, violations feed, and live policy editor. REST and Server-Sent Events expose the same data.",
       },
       {
-        title: "A reproducible path through the whole system",
+        title: "Make a run repeatable",
         body:
-          "A deterministic event simulator and replay command exercise collection, policy evaluation, and the dashboard without requiring a Linux kernel. This keeps the demonstration available on Windows and macOS and provides a repeatable way to test changes to detection rules.",
+          "I added a deterministic event simulator and replay command so collection, policy evaluation, and the dashboard can be exercised without a Linux kernel. Windows and macOS use that simulated path. Replaying the same events also provides a repeatable check when a detection rule changes.",
       },
       {
         title: "Observation before enforcement",
         body:
-          "The current release detects and reports activity; it does not block syscalls. Real collection requires Linux, while other platforms use simulated events. History lives in memory, and the API has no built-in authentication, so it belongs on localhost or a trusted management network. Persistent storage, stronger attribution, and enforcement remain further work.",
+          "I kept this release focused on observation and alerts. It detects and reports activity but does not block syscalls. Real collection requires Linux; other platforms use simulated events. History lives in memory, and the API has no built-in authentication, so it belongs on localhost or a trusted management network. Persistent storage, stronger attribution, and enforcement remain further work.",
       },
     ],
     facts: [
@@ -159,7 +162,7 @@ export const caseStudies: ProjectCaseStudy[] = [
     eyebrow: "Solynth Labs · product",
     tagline: "Keep the whole job search together.",
     summary:
-      "A job-search product connecting discovery, application preparation, tracking, and follow-ups across a shared workflow.",
+      "I build and operate Trekky to keep job discovery, application preparation, tracking, and follow-ups together around each role.",
     stack: ["Web app", "PWA", "MV3 extension", "Authenticated MCP", "Google sync"],
     links: [
       { label: "Visit Trekky", href: "https://trekky.app" },
@@ -167,19 +170,24 @@ export const caseStudies: ProjectCaseStudy[] = [
     ],
     sections: [
       {
-        title: "Carry the context through the search",
+        title: "Keep the work around the role",
         body:
-          "Finding an opportunity is only one part of a job search. Preparation, contacts, interviews, and follow-ups create work of their own. Trekky connects these steps so the search can be managed as one continuing workflow.",
+          "A job search spreads across saved links, spreadsheets, inbox threads, calendar reminders, and versions of a résumé. I built Trekky around the role being pursued. Its stage, documents, contacts, interviews, and next action belong to the same workflow, from finding the opening through preparation and follow-up.",
       },
       {
-        title: "From discovery to preparation",
+        title: "Keep tracking responsive and records durable",
         body:
-          "Job sources across New Zealand, Australia, the United States, and Singapore feed the discovery workflow. Duplicate handling and source history keep imported listings reviewable. AI apply kits help prepare application material, while the person applying reviews the output and makes the final submission.",
+          "Protected Next.js pages load their starting data on the server, with MongoDB holding the records and SWR optimistic updates keeping day-to-day tracking responsive. I record a saved role and a submitted application as separate lifecycle events. That distinction matters: saving an interesting job should not count as applying for it in the outcome analytics.",
       },
       {
-        title: "Stay with the work after applying",
+        title: "Search the dataset before the live sources",
         body:
-          "Tracking, contacts, analytics, and follow-ups remain connected to the search. Google calendar sync brings interviews and reminders alongside tracked work. The product spans a web app, PWA, browser extension, and authenticated MCP access.",
+          "I read from a cached job dataset before falling back to live sources. This reduces repeated upstream work, but a cached listing can lag behind its source. Discovery covers sources across New Zealand, Australia, the United States, and Singapore. Duplicate handling and source history keep imported listings reviewable.",
+      },
+      {
+        title: "Preparation still needs a person's decision",
+        body:
+          "AI apply kits help prepare material for a specific role, but the person applying reviews the output and chooses the final submission. I keep that decision explicit. The web app is the core, with PWA, browser extension, Google calendar sync, and authenticated MCP integration paths. Their setup and availability vary; an integration in the codebase is not a promise that every account has it enabled.",
       },
     ],
     facts: [
@@ -197,7 +205,7 @@ export const caseStudies: ProjectCaseStudy[] = [
     eyebrow: "Design engineering",
     tagline: "A personal website you can work inside.",
     summary:
-      "This portfolio opens into Workbench, a browser desktop with real windows, local files, useful tools, and playable experiments.",
+      "I built Workbench into this portfolio so visitors can try the windows, local files, tools, and experiments themselves.",
     stack: ["Next.js", "React", "TypeScript", "Motion", "Canvas", "Browser storage"],
     links: [
       { label: "Open Workbench", href: "/?workspace=build&app=now" },
@@ -206,24 +214,24 @@ export const caseStudies: ProjectCaseStudy[] = [
     ],
     sections: [
       {
-        title: "Let the interface become the evidence",
+        title: "Let visitors try the interface",
         body:
-          "BaiOS makes the portfolio itself a piece of working software. A visitor can read about the projects, then open a desktop and try the windowing, tools, and interactions directly. The Work, Playground, and Notes workspaces give each kind of activity a familiar place.",
+          "I made the portfolio itself a piece of working software. The public page stays simple, while Workbench opens a desktop that visitors can use directly. Work, Playground, and Notes give projects, experiments, and personal writing their own places, with familiar controls for finding an app and moving between tasks.",
       },
       {
-        title: "A desktop with a working memory",
+        title: "Keep the task when the layout changes",
         body:
-          "Windows can focus, drag, resize, snap, maximize, minimize, and restore. Notes and folders live in a local file system, and the session remembers window positions, app state, and appearance. Compact screens switch to one active window at a time while retaining the other tasks in the session.",
+          "Windows can focus, drag, resize, snap, maximize, minimize, and restore. I keep positions, app state, and appearance in the saved session, alongside local notes and folders. Compact screens show one active window at a time. The other tasks stay in the session, so adapting the layout does not discard the work.",
       },
       {
-        title: "Treat saved work as part of the product",
+        title: "Make recovery part of saving",
         body:
-          "Files and desktop state save together in a validated snapshot. Backup imports are checked before replacing saved work, and damaged data is preserved for recovery. When another tab changes the same session, the interface lets the visitor choose which version to keep.",
+          "I save Files and desktop state together in a validated snapshot. Backup imports are checked before replacing saved work, and damaged data is preserved for recovery. Two tabs can still disagree about the same session. When that happens, the interface asks which version to keep rather than silently choosing one.",
       },
       {
-        title: "Make the boundary clear",
+        title: "Keep local work local",
         body:
-          "Desktop sessions and files stay in the current browser, without an account or remote sync. Market data, search, and the AI assistant use network-backed services and disclose that distinction. Games and visual tools pause their animation loops when inactive, and keyboard controls and reduced-motion behavior are built into the desktop.",
+          "I keep desktop sessions and files in the current browser, without an account or remote sync. Moving that work to another browser needs an exported backup. Market data, search, and the AI assistant use separate network services and disclose that distinction. Games and visual tools pause when inactive, and the desktop includes keyboard controls and reduced-motion behavior.",
       },
     ],
     facts: [
