@@ -1,6 +1,6 @@
 ---
-name: "Quiet Junction / Sam Bai Portfolio"
-description: "A precise portfolio where authored working software is the proof and local state is described honestly."
+name: "Sam Bai / Portfolio"
+description: "A minimal personal portfolio with a large headline, direct links, and an optional browser desktop."
 colors:
   carbon: "#11110f"
   carbon-soft: "#1b1b18"
@@ -20,317 +20,155 @@ colors:
 typography:
   display:
     fontFamily: "Archivo, sans-serif"
-    fontSize: "clamp(4.75rem, 10vw, 11rem)"
     fontWeight: 650
-    lineHeight: 0.88
-    letterSpacing: "-0.04em"
-  headline:
-    fontFamily: "Archivo Black, sans-serif"
-    fontSize: "clamp(1.8rem, 3vw, 3.45rem)"
-    fontWeight: 400
-    lineHeight: 0.92
-    letterSpacing: "-0.03em"
-  title:
-    fontFamily: "Archivo Black, sans-serif"
-    fontSize: "1.8rem"
-    fontWeight: 560
     lineHeight: 1
-    letterSpacing: "-0.04em"
+    letterSpacing: "-0.045em"
+  headline:
+    fontFamily: "Archivo, sans-serif"
+    fontSize: "clamp(1.5rem, 3.1cqi, 2.15rem)"
+    fontWeight: 600
+    lineHeight: 1.12
+    letterSpacing: "-0.035em"
   body:
     fontFamily: "Archivo, sans-serif"
     fontSize: "0.9rem"
     fontWeight: 400
-    lineHeight: 1.48
-    letterSpacing: "normal"
+    lineHeight: 1.6
   label:
     fontFamily: "Azeret Mono, monospace"
-    fontSize: "0.58rem"
+    fontSize: "0.75rem"
     fontWeight: 400
-    lineHeight: 1.45
+    lineHeight: 1.5
     letterSpacing: "0.02em"
 rounded:
-  none: "0"
+  controls: "0"
   status: "50%"
-components:
-  public-index-link:
-    backgroundColor: "transparent"
-    textColor: "{colors.ivory}"
-    typography: "{typography.label}"
-    rounded: "{rounded.none}"
-    padding: "0"
-  workbench-menu-trigger:
-    backgroundColor: "transparent"
-    textColor: "{colors.ivory-muted}"
-    typography: "{typography.label}"
-    rounded: "{rounded.none}"
-    padding: "0 0.78rem"
-    height: "3.75rem"
-  workbench-menu-trigger-active:
-    backgroundColor: "{colors.signal}"
-    textColor: "{colors.carbon}"
-    typography: "{typography.label}"
-    rounded: "{rounded.none}"
-    padding: "0 0.78rem"
-    height: "3.75rem"
-  dock-app:
-    backgroundColor: "transparent"
-    textColor: "{colors.ivory}"
-    typography: "{typography.label}"
-    rounded: "{rounded.none}"
-    padding: "0.6rem 0.75rem"
-    height: "4.6rem"
-  dock-app-active:
-    backgroundColor: "{colors.cobalt}"
-    textColor: "{colors.ivory}"
-    typography: "{typography.label}"
-    rounded: "{rounded.none}"
-    padding: "0.6rem 0.75rem"
-    height: "4.6rem"
-  system-search-field:
-    backgroundColor: "transparent"
-    textColor: "{colors.carbon}"
-    typography: "{typography.headline}"
-    rounded: "{rounded.none}"
-    padding: "0.4rem 0"
 ---
 
-# Design System: Quiet Junction / Sam Bai Portfolio
+# Design System: Sam Bai / Portfolio
 
-## Overview
+## Direction
 
-**Creative North Star: "Quiet Junction"**
+The homepage is a minimal personal introduction: an identity header, large headline, coordinates, and a short footer of direct links. Generous space and strong type carry the composition. Project pages provide detail, and the optional Workbench retains its familiar desktop, useful tools, and playful 3D experiments.
 
-Quiet Junction is a senior, authored operating environment disguised as a sparse public front door. Carbon grain, monumental ivory type, themeable route light, tiny operational readouts, and square rules create a private-feeling place where restraint carries more authority than a gallery of claims.
+Charcoal, ivory, cobalt, square controls, clear rules, strong type, and small status marks connect the whole site. The homepage uses a simple reading order; the Workbench and original game worlds carry the more expressive interactions.
 
-The public layer stays quiet and exacting; the Workbench reveals the machinery behind the person. Workbench, Atlas, Archive, Control, the menu system, and the workspace language form an original clean-room visual and interaction vocabulary. Their windows, local tools, recoverable state, and three interactive labs make working software itself the personality without importing another product's names, icons, or trade dress.
+The site remains personal: Sam Bai, Founder & Product Engineer at Solynth Labs, based in Hamilton, New Zealand. Plain first-person introductions and specific project descriptions take priority over invented system language.
 
-Workbench session and Archive data stay in this browser. There is no account, login, remote sync, or remote filesystem for that state; browser storage and visitor-initiated JSON export/import are its persistence paths. Pulse, Search, and Agent use network-backed services, and their interfaces must disclose that boundary instead of extending the browser-local claim to the whole Workbench.
+## Color and Material
 
-**Key Characteristics:**
+- **Carbon and soft carbon** form the public background, desktop chrome, media frames, and dark tool panels.
+- **Ivory and muted ivory** supply reading surfaces and text. Long passages have clear contrast and comfortable line spacing.
+- **Cobalt** connects the Workbench, selected controls, links, and cartridge illustrations.
+- **Signal green** marks focus, readiness, selection, and immediate feedback.
+- **Oxide and graphite** remain alternative Workbench themes. Route, depth, and signal colors change together while structure and content remain stable.
 
-- Monumental Archivo statements paired with Azeret Mono operational telemetry.
-- Carbon and ivory structure routed by cobalt, oxide, or graphite accents with a coordinated signal color.
-- Square geometry, one-pixel rules, and restrained grain establish material without nostalgia cosplay.
-- Flat public composition gives way only to structurally elevated Workbench windows, menus, Atlas, and system search.
-- Working software reveals personality through optional, usable instruments rather than decorative demos.
+Original project illustrations and 3D scenes can use additional colors that explain their subjects: amber specimens underwater, golden runner cells, or distinct vector axes. Those colors belong to the artwork or simulation; shared navigation and chrome keep the portfolio palette.
 
-## Colors
+Grain, thin rules, shallow insets, and deliberate shadows give the interface material. Dense texture, glow, and decorative readouts do not compete with names, actions, or game feedback.
 
-The palette behaves like an operating signal system. Warm near-black and paper neutrals carry the field; the selected theme changes route, depth, and signal together. Carbon, ivory, and the one-pixel rules remain stable so theme changes preserve hierarchy and contrast.
+## Typography and Language
 
-### Base Theme: Cobalt
+Archivo supplies the main reading and interface voice. Archivo Black is used selectively for cartridge titles, project identities, or a bold game title. Azeret Mono carries concise labels, coordinates, shortcuts, numbers, and system state.
 
-- **Cobalt Operational Light** (`colors.cobalt`): The default route color for the desktop field, active modules, selected rows, and the public Workbench aperture.
-- **Deep Cobalt** (`colors.cobalt-deep`): Quieter route metadata and secondary blue emphasis on ivory.
-- **Signal Green** (`colors.signal`): Live indicators, keyboard focus, active-window outlines, and immediate action.
+Public and case-page titles can be large; app headings use calmer weights and proportions so they fit a window. Body text has room to wrap, and control labels remain readable at compact sizes. Labels use sentence case except where a short cartridge or data treatment deliberately calls for capitals.
 
-### Alternate Themes
+The visible names are Workbench, Work, Playground, Notes, Applications, Window overview, Files, Settings, Projects, Project brief, Web search, and AI assistant. Older names such as Atlas, Archive, Control, and Sandbox remain internal compatibility identifiers, not competing navigation names. Visitor-authored titles and notes are preserved.
 
-- **Oxide** (`colors.oxide`), **Oxide Deep** (`colors.oxide-deep`), and **Oxide Signal** (`colors.oxide-signal`): A warmer, late-session route with amber focus evidence.
-- **Graphite** (`colors.graphite`), **Graphite Deep** (`colors.graphite-deep`), and **Graphite Signal** (`colors.graphite-signal`): A quieter neutral route with blue-white focus evidence.
+Copy explains what the visitor can do: “Open Workbench,” “Save to Files,” “Email Sam,” “Start riding,” or “Test this setup.” Project writing describes actual work and limitations. Demo labels, external service use, and browser-local storage are explicit without turning every introduction into implementation documentation.
 
-### Neutral
+## Shared Layout
 
-- **Carbon Grain** (`colors.carbon`): Public ground, Workbench chrome, console field, and title bars.
-- **Soft Carbon** (`colors.carbon-soft`): A restrained tonal step for inset notes and secondary dark fields.
-- **Ivory Paper** (`colors.ivory`): Primary light text on carbon and the Workbench window surface.
-- **Muted Ivory** (`colors.ivory-muted`): Low-priority metadata and inactive operational labels.
-- **Dark Rule** (`colors.rule-dark`): One-pixel separation on ivory fields.
-- **Light Rule** (`colors.rule-light`): One-pixel separation on carbon and route-color fields.
+The frontpage, case pages, Workbench, and games share alignment, readable type, square framing, and a clear separation between content and controls. The homepage places its headline between the identity header and footer links. Case studies offer a comfortable reading path. Desktop windows support focused tools, while game scenes use their available window area.
 
-### Named Rules
+Public gutters scale with the viewport. Workbench components respond to their own container size as well as the viewport, so a resized window remains usable. At compact widths, the desktop changes to a single active window with a persistent taskbar; the interaction model changes before controls become too small.
 
-**The Route Is State Rule.** Use the active route color to show where the visitor is, what is selected, or where an interaction leads; do not spread it as ambient decoration.
+Screenshots retain their native proportions on project pages. Dense interface examples have descriptive captions and full-size links. On mobile, project prose, facts, actions, and game controls reflow into a readable order rather than becoming miniature desktop layouts.
 
-**The Signal Is Evidence Rule.** The active theme's signal means live, focused, or immediately actionable. Its rarity is what makes it trustworthy.
+## Public Homepage
 
-**The Palette Contract Rule.** Cobalt, oxide, and graphite swap route, deep, and signal values as one set; carbon, ivory, typography, rules, and square geometry do not change with the theme.
+“Sam designs and builds software.” leads the page in large ivory type with a cobalt full stop. Hamilton coordinates sit beneath the headline. The identity header names Sam, his role at Solynth Labs, Hamilton, New Zealand, and the local time.
 
-## Typography
+The footer has three groups separated from the hero by a fine rule. Site describes “A personal site: engineering thinking, design, and working experiments.” Direct contains email, Solynth Labs, and Open Workbench. Elsewhere contains GitHub, BaiOS Source, LinkedIn, and Résumé. The headline and footer reflow on narrow screens.
 
-**Display/Body Font:** Archivo (with sans-serif fallback)
+The compact header tab and Open Workbench footer link offer the desktop as an optional next step.
 
-**Workbench Headline/Title Font:** Archivo Black (with sans-serif fallback)
+`PortfolioShell.tsx` and the shared global styles define this page. `ProjectOrbit.tsx`, its data, and the original cartridge artwork remain in the repository as a retained exploration; the homepage does not render them.
 
-**Label/Mono Font:** Azeret Mono (with monospace fallback)
+## Retained Original Artwork
 
-**Character:** The pairing moves between a compressed public declaration and exact operational annotation. Archivo supplies a clear reading voice inside tools; Azeret Mono makes state, coordinates, shortcuts, file metadata, and menu labels feel authored rather than decorative.
+`ProjectThumbnail.tsx` retains the original cartridge treatment: a strong title band, a concise purpose line, and original subject-specific artwork. Trekky shows connected application steps; Rookhold shows bounded execution and a receipt; Portly shows local services; AgentScope shows activity relationships; BaiOS shows the browser desktop. Games use their own scenes, while Market monitor uses a price-and-moving-average diagram. These cartridges are not the current homepage layout.
 
-### Hierarchy
+Thumbnails are readable entry points rather than evidence of a product interface. Actual screenshots and recorded gameplay are identified separately. The Clone establishes an interaction reference only; its downloaded brand imagery, video, typefaces, logos, and project identities are not used as portfolio assets. Original illustration, procedural geometry, and captures of Sam's own software supply the visual material.
 
-- **Display** (650, `typography.display`, 0.88): Monumental public statements; keep lines short enough for the compressed rhythm to remain legible.
-- **Headline** (400, `typography.headline`, 0.92): Workbench app propositions and major window content headings.
-- **Title** (560, `typography.title`, 1): Compact lab and calculator titles where hierarchy must hold inside a window.
-- **Body** (400, `typography.body`, 1.48): Explanations and working copy; practical measures typically stop between 48ch and 62ch.
-- **Label** (400, `typography.label`, uppercase where operational): Menus, state, shortcuts, coordinates, field legends, HUD copy, and navigation metadata.
+## Public Project Pages
 
-### Named Rules
+Trekky, Rookhold, Portly, AgentScope, and BaiOS have public pages under `/work/`. A project page combines a clear identity and purpose, an interface preview, factual details and links, readable sections explaining the work, and navigation to the next project, portfolio, or Workbench.
 
-**The Monument and Telemetry Rule.** Use display type for a decisive idea and mono type for the system around it; never let both voices compete at the same scale.
+Trekky uses an ivory reading surface with dark ink and its genuine earlier light-theme sample dashboard. Other project pages use charcoal. Shared typography, square controls, cobalt actions, and layout keep these variants connected.
 
-## Layout
+The shared computer-lab treatment carries through dark chrome, square media frames, ivory reading areas, cobalt accents, and restrained mono labels. Screenshots remain complete and inspectable. Captions distinguish live interfaces, sample data, README examples, and simulated events; release facts do not silently relabel older screenshots.
 
-The shared spatial grammar is field-and-rule, not card-and-gap. Content sits in broad carbon, route-color, or ivory fields; one-pixel rules establish alignment; large declarations and compact operational data create the density contrast. Public outer padding steps from 2rem to 1.5rem below 980px and 1.1rem below 620px. Within the Workbench, compact control padding clusters around 0.6–1rem while app content uses about 1–1.2rem.
+The content explains concrete problems, implementation choices, and current scope. Claims about isolation, authentication, enforcement, outcomes, or performance remain tied to the actual project. Technical detail belongs where it helps a reader assess the work.
 
-Workbench desktop space is divided into the menu bar, a free window field, and a taskbar whose current app registry is defined in `app/lib/workbench-system.ts`. Work, Playground, and Notes are local workspaces with independent active-window memory. The registry assigns every app a workspace: professional content belongs to Work; games and interactive experiments belong to Playground; notes, files, and personal tools belong to Notes. Launching an app switches to its assigned workspace and recovers an existing instance there. Notes, Vector lab, and Files support multiple instances. Window overview maps all three workspaces. The total saved window registry is bounded at 60 instances.
+## Workbench Entry and Return
 
-A fresh session opens one active Welcome window in Work. Playground and Notes begin empty. Restored windows are organized by their app's workspace while retaining their IDs, geometry, content, and open state. The active window follows its assigned workspace.
+The embedded Workbench tab stays at the top-right of the public header. Hover or keyboard focus expands the preview to show Work, Playground, Notes, and Open Workbench. Its action separator aligns with the fixed header rule, and the overlay does not push surrounding content down. Touch layouts retain a clear entry action.
 
-Between 981px and 1120px, the dock becomes a horizontal strip without changing the desktop window model. At 980px, the environment changes modes: only one active window is visible while inactive or minimized open windows in visited workspaces remain mounted, hidden, inert, and `aria-hidden`. Drag, resize, desktop objects, context menus, and snap previews disappear; the dock becomes the persistent horizontal task switcher. Heavy app bodies mount only after their workspace has been visited. Archive restructures at 840px and 580px, the menu bar condenses at 1080px and 760px, Atlas simplifies at 620px, and the Workbench compacts again at 520px.
+The status dot anchors the circular opening and return. Return remeasures the dot, and focus is restored to the invoking control after the public page is interactive again. Reduced motion substitutes a short fade. Background content stays inert and scroll-locked during both opening and closing.
 
-Workspace changes outside Atlas transfer focus after rendering to that workspace's remembered active window, or to the Workbench root when the workspace is empty. Atlas retains focus ownership while its own workspace tabs change.
+## Desktop Navigation and Windows
 
-**The Collapse by Mode Rule.** Desktop supports spatial composition and direct window management; compact screens support one clear active task while preserving open local work, focus order, and session state.
+The top panel uses familiar desktop conventions: Desktop and Window menus, Work / Playground / Notes switching, Overview, Search, and Back to site. Compact layouts retain labeled routes through the menus and Overview.
 
-## Elevation & Depth
+Applications opens a searchable launcher with All, Work, Playground, and Notes categories. The bottom taskbar contains Applications and the apps open in the current workspace, with Active, Running, or Minimized states. Each app has one home workspace; launching it switches to that workspace and recovers an existing instance when appropriate. Notes, Vector lab, and Files allow multiple instances.
 
-The system is flat by default. Grain, field color, one-pixel rules, and active-state inversion create most separation. Shadows are structural and appear only where an object genuinely floats: the live Workbench aperture, movable windows, popup menus, Atlas, system search, context menus, and temporary status or lab overlays.
+Windows use readable content, dark title bars, square edges, an active outline, and structural shadows. Desktop actions include focus, drag, minimize, close, maximize, restore, resize, and snap. Resize handles support arrow keys as well as pointer input. Closing retains serialized content and geometry; reopening can recover the same instance.
 
-### Shadow Vocabulary
+Window overview shows workspaces and open windows with clear behavior choices. Focus one minimizes siblings, Bring to front preserves them, and Show all restores minimized windows. System search reaches apps, workspaces, saved windows, files, and commands. Menus, dialogs, tabs, and listboxes retain keyboard navigation and focus restoration.
 
-- **Aperture Rest** (`0 14px 36px rgba(0, 0, 0, 0.28)`): Holds the live Workbench aperture above the public field.
-- **Aperture Hover** (`0 20px 52px rgba(0, 0, 0, 0.42)`): Confirms the aperture can open without turning it into a card.
-- **Window Rest** (`0 22px 58px rgba(10, 10, 9, 0.32)`): Separates movable ivory windows from the route-color desktop.
-- **Window Active** (`0 28px 78px rgba(10, 10, 9, 0.46)`): Raises the focused window; a one-pixel signal outline carries the active state.
-- **Window Snapped** (`0 18px 48px rgba(10, 10, 9, 0.4)`): Holds a snapped window without making it appear as elevated as the freely focused state.
-- **Menu Popup** (`0 24px 70px rgba(17, 17, 15, 0.36)`): Separates a temporary app-aware menu from the window field.
-- **Context Menu** (`0 20px 52px rgba(10, 10, 9, 0.42)`): Gives the desktop-local action list a clear temporary layer.
-- **System Search** (`0 30px 90px rgba(10, 10, 9, 0.5)`): Reserves the strongest routine lift for the modal command surface.
-- **Atlas Surface** (`0 36px 96px rgba(0, 0, 0, 0.52)`): Holds the workspace map above every working surface.
-- **Lab / Notice Overlay** (`0 18px 50px rgba(10, 10, 9, 0.34)`): Lifts a start, restart, save, or recovery notice above its immediate context.
+## Project and Utility Windows
 
-### Named Rules
+**Projects** pairs Trekky and Workbench introductions with original artwork, readable headings, sentence-case tabs, and interactive workflow or architecture details. A charcoal sidebar adds context. The Motion tab remains a labeled spring simulation with stiffness, damping, presets, and a clear trigger. Short windows scroll; narrow windows stack their content.
 
-**The Structural Lift Rule.** If a surface cannot be dragged, opened, or treated as a temporary layer, it does not earn a shadow.
+**How I work** uses Clarify, Shape, Ship, and Learn tabs with meaningful descriptions. **Tech stack** describes the actual tools and areas of work. **Project brief** helps a visitor describe a project and email Sam, without calculating a price or promising timing.
 
-## Shapes
+**Files** provides notes and folders, search, list and grid views, editing, rename, trash, restore, and confirmed permanent deletion. **Settings** manages appearance, workspace layout, sound, and validated backup or restore. Both explain that session and Files storage belong to this browser.
 
-The form language is square and mechanical. Panels, windows, controls, text fields, docks, menus, Atlas previews, and system search use zero corner radius. One-pixel rules and hard clipping define their silhouettes; the Workbench resize grip uses two diagonal rule marks in a 1.25rem square instead of an ornamental handle. Circles are limited to status dots, route marks, and plotted data, not container corners.
+**Market monitor** pairs an ivory toolbar with a charcoal price chart and watchlist. Signed change, chart labels, USD/NZD controls, refresh state, CoinGecko attribution, and cached-data timestamps describe the data accurately.
 
-**The Square Instrument Rule.** Controls should read as instruments set into a system, never as soft app-store cards or pills.
+**Web search** queries Wikipedia and saves attributed excerpts to Files. **AI assistant** uses readable presets, Send and Stop actions, prompt and response areas, and clear request status. It identifies OpenRouter, warns against confidential prompts, labels token figures as estimates, and states that the response has not been independently checked.
 
-## Components
+## Railshift
 
-### Buttons
+Railshift is a real Three.js metropolitan runner with an original rider, tracks, trains, barriers, signs, scenery, and changing districts. The surrounding interface uses the shared charcoal, ivory, and cobalt treatment; the game world uses color and depth to make lanes, hazards, gold, and equipment legible.
 
-- **Shape:** Square, border-led controls (`rounded.none`) with compact horizontal padding.
-- **Primary:** The common Workbench action is transparent ivory on carbon; high-intent local actions invert to the active signal color on carbon.
-- **Hover / Focus:** Hover and keyboard focus use the same color inversion where practical. The shared focus indicator is a two-pixel signal outline with a four-pixel offset; inset focus is used where a menu or field must retain its dimensions.
-- **Secondary / Ghost:** Public links and dock items remain transparent until hover, focus, or selection gives them a route-color field or a drawn underline.
+Lane changes, jumping, sliding, cells, streaks, shields, two lives, checkpoints, and charged Overdrive form the game loop. Onboarding introduces the controls, feedback explains collisions and bonuses, and end screens show results and a restart. Keyboard, swipe, and labeled touch controls provide the same core actions.
 
-### Cards / Containers
+A bounded fixed-step simulation is separate from rendering. The renderer loads when needed, limits resolution, reuses scene objects, and releases resources. Inactive windows or hidden pages pause the run until resumed. Reduced motion removes camera sway and decorative movement while preserving play. Sound is opt-in. Best score and distance are local and outside the Workbench backup. A failed WebGL startup has an explicit recovery message.
 
-- **Corner Style:** Square (`rounded.none`).
-- **Background:** Carbon, route-color, or ivory fields only; avoid nested neutral card stacks.
-- **Shadow Strategy:** Follow the Structural Lift Rule.
-- **Border:** One-pixel dark-on-light or light-on-dark rules.
-- **Internal Padding:** Compact tools use 0.6–1rem; content windows use 1–1.2rem.
+## Subsurface
 
-### Inputs / Fields
+Subsurface is a real 3D underwater research game. Original procedural geometry, depth layers, light, and restrained particles define three underwater zones. The craft, channels, amber specimens, hull, protection, and sonar are readable at the available window size.
 
-- **Style:** Text controls remain square and legible. Scratch uses a transparent ivory field with a one-pixel dark rule; console input is borderless within a ruled carbon command row; Vector axes use editable text drafts with decimal input hints so empty and partial values remain typeable.
-- **Focus:** Use route-color inset focus for light fields and the active signal outline for standalone interactive surfaces.
-- **Error / Disabled:** Vector drafts mark invalid or out-of-range values with `aria-invalid`, a compact associated status line, and a restrained red field tint. Calculations run only when all six drafts are finite values from −3 to 3; otherwise the results show `N/A`. Disabled actions retain labels and reduce emphasis rather than disappearing.
+Visitors start a dive, control rise and descent, collect specimens, and navigate the route. Pause, resume, loss, completion, and restart have explicit states. Keyboard and touch controls remain visible and equivalent. A 2D fallback keeps the same game rules and controls available when WebGL cannot start.
 
-### Workbench Aperture
+The simulation and render loop pause when the app or page is inactive, retaining the run in memory. Reduced motion removes ambient water movement, particles, craft roll, and sonar expansion while preserving navigation. Best score remains local and outside session export. Closing releases the scene; an in-progress run is not represented as serialized backup data.
 
-The aperture rests as a compact embedded tab at the top-right of the public header. Hover or keyboard focus expands it to reveal the Work, Playground, and Notes routes and an Open Workbench action. Desktop expansion is positioned over the page so the header, headline, and links do not move. The divider above Open Workbench aligns with the fixed horizontal header rule, forming one continuous line through the expanded panel. Touch layouts keep the action visible. The status dot anchors both the circular reveal and return, independently of the preview size; the return remeasures its position. Keyboard focus returns after the frontpage becomes interactive again. Reduced motion uses a short fade.
+## Vector Lab
 
-### Public Front Door
+Vector lab is a mission-based 3D experiment. Dock teaches addition by combining two thrusters, Thrust teaches projection along a fixed guide, and Lift teaches the cross product. Explore removes the target and lets visitors compare operations freely.
 
-The public surface is a single quiet composition. The identity line is “Founder & Product Engineer, Solynth Labs” and the exact statement “Sam designs and builds software.” holds the center. Desktop breaks after “and”; mobile wraps into “Sam designs / and builds / software.” The intro remains “A personal site: engineering thinking, design, and working experiments.” Direct links expose Sam's email, Solynth Labs, and Open Workbench. Visible arrows identify links without requiring hover; mobile targets are comfortably spaced. Display type uses Archivo at 650 weight, a 0.98 desktop line-height, and restrained tracking. Keep the carbon grain, ivory type, cobalt period, and compact hover aperture. No project grid or extra marketing copy belongs in this front door.
+The scene shows vector handles, a result, a target where relevant, and a probe that tests the setup. Coordinate fields, axis controls, keyboard adjustment, and direct dragging support the same experiment. XY and XZ planes make dragging understandable; camera orbit remains separate from changing a vector. Target feedback, explanations, and completion state connect a mathematical operation to a visible result.
 
-### Workbench Menu Bar
+Inputs accept values from −3 to 3, preserve partial entry while editing, indicate invalid input, and prevent testing an invalid setup. Vector length, angle, sum, projection, and cross product stay inspectable through the numeric controls. The scene renders on demand, pauses while hidden, and resolves test flights immediately for reduced motion. If WebGL is unavailable, calculations and mission checks remain usable.
 
-The top panel follows familiar desktop conventions with a Workbench identity, two menus (Desktop and Window), direct Work / Playground / Notes workspace switching at desktop sizes, and labeled Overview, Search, and Back to site controls. Desktop includes About Sam, Settings, Files, backup download, window arrangement, and workspace actions. Window retains meaningful actions for the active app. Controls use readable sentence case and Archivo body text; abbreviations and shortcut-only mobile buttons are not permitted. Compact layouts retain the two menus and labeled system controls, with workspace switching available through Desktop and Overview. Menus retain arrow-key navigation, visible focus, and Escape dismissal.
+Each Vector instance stores valid vectors, camera view, selected mission, and completion progress in browser storage. Existing valid vector/view state remains readable. This per-app state is outside the Settings session-and-Files backup.
 
-### Workbench Window
+## Data, Accessibility, and Motion
 
-Windows use ivory content, carbon title bars, square clipping, structural shadow, and a signal outline when active. Desktop windows can be raised, dragged, minimized, closed, maximized/restored, resized, snapped left or right, or maximized through the top snap target. The resize grip supports arrow-key resizing in 12px steps and 32px steps with Shift. Closing marks an instance closed instead of deleting it: geometry and serialized app data remain available for a later reopen, while the closed instance leaves Atlas and the dock's running count. Scratch and Archive instance data can therefore recover after reopening. At the 60-instance capacity, opening a matching saved instance recovers it rather than creating another.
+Session and Files state are validated and committed together after a short debounce. The bounded window registry remembers workspaces, geometry, appearance, serialized app data, Notes, and How I work state. Backup import checks the pair before replacement; corrupt or conflicting data has an explicit recovery path.
 
-### Workbench Dock
+Settings backups cover session and Files only. Separate brief drafts, Vector state, sound preference, game records, and transient component state have their own lifecycles. Local session and Files data have no account, upload, or remote sync. Market monitor, Web search, and AI assistant use separate network services and disclose those boundaries.
 
-The bottom taskbar contains a persistent Applications button and only the applications open in the current workspace. Each running app shows Active, Running, or Minimized state, and multi-instance counts are retained. Shift-click opens another window only for apps that support it. Applications opens a searchable launcher with All, Work, Playground, and Notes categories derived from each app's assigned workspace; every app has a plain name and short description. Search remains a separate global command surface. The application list scrolls beneath a fixed search field and category controls. The taskbar scrolls horizontally on small screens without hiding Applications.
-
-### Systems, Brief, Search, and Agent
-
-**Systems** is an evidence surface, not a speculative case-study generator. It may document supported facts about Sam's products and this Workbench, and it must label the motion playground as a simulation. It must not present invented benchmarks, client outcomes, implementation details, or a “verified” result unless that evidence is available and current.
-
-**Brief** helps a visitor prepare a factual project enquiry. It may organize a selected service area, focus, timing context, and visitor-supplied notes, but it must not calculate a fixed price, duration, capacity, delivery date, or fill missing information with invented commitments. Its handoff uses conventional email.
-
-**Search** queries Wikipedia through this site's server route, attributes the source, and may copy a result into the browser-local Archive. **Agent** sends prompts through this site's server-side route to the configured model provider. It discloses that prompts leave the browser, warns against confidential information, labels token figures as estimates, and describes completed generated output as not independently verified.
-
-### System Search
-
-System search is a modal editable combobox and listbox. Ctrl/Cmd+K opens it and results span apps, saved window instances including closed/reopenable ones, workspaces, non-trash Archive entries, and local system commands. Arrows, Home, End, and Enter move and execute the active result; Escape closes the surface and returns focus to the invoking control when it is still available, otherwise to the Workbench root. Hover, focus, and active-result state use the same route-color inversion.
-
-### Atlas
-
-The visible name is Window overview. It maps the Work, Playground, and Notes workspaces and shows open windows with Visible or Minimized states. Focus one shows a selected window while minimizing its siblings; Bring to front preserves the other windows; Show all restores minimized windows. The selected behavior is explained directly above the previews. Preview sizes remain bounded even for portrait windows, and initial focus must not scroll the mode controls away. Workspace tabs and directional preview navigation remain keyboard accessible. The internal Atlas identifier is retained for compatible saved links and commands.
-
-### Archive
-
-The visible app name is Files. It organizes notes and folders stored in the current browser, with search, list and grid views, folder paths, editing, rename, trash, restore, and confirmed permanent deletion. File operations and saved data are unchanged; internal Archive identifiers remain compatible. Copy explains that notes and folders stay in this browser and are included in Settings backups.
-
-### Control
-
-The visible app name is Settings. It exposes Appearance, workspace controls, Sound effects, and backup and restore operations using plain descriptions. Theme radios still change cobalt, oxide, and graphite as a coherent palette. Backups contain validated workspace/session and Files state; separate app-specific storage remains outside the backup where documented. Restore default layout changes window geometry without replacing content. Internal Control identifiers and saved data remain compatible.
-
-### Method Tabs
-
-Method is a real tablist with Clarify, Shape, Ship, and Learn panels. Selected and hover states invert to the active route color; arrow keys, Home, and End move selection and focus. Panel changes use an eight-pixel rise with opacity, suppressed when reduced motion is requested.
-
-### Pulse Market Monitor
-
-Pulse treats live crypto data as operating telemetry rather than a conventional finance dashboard. An ivory detail stage pairs one selected asset, its signed 24-hour change, a ruled price trace, and four compact market facts with a carbon asset ledger. The active theme route color identifies the selected asset, currency mode, asset mark, and positive/default chart trace; the signal color is reserved for the chart terminal. Negative movement may use the established restrained red exception, but direction is never color-only: signed percentages and the chart's accessible label state whether movement is up or down.
-
-USD and NZD are a semantic pressed-button group, asset rows are pressed buttons, and refresh exposes loading or refreshing state; when no usable snapshot exists, failure becomes an explicit error-and-retry field. Existing data remains visible during a refresh. The footer always attributes CoinGecko and distinguishes a current response from a cached market snapshot with its source update time. At 760px the detail stage stacks above the asset ledger; at 520px the four facts become a two-column grid and the source footer stacks. Reduced motion removes the animated loading sweep while preserving its status text.
-
-### Subsurface Lab
-
-Subsurface is an original depth-control mini-game contained inside a Workbench window. Its route-color sonar field, ivory craft, carbon obstacles, mono HUD, and square signal overlay belong to the same system while remaining locally tuned canvas colors. Motion begins only with an explicit start or pulse; pointer/tap, Space, Arrow Up, and Enter are equivalent controls. The best score is described and stored as local-only and is not part of the session backup. Reduced motion freezes the ambient sweep without disabling play. Open Subsurface bodies remain mounted after their workspace has been visited; when the window is inactive, minimized, or hidden by a workspace switch, the animation frame loop pauses while preserving its in-memory model and resumes when active. Closing the window unmounts that body.
-
-### Railshift Lab
-
-Railshift is an original pseudo-spatial, three-lane signal runner contained inside a Workbench window. A carbon rail corridor, active route color, ivory obstacles, signal cells, and geometric courier form one sharp instrument rather than an imported game world. Visitors change lanes, jump barriers, duck gantries, avoid blocks, collect combo-building cells, and recover a one-hit shield through arrows or WASD, swipe gestures, and visible touch controls. Sound is synthetic and opt-in; the best score stays local and outside session export.
-
-The simulation advances through a capped fixed timestep while drawing directly to Canvas without per-frame React state. Canvas geometry and theme colors are cached on resize, device pixel ratio is capped by surface area, HUD updates are throttled, entity and particle pools are reused, and the animation frame loop stops whenever the window or document is inactive. Reduced motion removes streaks and particles without disabling play.
-
-### Vector Lab
-
-Vector Field combines a numeric spatial calculator with a projected plot. Decimal input drafts keep empty and partial values editable while exposing decimal input keyboards; each axis reports invalid or out-of-range state with `aria-invalid` and compact status guidance. Dot product, cross product, and area update only when both vectors contain finite values from −3 to 3, and show `N/A` otherwise. A canvas-projected three-dimensional grid responds to pointer drag or arrow keys for orbit; the numeric calculator remains usable without orbit interaction. Drafts and view state persist under a per-instance browser-storage key, survive window close/reopen, and remain outside Control's session-and-Archive backup. Narrow layouts stack the plot over inputs and results.
-
-### Local Session and Recovery
-
-Session state and the Archive tree are separately validated and saved as a pair in browser storage after a short debounce. The session includes theme, active workspace, remembered active instances, the bounded window registry, serialized per-window data, Scratch content, and Method state. Control backup covers that session-plus-Archive pair only. It does not capture transient console history, search/Atlas UI, Brief drafts, Vector drafts/view state, sound preference, Subsurface or Railshift scores, or unsaved component-only state. Corrupt saved values block silent overwrite and may be preserved under recovery keys. This persisted state has no account, cloud sync, collaboration, remote filesystem, or cross-device promise. Pulse, Search, and Agent have separate network request paths and do not change that storage boundary.
-
-### Named Rules
-
-**The Working Software as Personality Rule.** Use an interactive experiment when it demonstrates real judgment or capability and remains optional; not every screen needs to be gamified.
-
-**The Native Control Rule.** Direct manipulation must keep a legible keyboard or native-input path, visible focus, and truthful local-state language.
-
-**The Local Means Local Rule.** Describe browser persistence, backup coverage, destructive actions, and recovery exactly. Never imply an account, upload, remote sync, or remote filesystem for session and Archive data, and never describe a network-backed tool as local.
-
-## Do's and Don'ts
-
-### Do:
-
-- **Do** pair one monumental message with quiet operational metadata.
-- **Do** use the theme's route color for selection and current state; reserve its signal for live, focus, or immediate action.
-- **Do** use the original Workbench, Atlas, Archive, and Control vocabulary consistently.
-- **Do** let optional working software reveal personality when it remains useful, truthful, and self-contained.
-- **Do** use square fields, one-pixel rules, and restrained grain before adding depth.
-- **Do** preserve semantic menus, tabs, listboxes, dialogs, keyboard routes, focus movement, reduced motion, and local-only state conventions.
-- **Do** pause hidden animation work without discarding an open visitor task, and distinguish mounted component state from serialized session data.
-- **Do** disclose export/import scope and the consequences of delete, trash, close, reset, and restore actions.
-
-### Don't:
-
-- **Don't** turn the portfolio into a project-card résumé or a wall of interchangeable case-study tiles.
-- **Don't** drift into a generic SaaS component dashboard or rounded-card shell.
-- **Don't** import third-party operating-system names, icons, window decoration, or trade dress; this is a clean-room original system.
-- **Don't** imply an account, upload, cloud sync, collaboration layer, or remote filesystem for browser-local state; disclose the service boundary anywhere a tool uses the network.
-- **Don't** use shadows on static content fields or treat route and signal colors as decoration.
-- **Don't** claim every state is exported: Subsurface and Railshift scores plus transient component state have deliberately narrower lifecycles.
-- **Don't** start continuous lab motion before the visitor initiates it or hide the core calculator behind pointer-only interaction.
+Visible focus, readable control names, semantic headings, keyboard routes, status announcements, and validation remain part of every surface. Permanent deletion names its consequence. Responsive layouts preserve tasks and access to controls. The homepage uses labeled navigation and a skip link to its footer; spatial tools retain numeric controls. Motion has a clear purpose, stops when not needed, and respects reduced motion.

@@ -1,652 +1,33 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Attribution and additional terms: see NOTICE.md.
-
 "use client";
-
-import {
-  type KeyboardEvent,
-  type PointerEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type KeyboardEvent, type PointerEvent, useCallback, useEffect, useRef, useState } from "react";
+import { type RunnerModel, type RunnerStatus, initialModel, updateModel, asLane, requestJump, requestDuck, activateBurst, EVENT_CELL, EVENT_SHIELD, EVENT_IMPACT, EVENT_DAMAGE, EVENT_CHECKPOINT, EVENT_FLIGHT, EVENT_MAGNET, FLIGHT_DURATION, MAGNET_DURATION } from "../lib/railshift-engine";
+import type { RailshiftScene } from "../lib/railshift-scene";
+import { getRailshiftDistrict } from "../lib/railshift-route";
 import "../styles/railshift-lab.css";
 
-type Lane = -1 | 0 | 1;
-type RunnerStatus = "idle" | "playing" | "paused" | "crashed";
-type EntityKind = "barrier" | "gantry" | "block" | "cell" | "shield";
-
-type TrackEntity = {
-  active: boolean;
-  checked: boolean;
-  kind: EntityKind;
-  lane: Lane;
-  z: number;
-};
-
-type Particle = {
-  active: boolean;
-  color: "ink" | "signal";
-  life: number;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-};
-
-type RunnerModel = {
-  lane: Lane;
-  laneVisual: number;
-  jump: number;
-  jumpVelocity: number;
-  duckTimer: number;
-  speed: number;
-  distance: number;
-  score: number;
-  cells: number;
-  combo: number;
-  shield: number;
-  elapsed: number;
-  spawnTimer: number;
-  rows: number;
-  seed: number;
-  lastSafeLane: Lane;
-  entities: TrackEntity[];
-  particles: Particle[];
-};
-
-/** Fixed-slot projection scratch: [x, y, scale, alpha]. */
-type Projection = [number, number, number, number];
-
-type CanvasMetrics = {
-  context: CanvasRenderingContext2D;
-  width: number;
-  height: number;
-  carbon: string;
-  ivory: string;
-  cobalt: string;
-  signal: string;
-  background: CanvasGradient;
-  projectionA: Projection;
-  projectionB: Projection;
-};
-
-type RunnerHud = {
-  score: number;
-  distance: number;
-  combo: number;
-  cells: number;
-  shield: number;
-  fps: number;
-};
-
-type RailshiftLabProps = {
-  isActive: boolean;
-  prefersReducedMotion: boolean;
-  themeId: string;
-};
-
+type RailshiftLabProps = { isActive: boolean; prefersReducedMotion: boolean; themeId: string; };
 const BEST_SCORE_KEY = "sam-workbench-railshift-best-v1";
 const BEST_DISTANCE_KEY = "sam-workbench-railshift-best-distance-v1";
-const ENTITY_POOL_SIZE = 72;
-const PARTICLE_POOL_SIZE = 42;
 const FIXED_STEP = 1 / 60;
 const RENDER_STEP_MS = 1000 / 60;
-const EVENT_CELL = 1;
-const EVENT_SHIELD = 2;
-const EVENT_IMPACT = 4;
-
-const EMPTY_HUD: RunnerHud = {
-  score: 0,
-  distance: 0,
-  combo: 1,
-  cells: 0,
-  shield: 0,
-  fps: 60,
-};
-
-function clamp(value: number, minimum: number, maximum: number) {
-  return Math.min(Math.max(value, minimum), maximum);
+const DISTRICTS = { downtown: "City centre", waterfront: "Waterfront", park: "Amusement park" };
+function hudFromModel(model: RunnerModel, fps: number) {
+  return { score: Math.floor(model.score), distance: Math.floor(model.distance), combo: model.combo,
+    cells: model.cells, shield: model.shield, fps: Math.round(fps), hull: model.hull,
+    district: model.district, checkpoints: model.checkpoints, energy: model.energy, burstTimer: model.burstTimer,
+    flightTimer: model.flightTimer, flightHeight: model.flightHeight, magnetTimer: model.magnetTimer, elapsed: model.elapsed,
+    message: model.messageTimer > 0 ? model.message : "", tutorial: model.tutorialTimer > 0 ? model.tutorial : "",
+    endCause: model.endCause, bestStreak: model.bestStreak };
 }
+type RunnerHud = ReturnType<typeof hudFromModel>;
+const EMPTY_HUD: RunnerHud = { score: 0, distance: 0, combo: 1, cells: 0, shield: 0, fps: 60, hull: 2, district: 0, checkpoints: 0, energy: 0, burstTimer: 0, message: "", tutorial: "", endCause: "", bestStreak: 0, flightTimer: 0, flightHeight: 0, magnetTimer: 0, elapsed: 0 };
 
-function asLane(value: number): Lane {
-  return clamp(Math.round(value), -1, 1) as Lane;
-}
-
-function random(model: RunnerModel) {
-  model.seed = (Math.imul(model.seed, 1_664_525) + 1_013_904_223) >>> 0;
-  return model.seed / 4_294_967_296;
-}
-
-function makeEntities(): TrackEntity[] {
-  return Array.from({ length: ENTITY_POOL_SIZE }, () => ({
-    active: false,
-    checked: false,
-    kind: "cell" as const,
-    lane: 0 as Lane,
-    z: 0,
-  }));
-}
-
-function makeParticles(): Particle[] {
-  return Array.from({ length: PARTICLE_POOL_SIZE }, () => ({
-    active: false,
-    color: "signal" as const,
-    life: 0,
-    x: 0,
-    y: 0,
-    vx: 0,
-    vy: 0,
-  }));
-}
-
-function initialModel(): RunnerModel {
-  return {
-    lane: 0,
-    laneVisual: 0,
-    jump: 0,
-    jumpVelocity: 0,
-    duckTimer: 0,
-    speed: 0.32,
-    distance: 0,
-    score: 0,
-    cells: 0,
-    combo: 1,
-    shield: 0,
-    elapsed: 0,
-    spawnTimer: 0.55,
-    rows: 0,
-    seed: (Date.now() ^ 0x9e3779b9) >>> 0,
-    lastSafeLane: 0,
-    entities: makeEntities(),
-    particles: makeParticles(),
-  };
-}
-
-function spawnEntity(
-  model: RunnerModel,
-  kind: EntityKind,
-  lane: Lane,
-  z: number,
-) {
-  const entity = model.entities.find((candidate) => !candidate.active);
-  if (!entity) return;
-  entity.active = true;
-  entity.checked = false;
-  entity.kind = kind;
-  entity.lane = lane;
-  entity.z = z;
-}
-
-function chooseLane(model: RunnerModel): Lane {
-  const lanes = [-1, 0, 1] as const;
-  return lanes[Math.floor(random(model) * lanes.length)] ?? 0;
-}
-
-function chooseReachableSafeLane(model: RunnerModel): Lane {
-  const options = ([-1, 0, 1] as const).filter(
-    (lane) => Math.abs(lane - model.lastSafeLane) <= 1,
-  );
-  return options[Math.floor(random(model) * options.length)] ?? 0;
-}
-
-function spawnRow(model: RunnerModel) {
-  const far = 1.12;
-  const roll = random(model);
-  model.rows += 1;
-
-  if (model.rows % 9 === 0 && model.shield === 0) {
-    const lane = chooseLane(model);
-    spawnEntity(model, "shield", lane, far);
-    spawnEntity(model, "cell", lane, far + 0.13);
-    model.lastSafeLane = lane;
-  } else if (roll < 0.2) {
-    const lane = chooseLane(model);
-    for (let index = 0; index < 4; index += 1) {
-      spawnEntity(model, "cell", lane, far + index * 0.12);
-    }
-    model.lastSafeLane = lane;
-  } else if (roll < 0.42) {
-    const lane = chooseLane(model);
-    spawnEntity(model, "barrier", lane, far);
-    spawnEntity(model, "cell", lane, far + 0.08);
-    spawnEntity(model, "cell", lane, far + 0.18);
-    model.lastSafeLane = lane;
-  } else if (roll < 0.62) {
-    const lane = chooseLane(model);
-    spawnEntity(model, "gantry", lane, far);
-    spawnEntity(model, "cell", lane, far + 0.07);
-    spawnEntity(model, "cell", lane, far + 0.17);
-    model.lastSafeLane = lane;
-  } else if (roll < 0.86) {
-    const safeLane = chooseReachableSafeLane(model);
-    for (const lane of [-1, 0, 1] as const) {
-      spawnEntity(model, lane === safeLane ? "cell" : "block", lane, far);
-    }
-    spawnEntity(model, "cell", safeLane, far + 0.14);
-    model.lastSafeLane = safeLane;
-  } else {
-    const firstLane = chooseLane(model);
-    const secondLane = asLane(firstLane === 1 ? 0 : firstLane + 1);
-    spawnEntity(model, "cell", firstLane, far);
-    spawnEntity(model, "cell", secondLane, far + 0.15);
-    spawnEntity(model, "cell", firstLane, far + 0.3);
-    model.lastSafeLane = firstLane;
-  }
-
-  const worldGap = model.rows < 4 ? 0.42 : 0.34;
-  model.spawnTimer = clamp(worldGap / model.speed, 0.48, 1.15);
-}
-
-function emitParticles(
-  model: RunnerModel,
-  lane: number,
-  color: Particle["color"],
-  count: number,
-) {
-  let emitted = 0;
-  for (const particle of model.particles) {
-    if (particle.active) continue;
-    const angle = random(model) * Math.PI * 2;
-    const force = 0.05 + random(model) * 0.13;
-    particle.active = true;
-    particle.color = color;
-    particle.life = 0.42 + random(model) * 0.24;
-    particle.x = 0.5 + lane * 0.18;
-    particle.y = 0.73;
-    particle.vx = Math.cos(angle) * force;
-    particle.vy = Math.sin(angle) * force - 0.12;
-    emitted += 1;
-    if (emitted >= count) break;
-  }
-}
-
-function updateParticles(model: RunnerModel, delta: number) {
-  for (const particle of model.particles) {
-    if (!particle.active) continue;
-    particle.life -= delta;
-    if (particle.life <= 0) {
-      particle.active = false;
-      continue;
-    }
-    particle.x += particle.vx * delta;
-    particle.y += particle.vy * delta;
-    particle.vy += 0.32 * delta;
-  }
-}
-
-function updateModel(
-  model: RunnerModel,
-  delta: number,
-  prefersReducedMotion: boolean,
-) {
-  let events = 0;
-  model.elapsed += delta;
-  model.distance += model.speed * delta * 66;
-  model.speed = clamp(0.32 + model.distance * 0.00028, 0.32, 0.7);
-  model.score += model.speed * delta * 125 * model.combo;
-  model.laneVisual += (model.lane - model.laneVisual) * Math.min(1, delta * 13);
-
-  if (model.jump > 0 || model.jumpVelocity > 0) {
-    model.jumpVelocity -= 5.8 * delta;
-    model.jump += model.jumpVelocity * delta;
-    if (model.jump <= 0) {
-      model.jump = 0;
-      model.jumpVelocity = 0;
-    }
-  }
-  model.duckTimer = Math.max(0, model.duckTimer - delta);
-  model.spawnTimer -= delta;
-  if (model.spawnTimer <= 0) spawnRow(model);
-
-  for (const entity of model.entities) {
-    if (!entity.active) continue;
-    entity.z -= model.speed * delta;
-
-    if (!entity.checked && entity.z <= 0.13) {
-      entity.checked = true;
-      const inLane = Math.abs(entity.lane - model.laneVisual) < 0.48;
-      if (entity.kind === "cell") {
-        if (inLane) {
-          entity.active = false;
-          model.cells += 1;
-          model.combo = Math.min(5, 1 + Math.floor(model.cells / 6));
-          model.score += 24 * model.combo;
-          events |= EVENT_CELL;
-          if (!prefersReducedMotion) emitParticles(model, entity.lane, "signal", 7);
-        }
-      } else if (entity.kind === "shield") {
-        if (inLane) {
-          entity.active = false;
-          model.shield = 1;
-          model.score += 80;
-          events |= EVENT_SHIELD;
-          if (!prefersReducedMotion) emitParticles(model, entity.lane, "ink", 12);
-        }
-      } else if (inLane) {
-        const clearedBarrier = entity.kind === "barrier" && model.jump > 0.3;
-        const clearedGantry =
-          entity.kind === "gantry" && model.duckTimer > 0.06 && model.jump < 0.17;
-        if (!clearedBarrier && !clearedGantry) {
-          if (model.shield > 0) {
-            model.shield = 0;
-            entity.active = false;
-            model.combo = Math.max(1, model.combo - 1);
-            events |= EVENT_SHIELD;
-            if (!prefersReducedMotion) emitParticles(model, entity.lane, "ink", 16);
-          } else {
-            events |= EVENT_IMPACT;
-            if (!prefersReducedMotion) emitParticles(model, entity.lane, "ink", 24);
-          }
-        }
-      }
-    }
-
-    if (entity.z < -0.12) {
-      if (entity.kind === "cell" && !entity.checked) model.combo = 1;
-      entity.active = false;
-    }
-  }
-
-  updateParticles(model, delta);
-  return events;
-}
-
-function configureCanvas(
-  canvas: HTMLCanvasElement,
-  host: HTMLDivElement,
-): CanvasMetrics | null {
-  const rect = canvas.getBoundingClientRect();
-  const width = Math.max(1, rect.width);
-  const height = Math.max(1, rect.height);
-  const area = width * height;
-  const ratioCap = area > 650_000 ? 1.5 : 2;
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, ratioCap);
-  const pixelWidth = Math.round(width * pixelRatio);
-  const pixelHeight = Math.round(height * pixelRatio);
-  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
-    canvas.width = pixelWidth;
-    canvas.height = pixelHeight;
-  }
-  const context = canvas.getContext("2d", { alpha: false });
-  if (!context) return null;
-  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-
-  const style = window.getComputedStyle(host);
-  const carbon = style.getPropertyValue("--carbon").trim() || "#11110f";
-  const ivory = style.getPropertyValue("--ivory").trim() || "#f0efe8";
-  const cobalt = style.getPropertyValue("--cobalt").trim() || "#4c5ce5";
-  const signal = style.getPropertyValue("--signal").trim() || "#59df79";
-  const background = context.createLinearGradient(0, 0, 0, height);
-  background.addColorStop(0, carbon);
-  background.addColorStop(0.58, cobalt);
-  background.addColorStop(1, carbon);
-
-  return {
-    context,
-    width,
-    height,
-    carbon,
-    ivory,
-    cobalt,
-    signal,
-    background,
-    projectionA: [0, 0, 0, 0],
-    projectionB: [0, 0, 0, 0],
-  };
-}
-
-function project(
-  metrics: CanvasMetrics,
-  lane: number,
-  z: number,
-  output = metrics.projectionA,
-) {
-  const depth = clamp(1 - z, 0, 1.08);
-  const perspective = depth * depth;
-  const horizon = metrics.height * 0.19;
-  const trackBottom = metrics.height * 0.95;
-  const halfWidth = metrics.width * (0.045 + perspective * 0.37);
-  output[0] = metrics.width * 0.5 + lane * halfWidth * 0.61;
-  output[1] = horizon + (trackBottom - horizon) * perspective;
-  output[2] = 0.14 + perspective * 1.04;
-  output[3] = perspective;
-  return output;
-}
-
-function drawTrack(
-  metrics: CanvasMetrics,
-  model: RunnerModel,
-  prefersReducedMotion: boolean,
-) {
-  const { context, width, height, carbon, ivory, cobalt, signal } = metrics;
-  context.fillStyle = metrics.background;
-  context.fillRect(0, 0, width, height);
-
-  const horizon = height * 0.19;
-  context.fillStyle = carbon;
-  for (let index = 0; index < 12; index += 1) {
-    const blockWidth = width / 12 + 1;
-    const blockHeight = height * (0.045 + ((index * 19) % 7) * 0.012);
-    context.fillRect(index * blockWidth, horizon - blockHeight, blockWidth, blockHeight);
-  }
-
-  context.fillStyle = carbon;
-  context.beginPath();
-  context.moveTo(width * 0.455, horizon);
-  context.lineTo(width * 0.055, height);
-  context.lineTo(width * 0.945, height);
-  context.lineTo(width * 0.545, horizon);
-  context.closePath();
-  context.fill();
-
-  context.strokeStyle = ivory;
-  context.globalAlpha = 0.36;
-  context.lineWidth = 1;
-  for (const laneEdge of [-1.5, -0.5, 0.5, 1.5]) {
-    const far = project(metrics, laneEdge, 1, metrics.projectionA);
-    const near = project(metrics, laneEdge, 0, metrics.projectionB);
-    context.beginPath();
-    context.moveTo(far[0], far[1]);
-    context.lineTo(near[0], near[1]);
-    context.stroke();
-  }
-
-  const tieOffset = (model.distance * 0.013) % 0.1;
-  for (let index = 0; index < 13; index += 1) {
-    const z = index / 12 + tieOffset;
-    if (z > 1) continue;
-    const left = project(metrics, -1.55, z, metrics.projectionA);
-    const right = project(metrics, 1.55, z, metrics.projectionB);
-    context.globalAlpha = 0.12 + left[3] * 0.36;
-    context.beginPath();
-    context.moveTo(left[0], left[1]);
-    context.lineTo(right[0], right[1]);
-    context.stroke();
-  }
-  context.globalAlpha = 1;
-
-  context.fillStyle = signal;
-  context.fillRect(width * 0.5 - 1, horizon - 11, 2, 11);
-  context.fillStyle = ivory;
-  context.fillRect(width * 0.5 - 3, horizon - 14, 6, 3);
-
-  if (model.speed > 0.36 && !prefersReducedMotion) {
-    context.strokeStyle = cobalt;
-    context.globalAlpha = clamp((model.speed - 0.34) * 0.65, 0.08, 0.24);
-    for (let index = 0; index < 8; index += 1) {
-      const x = ((index * 137 + model.elapsed * 280) % (width + 100)) - 50;
-      const y = height * (0.28 + ((index * 31) % 60) / 100);
-      context.beginPath();
-      context.moveTo(x, y);
-      context.lineTo(x - 28 - model.speed * 40, y + 34);
-      context.stroke();
-    }
-    context.globalAlpha = 1;
-  }
-}
-
-function drawEntity(metrics: CanvasMetrics, entity: TrackEntity) {
-  const { context, carbon, ivory, cobalt, signal } = metrics;
-  const point = project(metrics, entity.lane, entity.z);
-  if (point[3] <= 0.001) return;
-  const scale = point[2];
-
-  context.save();
-  context.translate(point[0], point[1]);
-  context.globalAlpha = clamp(point[3] * 1.7, 0.25, 1);
-
-  if (entity.kind === "cell") {
-    const size = 8 * scale;
-    context.rotate(Math.PI / 4);
-    context.fillStyle = signal;
-    context.fillRect(-size, -size, size * 2, size * 2);
-    context.fillStyle = carbon;
-    context.fillRect(-size * 0.32, -size * 0.32, size * 0.64, size * 0.64);
-  } else if (entity.kind === "shield") {
-    const radius = 17 * scale;
-    context.strokeStyle = signal;
-    context.lineWidth = Math.max(2, 3 * scale);
-    context.beginPath();
-    for (let side = 0; side < 6; side += 1) {
-      const angle = Math.PI / 3 * side - Math.PI / 2;
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
-      if (side === 0) context.moveTo(x, y);
-      else context.lineTo(x, y);
-    }
-    context.closePath();
-    context.stroke();
-    context.fillStyle = ivory;
-    context.fillRect(-2 * scale, -8 * scale, 4 * scale, 16 * scale);
-    context.fillRect(-8 * scale, -2 * scale, 16 * scale, 4 * scale);
-  } else if (entity.kind === "barrier") {
-    const width = 47 * scale;
-    const height = 23 * scale;
-    context.fillStyle = signal;
-    context.fillRect(-width / 2, -height, width, height);
-    context.fillStyle = carbon;
-    context.fillRect(-width * 0.32, -height, width * 0.12, height);
-    context.fillRect(width * 0.2, -height, width * 0.12, height);
-    context.fillRect(-width * 0.42, 0, width * 0.11, height * 0.42);
-    context.fillRect(width * 0.31, 0, width * 0.11, height * 0.42);
-  } else if (entity.kind === "gantry") {
-    const width = 52 * scale;
-    const height = 72 * scale;
-    const beam = 13 * scale;
-    context.fillStyle = ivory;
-    context.fillRect(-width / 2, -height, beam, height);
-    context.fillRect(width / 2 - beam, -height, beam, height);
-    context.fillStyle = signal;
-    context.fillRect(-width / 2, -height, width, beam);
-    context.fillStyle = carbon;
-    context.fillRect(-width * 0.18, -height, width * 0.1, beam);
-    context.fillRect(width * 0.08, -height, width * 0.1, beam);
-  } else {
-    const width = 50 * scale;
-    const height = 68 * scale;
-    context.fillStyle = ivory;
-    context.fillRect(-width / 2, -height, width, height);
-    context.fillStyle = cobalt;
-    context.fillRect(-width * 0.31, -height * 0.72, width * 0.62, height * 0.31);
-    context.fillStyle = signal;
-    context.fillRect(-width * 0.3, -height * 0.18, width * 0.16, height * 0.08);
-    context.fillRect(width * 0.14, -height * 0.18, width * 0.16, height * 0.08);
-  }
-  context.restore();
-}
-
-function drawRunner(metrics: CanvasMetrics, model: RunnerModel) {
-  const { context, carbon, ivory, cobalt, signal, height } = metrics;
-  const point = project(metrics, model.laneVisual, 0.055);
-  const jumpOffset = model.jump * height * 0.22;
-  const ducking = model.duckTimer > 0;
-  const bodyHeight = ducking ? 24 : 48;
-
-  context.save();
-  context.translate(point[0], point[1]);
-  context.globalAlpha = 0.32;
-  context.fillStyle = carbon;
-  context.beginPath();
-  context.ellipse(0, 2, ducking ? 31 : 24, 7, 0, 0, Math.PI * 2);
-  context.fill();
-  context.globalAlpha = 1;
-  context.translate(0, -jumpOffset);
-
-  if (model.shield > 0) {
-    context.strokeStyle = signal;
-    context.lineWidth = 3;
-    context.beginPath();
-    context.arc(0, -bodyHeight * 0.54, ducking ? 32 : 36, 0, Math.PI * 2);
-    context.stroke();
-  }
-
-  context.fillStyle = signal;
-  context.fillRect(-28, -4, 56, 7);
-  context.fillStyle = carbon;
-  context.fillRect(-19, 3, 8, 4);
-  context.fillRect(11, 3, 8, 4);
-
-  context.rotate((model.lane - model.laneVisual) * 0.09);
-  context.fillStyle = ivory;
-  context.fillRect(ducking ? -20 : -12, -bodyHeight, ducking ? 40 : 24, bodyHeight - 5);
-  context.fillStyle = cobalt;
-  context.fillRect(ducking ? -15 : -8, -bodyHeight + 7, ducking ? 30 : 16, 14);
-  context.fillStyle = signal;
-  context.fillRect(ducking ? 10 : -7, -bodyHeight - 11, 14, 11);
-  context.fillStyle = carbon;
-  context.fillRect(ducking ? 14 : -3, -bodyHeight - 7, 3, 3);
-  context.restore();
-}
-
-function drawParticles(metrics: CanvasMetrics, model: RunnerModel) {
-  const { context, width, height, ivory, signal } = metrics;
-  for (const particle of model.particles) {
-    if (!particle.active) continue;
-    context.globalAlpha = clamp(particle.life * 2.2, 0, 1);
-    context.fillStyle = particle.color === "signal" ? signal : ivory;
-    const size = 2 + particle.life * 4;
-    context.fillRect(particle.x * width - size / 2, particle.y * height - size / 2, size, size);
-  }
-  context.globalAlpha = 1;
-}
-
-function drawScene(
-  metrics: CanvasMetrics,
-  model: RunnerModel,
-  status: RunnerStatus,
-  prefersReducedMotion: boolean,
-) {
-  drawTrack(metrics, model, prefersReducedMotion);
-  for (let band = 10; band >= 0; band -= 1) {
-    for (const entity of model.entities) {
-      if (!entity.active) continue;
-      const entityBand = Math.floor(clamp(entity.z, 0, 1) * 10);
-      if (entityBand === band) drawEntity(metrics, entity);
-    }
-  }
-  drawRunner(metrics, model);
-  if (!prefersReducedMotion) drawParticles(metrics, model);
-
-  if (status === "crashed") {
-    const { context, width, height, signal } = metrics;
-    context.globalAlpha = 0.11;
-    context.fillStyle = signal;
-    context.fillRect(0, 0, width, height);
-    context.globalAlpha = 1;
-  }
-}
-
-function hudFromModel(model: RunnerModel, fps: number): RunnerHud {
-  return {
-    score: Math.floor(model.score),
-    distance: Math.floor(model.distance),
-    combo: model.combo,
-    cells: model.cells,
-    shield: model.shield,
-    fps: Math.round(fps),
-  };
+function EquipmentIcon({ kind }: { kind: "jetpack" | "magnet" }) {
+  return <svg className="railshift__gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {kind === "jetpack" ? <><path d="M5 5a2 2 0 0 1 4 0v12H5V5Zm10 0a2 2 0 0 1 4 0v12h-4V5ZM9 7h6v8H9M6 20l1 2 1-2m8 0 1 2 1-2" /><path d="M5 12h4m6 0h4" /></> : <><path d="M5 4v9a7 7 0 0 0 14 0V4h-4v9a3 3 0 0 1-6 0V4H5Z" /><path d="M5 8h4m6 0h4" /></>}
+  </svg>;
 }
 
 export default function RailshiftLab({
@@ -657,7 +38,8 @@ export default function RailshiftLab({
   const hostRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const metricsRef = useRef<CanvasMetrics | null>(null);
+  const sceneRef = useRef<RailshiftScene | null>(null);
+  const [sceneStatus, setSceneStatus] = useState<"loading" | "ready" | "error">("loading");
   const [initialGame] = useState(initialModel);
   const modelRef = useRef<RunnerModel>(initialGame);
   const statusRef = useRef<RunnerStatus>("idle");
@@ -702,9 +84,7 @@ export default function RailshiftLab({
   );
 
   const redraw = useCallback(() => {
-    const metrics = metricsRef.current;
-    if (!metrics) return;
-    drawScene(metrics, modelRef.current, statusRef.current, prefersReducedMotion);
+    sceneRef.current?.draw(modelRef.current, prefersReducedMotion, statusRef.current === "idle");
   }, [prefersReducedMotion]);
 
   useEffect(() => {
@@ -736,25 +116,47 @@ export default function RailshiftLab({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const host = hostRef.current;
-    if (!canvas || !host) return;
-
+    if (!canvas) return;
+    let cancelled = false;
+    let observer: ResizeObserver | undefined;
     let resizeFrame = 0;
-    const configure = () => {
-      window.cancelAnimationFrame(resizeFrame);
-      resizeFrame = window.requestAnimationFrame(() => {
-        metricsRef.current = configureCanvas(canvas, host);
-        redraw();
-      });
+    let mountedScene: RailshiftScene | undefined;
+    const contextLost = (event: Event) => {
+      event.preventDefault();
+      commitStatus("paused");
+      setSceneStatus("error");
     };
-    configure();
-    const observer = new ResizeObserver(configure);
-    observer.observe(canvas);
+    canvas.addEventListener("webglcontextlost", contextLost);
+    void import("../lib/railshift-scene").then(({ createRailshiftScene }) => {
+      if (cancelled) return;
+      try {
+        mountedScene = createRailshiftScene(canvas);
+        sceneRef.current = mountedScene;
+        const configure = () => {
+          window.cancelAnimationFrame(resizeFrame);
+          resizeFrame = window.requestAnimationFrame(() => {
+            const rect = canvas.getBoundingClientRect();
+            mountedScene?.resize(rect.width, rect.height);
+            redraw();
+          });
+        };
+        observer = new ResizeObserver(configure);
+        observer.observe(canvas);
+        configure();
+        setSceneStatus("ready");
+      } catch {
+        setSceneStatus("error");
+      }
+    }).catch(() => { if (!cancelled) setSceneStatus("error"); });
     return () => {
-      observer.disconnect();
+      cancelled = true;
+      observer?.disconnect();
       window.cancelAnimationFrame(resizeFrame);
+      canvas.removeEventListener("webglcontextlost", contextLost);
+      mountedScene?.dispose();
+      sceneRef.current = null;
     };
-  }, [redraw, themeId]);
+  }, [commitStatus, redraw]);
 
   useEffect(() => {
     return () => {
@@ -763,7 +165,7 @@ export default function RailshiftLab({
   }, []);
 
   useEffect(() => {
-    if (status !== "playing" || !isActive) {
+    if (status !== "playing" || !isActive || sceneStatus !== "ready") {
       redraw();
       return;
     }
@@ -834,6 +236,10 @@ export default function RailshiftLab({
 
       if (events & EVENT_CELL) playTone(520 + modelRef.current.combo * 70, 0.055);
       if (events & EVENT_SHIELD) playTone(220, 0.14, 0.035);
+      if (events & EVENT_DAMAGE) playTone(110, 0.18, 0.035);
+      if (events & EVENT_CHECKPOINT) playTone(740, 0.22, 0.03);
+      if (events & EVENT_FLIGHT) playTone(880, 0.28, 0.025);
+      if (events & EVENT_MAGNET) playTone(660, 0.16, 0.025);
       const renderElapsed = lastRenderTimestamp
         ? timestamp - lastRenderTimestamp
         : RENDER_STEP_MS;
@@ -881,10 +287,10 @@ export default function RailshiftLab({
       frame = window.requestAnimationFrame(loop);
     };
     const handleVisibility = () => {
-      if (document.visibilityState === "visible") startLoop();
-      else if (frame) {
-        window.cancelAnimationFrame(frame);
+      if (document.visibilityState !== "visible") {
+        if (frame) window.cancelAnimationFrame(frame);
         frame = 0;
+        commitStatus("paused");
       }
     };
 
@@ -894,16 +300,24 @@ export default function RailshiftLab({
       document.removeEventListener("visibilitychange", handleVisibility);
       if (frame) window.cancelAnimationFrame(frame);
     };
-  }, [commitStatus, isActive, playTone, prefersReducedMotion, redraw, status]);
+  }, [commitStatus, isActive, playTone, prefersReducedMotion, redraw, sceneStatus, status]);
+
+  useEffect(() => {
+    if (!isActive && statusRef.current === "playing") {
+      const frame = requestAnimationFrame(() => commitStatus("paused"));
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [commitStatus, isActive]);
 
   const startRun = useCallback(() => {
+    if (sceneStatus !== "ready") return;
     modelRef.current = initialModel();
-    setHud(EMPTY_HUD);
+    setHud(hudFromModel(modelRef.current, 60));
     commitStatus("playing");
     window.requestAnimationFrame(() => {
       surfaceRef.current?.focus({ preventScroll: true });
     });
-  }, [commitStatus]);
+  }, [commitStatus, sceneStatus]);
 
   const pauseOrResume = useCallback(() => {
     if (statusRef.current === "playing") {
@@ -929,18 +343,20 @@ export default function RailshiftLab({
   const jump = useCallback(() => {
     if (statusRef.current !== "playing") return;
     const model = modelRef.current;
-    if (model.jump > 0.03) return;
-    model.duckTimer = 0;
-    model.jumpVelocity = 2.28;
+    if (!requestJump(model)) return;
     playTone(310, 0.07, 0.018);
   }, [playTone]);
 
   const duck = useCallback(() => {
     if (statusRef.current !== "playing") return;
     const model = modelRef.current;
-    model.duckTimer = 0.62;
-    if (model.jump > 0.05) model.jumpVelocity = Math.min(model.jumpVelocity, -1.9);
+    if (!requestDuck(model)) return;
     playTone(118, 0.06, 0.018);
+  }, [playTone]);
+
+  const burst = useCallback(() => {
+    if (statusRef.current !== "playing") return;
+    if (activateBurst(modelRef.current)) playTone(660, 0.2, 0.03);
   }, [playTone]);
 
   const toggleSound = useCallback(() => {
@@ -982,6 +398,7 @@ export default function RailshiftLab({
       "w",
       "s",
       "p",
+      "shift",
       "enter",
       " ",
     ].includes(key);
@@ -993,6 +410,8 @@ export default function RailshiftLab({
     if (key === "enter" && statusRef.current !== "playing") {
       if (statusRef.current === "paused") pauseOrResume();
       else startRun();
+    } else if (key === "shift") {
+      burst();
     } else if (key === "p") {
       pauseOrResume();
     } else if (key === "arrowleft" || key === "a") {
@@ -1008,7 +427,7 @@ export default function RailshiftLab({
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement).closest("button")) return;
+    if ((event.target as HTMLElement).closest("button, .railshift__overlay")) return;
     // One gesture at a time: a second finger must not steal the tracked
     // pointer or overwrite the first swipe's origin.
     if (gestureRef.current.pointerId !== -1) return;
@@ -1038,129 +457,64 @@ export default function RailshiftLab({
     }
   };
 
-  const statusMessage =
-    status === "crashed"
-      ? `Run ended at ${hud.distance} metres with ${hud.score} points.`
-      : status === "paused"
-        ? "Run paused."
-        : status === "playing"
-          ? "Run in progress."
-          : "Line ready.";
+  const flying = hud.flightTimer > 0 || hud.flightHeight > 0;
+  const districtName = DISTRICTS[getRailshiftDistrict(hud.distance)];
+  const remaining = 250 - hud.distance % 250;
+  const statusMessage = status === "crashed"
+    ? `Run ended at ${hud.distance} metres with ${hud.score} points. ${hud.endCause}`
+    : status === "paused" ? "Run paused." : status === "playing" ? hud.message || "Run in progress." : "Ready to ride.";
 
   return (
-    <div ref={hostRef} className="railshift">
+    <div ref={hostRef} className="railshift" data-theme={themeId}>
       <header className="railshift__header">
-        <div className="railshift__identity">
-          <h2>Railshift</h2>
-          <span>Three-lane signal lab</span>
-        </div>
-        <p>Read the route. Change lanes. Keep the signal.</p>
+        <div className="railshift__identity"><span className="railshift__mark" aria-hidden="true">↗</span><h2>Railshift</h2><span>Cityline</span></div>
         <div className="railshift__header-actions">
-          <button
-            type="button"
-            aria-pressed={soundEnabled}
-            onClick={toggleSound}
-          >
-            Sound {soundEnabled ? "on" : "off"}
-          </button>
-          <button
-            type="button"
-            disabled={status === "idle" || status === "crashed"}
-            onClick={pauseOrResume}
-          >
-            {status === "paused" ? "Resume" : "Pause"}
-          </button>
+          <button type="button" aria-pressed={soundEnabled} onClick={toggleSound}>Sound {soundEnabled ? "on" : "off"}</button>
+          <button type="button" disabled={status === "idle" || status === "crashed" || sceneStatus !== "ready"} onClick={pauseOrResume}>{status === "paused" ? "Resume" : "Pause"}</button>
         </div>
       </header>
-
-      <div
-        ref={surfaceRef}
-        className={`railshift__surface is-${status}`}
-        role="group"
-        aria-roledescription="game"
-        aria-label="Railshift three-lane signal runner. Use Left and Right to change lanes, Up or Space to jump, Down to duck, and P to pause."
-        aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown A D W S Space P Enter"
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={() => {
-          gestureRef.current = { x: 0, y: 0, pointerId: -1 };
-        }}
-      >
+      <div ref={surfaceRef} className={`railshift__surface is-${status}`} role="group" aria-roledescription="game"
+        aria-label="Railshift. Left and Right change lanes, Up or Space jump, Down slide, Shift activates overdrive, P pauses."
+        aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown A D W S Space Shift P Enter" tabIndex={0}
+        onKeyDown={handleKeyDown} onPointerDown={handlePointerDown} onPointerUp={handlePointerUp}
+        onPointerCancel={() => { gestureRef.current = { x: 0, y: 0, pointerId: -1 }; }}>
         <canvas ref={canvasRef} aria-hidden="true" />
         <div className="railshift__hud" aria-hidden="true">
-          <span><small>Score</small>{hud.score.toLocaleString()}</span>
-          <span><small>Route</small>{hud.distance}m</span>
-          <span className="railshift__combo"><small>Flow</small>×{hud.combo}</span>
-          <span><small>Cells</small>{hud.cells}</span>
-          <span><small>Guard</small>{hud.shield ? "Armed" : "Open"}</span>
+          <div className="railshift__score"><small>Score</small><strong>{hud.score.toLocaleString()}</strong><span>×{hud.combo} multiplier</span></div>
+          <div className="railshift__route"><small>{districtName}</small><strong>{hud.distance}<i> m</i></strong><span>{remaining} m to checkpoint</span><div className="railshift__progress"><i style={{ width: `${(hud.distance % 250) / 2.5}%` }} /></div></div>
+          <div className="railshift__health"><small>Hull</small><strong className={hud.hull < 2 ? "is-low" : ""}>{"◆".repeat(hud.hull)}<i>{"◇".repeat(Math.max(0, 2 - hud.hull))}</i></strong><span>{hud.shield ? "Shield ready" : `${hud.cells} gold coins`}</span></div>
         </div>
-
-        {status !== "playing" && (
-          <div className="railshift__overlay">
-            <strong>
-              {status === "crashed"
-                ? "Signal broken."
-                : status === "paused"
-                  ? "Route held."
-                  : "Line is clear."}
-            </strong>
-            <p>
-              {status === "crashed"
-                ? `${hud.distance}m · ${hud.score.toLocaleString()} points · best ${best.toLocaleString()} pts / ${bestDistance.toLocaleString()}m`
-                : status === "paused"
-                  ? "Your run is frozen exactly where you left it."
-                  : "Build flow by collecting cells. Jump barriers, duck gantries, and switch away from blocks."}
-            </p>
-            <button
-              type="button"
-              onClick={status === "paused" ? pauseOrResume : startRun}
-            >
-              {status === "crashed"
-                ? "Run again"
-                : status === "paused"
-                  ? "Resume run"
-                  : "Start shift"}
-            </button>
+        {status === "playing" && <>
+          {(hud.elapsed < 2.8 || (hud.tutorial && !flying)) && <div className="railshift__hint">{hud.elapsed < 2.8 ? "The dock warden is on your tail. Go!" : hud.tutorial}</div>}
+          {hud.message && <div className="railshift__feedback" key={hud.message}>{hud.message}</div>}
+          <div className="railshift__equipment" aria-label="Equipped gear">
+            {flying && <div className="railshift__gear is-rocket"><EquipmentIcon kind="jetpack" /><span><strong>{hud.flightTimer > 0 ? "Rocket flight" : "Landing"}</strong><small>{hud.flightTimer > 0 ? `${hud.flightTimer.toFixed(1)}s · Steer left / right` : "Touchdown protection"}</small></span><i style={{ transform: `scaleX(${hud.flightTimer / FLIGHT_DURATION})` }} /></div>}
+            {hud.magnetTimer > 0 && <div className="railshift__gear is-magnet"><EquipmentIcon kind="magnet" /><span><strong>Coin magnet</strong><small>{hud.magnetTimer.toFixed(1)}s · Pulls nearby gold</small></span><i style={{ transform: `scaleX(${hud.magnetTimer / MAGNET_DURATION})` }} /></div>}
           </div>
-        )}
-
-          <div
-            className="railshift__touch-controls"
-            role="group"
-            aria-label="Touch controls"
-          >
-          <button type="button" aria-label="Move left" onClick={() => moveLane(-1)}>
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M20 12H5M10 7l-5 5 5 5" />
-            </svg>
+          <button className={`railshift__burst ${hud.energy >= 100 && !flying ? "is-ready" : ""}`} type="button" disabled={hud.energy < 100 || flying} onClick={burst} aria-label={`Overdrive${flying ? " saved until landing" : hud.energy >= 100 ? " ready. Activate" : ` charging ${Math.floor(hud.energy)} percent`}`}>
+            <span>↗</span><div><strong>{hud.burstTimer > 0 ? "Overdrive active" : flying ? "Overdrive saved for landing" : hud.energy >= 100 ? "Activate overdrive" : "Collect gold to charge"}</strong><small>{hud.energy >= 100 && !flying ? "Shift · Break through obstacles" : `${Math.floor(hud.energy)}% · Overdrive`}</small></div>
+            <i style={{ width: `${hud.energy}%` }} />
           </button>
-          <button type="button" aria-label="Jump" onClick={jump}>
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M12 20V5m-5 5 5-5 5 5" />
-            </svg>
+        </>}
+        {status !== "playing" && <div className="railshift__overlay">
+          <span className="railshift__eyebrow">{status === "crashed" ? "Shift complete" : status === "paused" ? "Take a breath" : "An endless ride above the city"}</span>
+          <h3>{status === "crashed" ? "One more run?" : status === "paused" ? "Right where you left off." : <>Ride the<br /> skyline.</>}</h3>
+          <p>{sceneStatus === "error" ? "The 3D view could not start. Enable hardware acceleration in your browser, then reload to ride." : status === "crashed" ? hud.endCause : status === "paused" ? "Your route is paused. Resume when you are ready." : "Outrun the dock warden. Grab rocket packs to fly and magnets to pull in gold. Jump barriers; slide under signs."}</p>
+          {status === "crashed" ? <div className="railshift__results"><span><strong>{hud.score.toLocaleString()}</strong>Points</span><span><strong>{hud.distance} m</strong>Distance</span><span><strong>{hud.bestStreak}</strong>Best streak</span></div> : status === "idle" && <div className="railshift__lessons"><span><b>← →</b>Change lane</span><span><b>↑</b>Jump</span><span><b>↓</b>Slide</span></div>}
+          <button type="button" className="railshift__start" disabled={sceneStatus !== "ready"} onClick={status === "paused" ? pauseOrResume : startRun}>
+            {sceneStatus === "loading" ? "Preparing your ride…" : sceneStatus === "error" ? "3D unavailable" : status === "crashed" ? "Ride again" : status === "paused" ? "Resume ride" : "Start riding"}<span aria-hidden="true">↗</span>
           </button>
-          <button type="button" aria-label="Duck" onClick={duck}>
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M12 4v15m-5-5 5 5 5-5" />
-            </svg>
-          </button>
-          <button type="button" aria-label="Move right" onClick={() => moveLane(1)}>
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M4 12h15m-5-5 5 5-5 5" />
-            </svg>
-          </button>
-        </div>
+          <small className="railshift__best">{status === "idle" ? "First checkpoint: 250 m · Two hits per ride" : `Personal best ${best.toLocaleString()} pts · ${bestDistance.toLocaleString()} m`}</small>
+        </div>}
+        {status === "playing" && <div className="railshift__touch-controls" role="group" aria-label="Touch controls">
+          <button type="button" aria-label="Move left" onClick={() => moveLane(-1)}><b>←</b><span>Left</span></button>
+          <button type="button" aria-label="Jump" onClick={jump}><b>↑</b><span>Jump</span></button>
+          <button type="button" aria-label="Slide" onClick={duck}><b>↓</b><span>Slide</span></button>
+          <button type="button" aria-label="Move right" onClick={() => moveLane(1)}><b>→</b><span>Right</span></button>
+        </div>}
       </div>
-
-      <footer className="railshift__footer">
-        <span>Left / right lane · Up jump · Down duck · P pause</span>
-        <span>Sim 60 Hz / {hud.fps} fps · Best {best.toLocaleString()} · saved here</span>
-      </footer>
-      <p className="railshift__announcement" aria-live="polite">
-        {statusMessage}
-      </p>
+      <footer className="railshift__footer"><span>← → Move <b>·</b> ↑ Jump <b>·</b> ↓ Slide <b>·</b> Shift Overdrive</span><span>{status === "playing" ? `${hud.fps} fps` : "Swipe or use arrow keys"} <b>·</b> Best {best.toLocaleString()}</span></footer>
+      <p className="railshift__announcement" aria-live="polite">{statusMessage}</p>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 // Attribution and additional terms: see NOTICE.md.
 
 import { MetadataRoute } from "next";
+import { caseStudies } from "@/app/lib/project-case-studies";
 
 export const revalidate = 604800;
 
@@ -16,5 +17,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    ...caseStudies.map(({ slug }) => ({
+      url: `https://www.sambai.dev/work/${slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
   ];
 }

@@ -2,11 +2,14 @@
 // Attribution and additional terms: see NOTICE.md.
 
 import { NextResponse } from "next/server";
+import { createMarketCache } from "../../lib/market-upstream-cache";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const UPSTREAM_TIMEOUT_MS = 8_000;
+const STALE_SOURCE_AGE_MS = 15 * 60_000;
+const MAX_SOURCE_AGE_MS = 24 * 60 * 60_000;
 
 const COIN_IDS = [
   "bitcoin",
@@ -59,7 +62,7 @@ type MarketPayload = {
   }>;
 };
 
-const fallbackCache = new Map<SupportedCurrency, MarketPayload>();
+const cached = createMarketCache<MarketPayload>();
 const NO_STORE = "no-store";
 
 function isFiniteNumber(value: unknown): value is number {
@@ -91,6 +94,7 @@ function parseCurrency(request: Request): CurrencyResult {
 }
 
 function parseMarket(value: CoinGeckoMarket) {
+  if (!value || typeof value !== "object") return null;
   const prices = Array.isArray(value.sparkline_in_7d?.price)
     ? value.sparkline_in_7d.price.filter(isFiniteNumber).slice(-25)
     : [];
@@ -110,6 +114,8 @@ function parseMarket(value: CoinGeckoMarket) {
     !isFiniteNumber(value.low_24h) ||
     !isFiniteNumber(change) ||
     typeof value.last_updated !== "string" ||
+    !Number.isFinite(Date.parse(value.last_updated)) ||
+    Date.parse(value.last_updated) > Date.now() + 300_000 ||
     prices.length < 2
   ) {
     return null;
@@ -133,8 +139,8 @@ function parseMarket(value: CoinGeckoMarket) {
 
 /**
  * Bounds the upstream call and aborts the underlying request when the deadline
- * expires. The incoming request signal is combined with the timeout signal so
- * a disconnected client also cancels the CoinGecko request.
+ * expires. Coalesced requests share this deadline independently of any one
+ * visitor disconnecting; cancelled clients still receive no response body.
  */
 async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
   const timeoutSignal = AbortSignal.timeout(UPSTREAM_TIMEOUT_MS);
@@ -153,6 +159,9 @@ export async function GET(request: Request) {
       { status: 400, headers: { "Cache-Control": NO_STORE } },
     );
   }
+  if (request.signal.aborted) {
+    return new Response(null, { status: 499, headers: { "Cache-Control": NO_STORE } });
+  }
   const { currency } = parsedCurrency;
   const query = new URLSearchParams({
     vs_currency: currency,
@@ -165,7 +174,7 @@ export async function GET(request: Request) {
   });
   const demoKey = process.env.COINGECKO_DEMO_API_KEY?.trim();
 
-  try {
+  const payload = await cached(currency, 300_000, async () => {
     const response = await fetchWithTimeout(
       `https://api.coingecko.com/api/v3/coins/markets?${query.toString()}`,
       {
@@ -173,8 +182,9 @@ export async function GET(request: Request) {
           Accept: "application/json",
           ...(demoKey ? { "x-cg-demo-api-key": demoKey } : {}),
         },
-        next: { revalidate: 300 },
-        signal: request.signal,
+        // The bounded cache above owns freshness. A second persistent Next
+        // cache can return an old provider snapshot while this load succeeds.
+        cache: "no-store",
       },
     );
 
@@ -192,6 +202,7 @@ export async function GET(request: Request) {
     const coins = raw
       .map((item) => parseMarket(item as CoinGeckoMarket))
       .filter((item): item is NonNullable<typeof item> => item !== null)
+      .filter((coin) => Date.now() - Date.parse(coin.lastUpdated) <= MAX_SOURCE_AGE_MS)
       .sort((left, right) => left.marketCapRank - right.marketCapRank);
 
     if (!coins.length) {
@@ -206,49 +217,47 @@ export async function GET(request: Request) {
         Date.parse(coin.lastUpdated) > Date.parse(latest) ? coin.lastUpdated : latest,
       firstCoin.lastUpdated,
     );
-    const payload: MarketPayload = {
+    return {
       currency,
       fetchedAt: new Date().toISOString(),
       sourceUpdatedAt,
+      // The cache sets this flag on failed refreshes. Source age is assessed
+      // separately below, after individual expired rows have been removed.
       stale: false,
       coins,
     };
-    fallbackCache.set(currency, payload);
-
-    return NextResponse.json(payload, {
-      headers: {
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
-      },
-    });
-  } catch (caught) {
-    if (request.signal.aborted) {
-      return new Response(null, {
-        status: 499,
-        headers: { "Cache-Control": NO_STORE },
-      });
-    }
-
-    console.error("[api/crypto] upstream failure:", caught);
-    const fallback = fallbackCache.get(currency);
-    if (fallback) {
-      return NextResponse.json(
-        { ...fallback, stale: true },
-        {
-          headers: {
-            "Cache-Control": "public, s-maxage=60, stale-while-revalidate=600",
-          },
-        },
-      );
-    }
-
+  });
+  if (request.signal.aborted) {
+    return new Response(null, { status: 499, headers: { "Cache-Control": NO_STORE } });
+  }
+  const coins = payload?.coins.filter(
+    (coin) => Date.now() - Date.parse(coin.lastUpdated) <= MAX_SOURCE_AGE_MS,
+  ) ?? [];
+  const firstCoin = coins[0];
+  if (!payload || !firstCoin) {
     return NextResponse.json(
       {
         error: "Market data is unavailable right now. Try again in a moment.",
       },
       {
         status: 503,
-        headers: { "Cache-Control": NO_STORE },
+        headers: { "Cache-Control": NO_STORE, "Retry-After": "60" },
       },
     );
   }
+  // Reassess source age even while the in-memory response is still cached.
+  const stale = payload.stale || coins.some(
+    (coin) => Date.now() - Date.parse(coin.lastUpdated) > STALE_SOURCE_AGE_MS,
+  );
+  const sourceUpdatedAt = coins.reduce(
+    (latest, coin) => Date.parse(coin.lastUpdated) > Date.parse(latest) ? coin.lastUpdated : latest,
+    firstCoin.lastUpdated,
+  );
+  return NextResponse.json({ ...payload, coins, sourceUpdatedAt, stale }, {
+    headers: {
+      // Each response must pass through source-age checks. The per-currency
+      // memory cache already prevents another upstream call for five minutes.
+      "Cache-Control": NO_STORE,
+    },
+  });
 }

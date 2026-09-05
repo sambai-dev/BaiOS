@@ -1,0 +1,44 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+
+.project-thumbnail {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: #20221f;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.project-thumbnail > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.project-thumbnail .project-thumbnail__title {
+  fill: #f2f0e5;
+  font-family: var(--font-display, "Arial Black"), Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -2px;
+}
+
+.project-thumbnail .project-thumbnail__subtitle {
+  fill: #30352a;
+  font-family: var(--font-data, "Courier New"), monospace;
+  font-weight: 600;
+  letter-spacing: -0.35px;
+}
+
+.project-thumbnail .project-thumbnail__mono {
+  font-family: var(--font-data, "Courier New"), monospace;
+}
+
+@media (forced-colors: active) {
+  .project-thumbnail {
+    forced-color-adjust: none;
+  }
+}

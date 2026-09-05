@@ -134,9 +134,9 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
         }) ?? false;
       if (saved) {
         setSavedIndexes((current) => new Set(current).add(index));
-        setStatusMessage(`Saved “${title}” in Archive.`);
+        setStatusMessage(`Saved “${title}” in Files.`);
       } else {
-        setStatusMessage("Archive save is unavailable.");
+        setStatusMessage("Could not save to Files. Try again.");
       }
     },
     [onSavedToArchive, result],
@@ -155,7 +155,7 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
       <header className="search-header">
         <div>
           <h2>Search Wikipedia.</h2>
-          <p>Wikipedia-backed lookup through this site&apos;s server route.</p>
+          <p>Look up a topic on Wikipedia and keep useful results in Files.</p>
         </div>
       </header>
 
@@ -227,8 +227,8 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
                     }}
                   >
                     {savedIndexes.has(-1)
-                      ? "Saved in Archive ✓"
-                      : "Save to Archive"}
+                      ? "Saved in Files ✓"
+                      : "Save to Files"}
                   </button>
                 </footer>
               </article>
@@ -270,7 +270,7 @@ export default function SearchApp({ onSavedToArchive }: SearchAppProps = {}) {
                           data-saved={savedIndexes.has(index) ? "true" : undefined}
                           onClick={() => saveToArchive({ ...item, url: itemUrl }, index)}
                         >
-                          {savedIndexes.has(index) ? "Saved in Archive ✓" : "Save"}
+                          {savedIndexes.has(index) ? "Saved in Files ✓" : "Save to Files"}
                         </button>
                       </article>
                     );

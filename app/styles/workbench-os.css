@@ -666,18 +666,26 @@
 
 .os-stack {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
+  align-content: start;
 }
 
 .os-stack-intro {
   display: grid;
-  grid-template-columns: minmax(12rem, 1fr) minmax(11rem, 0.9fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   gap: 1.2rem;
   align-items: end;
 }
 
 .os-stack-intro p {
   margin: 0;
+}
+
+.os-stack .os-stack-intro h2 {
+  font-family: var(--font-body), sans-serif;
+  font-size: clamp(1.5rem, 5cqi, 2.2rem);
+  font-weight: 600;
+  line-height: 1.08;
 }
 
 .os-stack-list > div {
@@ -2025,11 +2033,11 @@
   justify-content: space-between;
   margin-top: auto;
   padding-top: 0.8rem;
-  color: var(--ivory-muted);
+  color: #575750;
   font-family: var(--font-data), monospace;
   font-size: 0.56rem;
   letter-spacing: 0.05em;
-  border-top: 1px solid var(--rule-light);
+  border-top: 1px solid var(--rule-dark);
 }
 
 /* --- Scratch stats bar + export --- */

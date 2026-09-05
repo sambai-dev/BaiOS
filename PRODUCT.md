@@ -8,95 +8,114 @@ web
 
 ## Users
 
-This is a personal website. The primary audience is anyone curious how Sam Bai thinks and builds: peers, collaborators, and hiring teams evaluating judgment, range, and the ability to move from an unclear software question to working software. Visitors should be able to reach the résumé, GitHub, and LinkedIn, and optionally go deeper in the Workbench.
+This is Sam Bai's personal website. Peers, collaborators, and hiring teams use it to understand what Sam builds, how he thinks, and how the software behaves. A visitor can browse real projects, read a case study, try a game or tool, open the Workbench, or go straight to contact details.
 
 ## Product Purpose
 
-This personal portfolio helps people understand who Sam is, see how he thinks across product direction, design engineering, and production, and choose a clear next step: email Sam, visit Solynth Labs, or open his personal Workbench.
+The portfolio introduces Sam's product design and engineering work. The minimal homepage gives his identity, a large headline, and direct links. Project pages explain the problem, implementation choices, and limits with actual interface evidence. The optional Workbench lets visitors use tools, games, and experiments directly.
 
-Success means the public surface communicates identity and current focus through the exact statement “Sam designs and builds software.” and the personal framing “A personal site: engineering thinking, design, and working experiments.” It provides direct routes to a conventional email address, Solynth Labs, and the optional Workbench. Trekky remains a deeper proof surface inside the Workbench rather than another competing message at arrival. The Workbench is evidence in itself: a functioning browser-based environment whose windowing, local files, tools, experiments, and recovery controls reveal how Sam thinks about software.
+The homepage leads with typography, space, and plain language. Charcoal, ivory, cobalt, and clear controls connect it to the project pages and the more playful browser desktop.
 
-## Positioning
+## Identity and Positioning
 
-Sam is Founder & Product Engineer at Solynth Labs. He works across hands-on production: clarifying software decisions, shaping systems, building interfaces and workflows, and operating owned products. The personal portfolio shows the human judgment behind the work: engineering thinking, design skills, and working experiments, rather than duplicating the company site.
+- Sam Bai, Founder & Product Engineer at Solynth Labs.
+- Based in Hamilton, New Zealand.
+- Builds and operates Trekky.app through Solynth Labs.
+- Works across product direction, interface design, software systems, AI workflows, and production engineering.
+- The personal portfolio shows Sam's work and judgment; Solynth Labs remains the company destination.
 
-## Operating Context
+The writing uses a direct personal voice and specific descriptions. Headings, labels, and introductions evolve with the design and the work being presented.
 
-- Personal engineering work and production through Solynth Labs.
-- Product direction, software systems, AI workflows, design engineering, and production delivery.
-- Working capability across React, Next.js, TypeScript, Node.js, PostgreSQL, Drizzle ORM, Supabase, Neon, Cloudflare, React Native, iOS, Android, and SaaS systems.
-- Building and operating Trekky.app as a Solynth Labs product.
-- The public portfolio intentionally avoids a conventional project-card list; Solynth Labs and Trekky are the current proof surfaces.
-- Based in Hamilton, New Zealand, working through web products, prototypes, production systems, and direct client conversations.
+## Public Homepage
+
+The headline is “Sam designs and builds software.” The identity header gives Sam's name, Founder & Product Engineer role at Solynth Labs, Hamilton location, and New Zealand time. Hamilton coordinates appear beneath the headline.
+
+The footer contains Site, Direct, and Elsewhere. Site reads “A personal site: engineering thinking, design, and working experiments.” Direct links to Sam's email, Solynth Labs, and Open Workbench. Elsewhere links to GitHub, BaiOS Source, LinkedIn, and Résumé. The headline and footer adapt to small screens.
+
+Workbench remains available through the compact header tab and the Open Workbench footer link. Games, Market monitor, Vector lab, and the other desktop applications remain available through Workbench.
+
+The orbit component, its data, and original cartridge artwork remain in the repository but are not rendered on the homepage. Gameplay previews come from the implemented games. The supplied Clone was an interaction reference; its downloaded imagery, films, logos, fonts, and project identities are not portfolio content.
+
+Personal Notes and visitor-created files remain local Workbench content.
+
+## Project Pages
+
+Five public case pages describe Trekky, Rookhold, Portly, AgentScope, and BaiOS. Their content lives in `app/lib/project-case-studies.ts` and renders through `app/work/[slug]/page.tsx`. Each page has a clear title and purpose, source-backed project details, an interface preview, readable sections about the work, useful links, and routes back to the portfolio and Workbench.
+
+Trekky's page uses light ivory surfaces and a genuine earlier light-theme sample dashboard, labeled as an empty sample board. Other project pages remain dark while sharing the same typography and controls.
+
+Interface images distinguish an actual capture, a documented example, and a simulated demo. For example, AgentScope's simulator is identified as a simulator, Portly's README example is labeled, and an older Rookhold console screenshot retains its version caption. A screenshot is not presented as evidence of a newer release's complete interface. Full-size image links make dense interface evidence inspectable on small screens.
+
+Project claims stay within the documented implementation. Rookhold's guarded Linux execution is distinct from its unisolated development mode. AgentScope observes and reports activity rather than blocking it. Demo events, sample data, current release facts, and future work remain clearly separated. No testimonials, client outcomes, revenue, benchmark results, or commercial commitments are invented.
 
 ## Workbench Product Model
 
-Workbench is an optional browser desktop entered from the personal portfolio. Navigation follows familiar Linux desktop conventions: an Applications launcher, a taskbar containing running apps, a workspace switcher, and recognizable window controls. Desktop and Window menus use readable names. Overview shows open windows; Files stores local notes and folders; Settings controls appearance, workspace layout, sound, and backups.
+Workbench is an optional browser desktop. Familiar desktop conventions organize the experience: an Applications launcher, a taskbar of running apps, workspace switching, recognizable window controls, Desktop and Window menus, Overview, Search, and Back to site.
 
-Three local workspaces organize the environment:
+Three workspaces organize applications:
 
-- **Work:** About Sam, current projects, and ways to get in touch.
-- **Playground:** Interactive experiments, games, and visual tools.
-- **Notes:** Notes, files, search, Terminal, AI assistant, and Settings.
+- **Work:** About Sam, current projects, technical background, process, and contact.
+- **Playground:** Subsurface, Railshift, Vector lab, and Market monitor.
+- **Notes:** Notes, Files, Terminal, Web search, AI assistant, and Settings.
 
-Applications are named Welcome, Tech stack, How I work, Notes, Terminal, Contact & links, Market monitor, Project brief, Projects, AI assistant, Subsurface, Railshift, Vector lab, Files, Web search, and Settings. The launcher uses the same Work, Playground, and Notes categories as the workspace switcher, with All available for browsing. Each app has one home workspace: professional context and project enquiries open in Work; games, Vector lab, and Market monitor open in Playground; notes and personal tools open in Notes. Launching an app switches to that workspace, including through shortcuts, Files entries, and shared app links. An app link takes precedence over a conflicting workspace parameter. Internal app IDs, saved links, commands, and user data remain compatible with the earlier labels. Existing default window titles display the readable names; custom titles remain intact.
+The app registry assigns each app a home workspace. Applications uses All, Work, Playground, and Notes categories. Launching through the launcher, shortcuts, Files, or a shared link opens or focuses the app in its assigned workspace. An app link takes precedence over a conflicting workspace parameter. Restored windows are organized into their app's workspace while retaining IDs, content, geometry, and open or minimized state. The active window follows its move; an empty selected workspace stays selected.
 
-Projects documents supported facts about Trekky and Workbench and labels its motion demo as a simulation. Project brief helps compose an enquiry without inventing price, duration, capacity, or missing inputs. AI assistant identifies its model provider and marks generated output as not independently verified. Market monitor shows CoinGecko crypto prices in USD or NZD; Web search queries Wikipedia. Notes, Vector lab, and Files allow multiple instances. Other apps reopen or focus an existing saved instance in their home workspace.
+Visible app names are Welcome, Tech stack, How I work, Notes, Terminal, Contact & links, Market monitor, Project brief, Projects, AI assistant, Subsurface, Railshift, Vector lab, Files, Web search, and Settings. Internal IDs and commands remain compatible with saved sessions and earlier links. Custom window and file names remain visitor-owned.
 
-Desktop windows support focus, drag, keyboard resize, minimize, close, maximize/restore, and left/right snap. Window overview shows every workspace. Focus one displays a selected window while minimizing others; Bring to front preserves the stack; Show all restores minimized windows. Search finds applications, saved windows, workspaces, local files, and commands. At compact widths, one active window is shown and the taskbar switches tasks.
+Desktop windows support focus, dragging, resizing, minimizing, closing, maximizing, restoring, and snapping. Overview shows open windows across workspaces. Focus one minimizes siblings; Bring to front preserves them; Show all restores minimized windows. At compact widths, one active window is visible and the taskbar switches tasks. Open inactive apps remain in the session and outside the interaction and accessibility trees until reactivated.
 
-Files supports folders, notes, editing, rename, trash, restore, and confirmed permanent deletion. Settings can download or restore a validated backup containing session and Files state, or restore window layout without replacing content. Project brief drafts, Vector lab drafts/view state, sound preference, and game scores use separate browser storage outside that backup. A fresh session opens Welcome in Work; Playground and Notes start empty. Restored or imported windows are organized into their app's home workspace while retaining IDs, content, geometry, and open/minimized state. The active window follows its move; an empty selected workspace stays selected.
+Projects inside the Workbench provides interactive Trekky and BaiOS details plus a labeled spring simulation. Project brief helps prepare an email enquiry without inventing a quote or delivery schedule. Market monitor uses CoinGecko for its eight-asset watchlist and timestamped 24-hour, 7-day, and 30-day charts in USD or NZD. EMA 20 and EMA 50 overlays use the actual sample cadence, with a visible explanation, pointer inspection, and keyboard-accessible history slider. Its Fear & Greed panel reads the genuine CoinMarketCap index through the documented keyless public API. Each provider has its own source timestamp and honest cached or unavailable state; automatic refresh runs only while the app and browser tab are visible. Web search uses Wikipedia and can save attributed results to Files. AI assistant sends prompts to OpenRouter and identifies its response as not independently checked.
 
-Session and Files data stay in this browser, with no account or remote sync. Market monitor, Web search, and AI assistant make network requests; copy must distinguish these requests from local persistence and must not imply that files or session state are uploaded.
+## Games and Vector Lab
 
-## Capabilities and Constraints
+**Railshift** is an original Three.js runner through a dense metropolitan skyline. Each 3,000 m route spends ten of twelve checkpoint stretches downtown, with short waterfront and amusement-park excursions. The Ferris wheel appears only in the park; a whale breaches briefly on alternating waterfront visits. The HUD names the current district. A modeled dock warden pursues the opening run. Visitors change lanes, jump barriers, slide under signs, collect rows of gold coins, and build streaks. Rocket backpacks automatically launch 5.5 seconds of horizontal flight, with smooth lift-off, landing, and brief touchdown protection. Six-second magnets pull nearby coins along visible low curves, including adjacent lanes; ground coin rows stay fixed during flight. Shields absorb a hit and collected coins charge manual Overdrive, whose charge is preserved while flying. Two lives, checkpoints, clear equipment timers, and an explicit restart explain the rules. The shaped surf-style hoverboard banks through lane changes, with staggered grip pads and a raised nose and tail. A planted-foot leg rig lets the knees absorb motion while the torso and arms balance through turns and landings. Jumps trigger a kickflip: the rider tucks their legs as the deck rotates underneath, then catches it before touchdown. Down triggers a fast, deep crouch: the hips sink, chest folds forward, and arms tuck in while the feet remain planted. Reduced motion keeps the board level. Articulated poses blend smoothly without delaying collision controls. Layered mountain ridges and foothills create depth beyond the city. Keyboard, swipe, and labeled touch controls remain available. Sound is opt-in. Best score and distance stay in browser storage outside the Workbench backup.
 
-- Solynth Labs, Trekky, résumé, a conventional `mailto:` contact route, GitHub, and LinkedIn (`https://www.linkedin.com/in/sam-bai1/`) must remain reachable.
-- The site is a Next.js single-page portfolio and must remain responsive, accessible, and fast.
-- The public front door should stay sparse; deeper context belongs in the Workbench or direct links.
-- No testimonials, client outcomes, revenue, benchmarks, or commercial claims may be invented.
-- The Workbench may use verified professional objects such as current work, principles, notes, tools, links, and original interactive experiments.
-- The cobalt, oxide, and graphite themes change the Workbench route/depth/signal palette while preserving carbon-and-ivory structure and content.
-- At compact widths, the Workbench becomes a single-active-window environment. Inactive windows remain in session state but are hidden and removed from the interaction and accessibility trees until reactivated.
-- Persisted data must remain bounded and validated. Import is size-limited, schema-checked, and applied atomically with the Archive state.
-- Corrupt saved state must not be silently overwritten; the recovery path should preserve it until the visitor chooses a safe action.
+**Subsurface** is an original 3D underwater research game across three zones. Visitors control rise and dive, navigate channels, collect amber specimens, and use sonar while managing hull and protection. Start, Pause, Resume, and results are explicit. Keyboard and touch controls provide the same actions. Best score stays in browser storage outside the Workbench backup. If WebGL is unavailable, a 2D renderer preserves the same simulation and controls.
 
-## Interaction and Accessibility Commitments
+**Vector lab** teaches through Dock, Thrust, and Lift missions, followed by free Explore mode. Visitors move vectors through coordinates, keyboard-accessible handles, and dragging; compare addition, projection, angle, and cross product; then send a probe to test the result. Target feedback and explanations connect the mathematics to a visible outcome. The Three.js scene supports camera orbit, while calculations and mission checks remain usable without WebGL.
 
-- Core controls provide keyboard paths: menu bars use standard arrow-key movement; modal Atlas and system-search surfaces trap and restore focus; tabs and listboxes use roving selection; system search supports arrows, Home, End, Enter, and Escape. Arbitrary desktop window movement remains pointer-driven.
-- Primary global keyboard shortcuts are F3 for Atlas, Ctrl/Cmd+K for system search, and Alt+1 through Alt+3 for workspaces. Escape closes the topmost transient surface or the Workbench when focus is not in a typing control. Apps are opened through semantic menu and dock controls; Shift-modified click or dock activation creates a new instance only where the registry allows it.
-- Window resize grips use arrow keys in 12px steps and Shift+arrow in 32px steps. Maximize, restore, snapping, closing, and workspace switching remain available through semantic controls or menus.
-- Archive supports keyboard traversal and file actions, including Home, End, Enter, F2, and Delete, with confirmation for destructive operations.
-- Visible focus, semantic roles and labels, live status messages, error association, and reduced-motion behavior are part of the product contract.
-- Subsurface starts only after visitor input and supports pointer/tap, Space, Arrow Up, and Enter. Its best score is local-only. In compact single-window mode, hiding its inactive window pauses the animation frame loop without discarding the model; reopening resumes that state.
-- Railshift is an original three-lane signal runner with keyboard, swipe, and visible touch controls. Its fixed-step simulation, canvas rendering, sound opt-in, reduced-motion treatment, and local-only best score remain independent from the exported Workbench session. Its animation frame loop stops whenever the app or browser tab is inactive.
-- Vector accepts editable decimal input drafts so empty and partial values remain typeable. It marks invalid or out-of-range axes with `aria-invalid`, reports a compact status, and calculates only when all six values are finite and within −3 to 3; otherwise result fields show `N/A`. Pointer drag and arrow keys can orbit the plot. Drafts and view state persist per Vector instance in separate browser storage and are not included in Control backups.
+Game simulations run only after a visitor starts them and pause when the application or page becomes inactive. Resume preserves the current in-memory run. The 3D renderers bound resolution and release resources when no longer needed. Reduced motion removes nonessential movement; Vector test flights resolve directly when reduced motion is requested. A browser unable to start Railshift's 3D view receives a clear explanation.
 
-## Brand Commitments
+## Local Data and Recovery
 
-- Name: Sam Bai.
-- Current identity: Founder & Product Engineer, Solynth Labs.
-- Location: Hamilton, New Zealand.
-- Solynth Labs is the company layer; the portfolio is the personal perspective and body of evidence.
-- The design should meet a senior portfolio craft bar while remaining specific to Sam.
-- Workbench, Atlas, Archive, Control, the menu system, window chrome, and workspace language are original clean-room product vocabulary. Future work must not import third-party operating-system names, icons, or trade dress.
-- The supplied references establish a craft bar for restrained typography, purposeful motion, direct manipulation, sparse chrome, and project-led hierarchy; they do not license copied product vocabulary or decoration.
+Session and Files data stay in this browser, without an account or remote sync. Files supports folders, notes, editing, renaming, trash, restoring, and confirmed permanent deletion. Settings can download or restore a validated backup containing session and Files state, or restore the window layout without replacing content.
 
-## Evidence on Hand
+Notes, Vector lab, and Files support multiple instances. Closed windows retain serialized content and geometry for reopening. A fresh session opens Welcome in Work, while Playground and Notes begin empty. The saved window registry is bounded at 60 instances.
 
-- Public portfolio and Workbench implementation in `app/`.
-- Workbench registry, session, window-manager, Archive, and backup behavior in `app/lib/`.
-- Résumé at `public/resume/SamBai_Resume.8aa80702.pdf`.
-- Solynth Labs positioning and company facts: https://solynthlabs.com/#services.
-- Approved visual composition: "Quiet Junction" (see DESIGN.md for tokens and component spec).
-- Public-surface composition brief: `app/page.tsx` renders the sparse front door described in this document.
+Session and Files are validated and saved together. Imports are size-limited and schema-checked before replacement. Corrupt saved data is preserved for recovery, and competing edits from another tab have an explicit resolution path.
+
+Backup coverage is specific: it includes workspace/session state and Files. Project brief drafts, Vector's per-instance vectors, view and mission progress, sound preference, game records, and transient component state have separate lifecycles. In-progress games and temporary interface state are not promised to survive a reload or appear in the backup.
+
+Market monitor, Web search, and AI assistant make network requests. Their service use does not imply that local files or desktop sessions are uploaded. Provider, source, cached-data, estimate, and generated-output labels describe what actually happened.
+
+## Interaction and Accessibility
+
+- The homepage has a semantic headline, labeled navigation, visible focus, and a skip link to the footer links. Responsive text keeps the page readable on small screens.
+- The compact Workbench tab expands on hover or keyboard focus. Its separator aligns with the fixed header rule. Opening and returning use the anchored status dot; focus returns after the public page becomes interactive.
+- Desktop menus support arrow keys. Overview and search manage modal focus and restore it on close. Search supports arrows, Home, End, Enter, and Escape.
+- F3 opens Overview, Ctrl/Cmd+K opens search, and Alt+1 through Alt+3 switch workspaces. Escape closes the top transient surface or Workbench when focus is not in a typing control.
+- Window resize handles support arrow-key resizing in 12px steps and 32px with Shift. Window and workspace actions also have labeled controls.
+- Files supports keyboard traversal and file actions, including Home, End, Enter, F2, and Delete, with confirmation for permanent deletion.
+- Games expose keyboard and touch controls, visible instructions, pause, and outcome messages. Vector retains coordinate inputs and keyboard adjustment alongside direct manipulation.
+- Focus indicators, semantic headings and control states, live status messages, input validation, reduced motion, and readable mobile layouts are part of the product.
+
+## Evidence and Source of Truth
+
+- Homepage: `app/components/PortfolioShell.tsx` and `app/styles/global.css`.
+- Retained orbit exploration: `app/components/ProjectOrbit.tsx` and `app/lib/portfolio-projects.ts`; not rendered on the homepage.
+- Project pages: `app/work/[slug]/page.tsx` and `app/lib/project-case-studies.ts`.
+- Original thumbnails: `app/components/ProjectThumbnail.tsx`; interface and gameplay evidence: `public/portfolio-media/`.
+- Desktop, apps, games, renderers, state, and recovery: `app/components/`, `app/lib/`, and their tests.
+- Résumé: `public/resume/SamBai_Resume.8aa80702.pdf`.
+- Company context: https://solynthlabs.com/; product context: https://trekky.app/.
+- Shared visual direction and component behavior: `DESIGN.md`.
 
 ## Product Principles
 
-1. Lead with identity and judgment, not a logo wall, project grid, or generic claims.
-2. Make the public path immediately legible; make personality optional and discoverable.
-3. Show software as manipulable systems, with interaction revealing how the work behaves.
-4. Use progressive disclosure so a fast-moving visitor gets clarity and a curious expert finds depth.
-5. Keep every claim and artifact truthful, and let specificity, not decoration, create personality.
-6. Treat local data honestly: disclose its scope, provide backup and recovery, and never imply an account, remote storage, or sync for that data. Disclose network-backed tools separately.
-7. Preserve each task across responsive modes; change the interaction model instead of shrinking desktop chrome until it fails.
+1. Introduce Sam clearly and keep contact and navigation easy to find.
+2. Keep the homepage minimal and offer tools, play, and exploration through Workbench.
+3. Connect the frontpage, project details, Workbench, and games through one visual language.
+4. Show real software and explain the choices behind it.
+5. Keep names and controls familiar, and make outcomes visible.
+6. Describe sources, capabilities, limits, storage, and recovery honestly.
+7. Preserve tasks across responsive modes and stop unnecessary background work.

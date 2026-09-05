@@ -3,6 +3,8 @@
  */
 
 .sandbox-app {
+  --sandbox-gutter: clamp(1rem, 2.4cqi, 1.75rem);
+
   display: grid;
   height: 100%;
   min-height: 0;
@@ -11,43 +13,48 @@
   overscroll-behavior: contain;
   color: var(--carbon);
   background: var(--ivory);
+  font-family: var(--font-body), sans-serif;
 }
 
 .sandbox-header {
   display: flex;
-  min-height: 6.25rem;
-  align-items: end;
+  min-width: 0;
+  align-items: center;
   justify-content: space-between;
-  gap: 1.2rem;
-  padding: 1rem 1.2rem 0.95rem;
+  gap: 1rem 1.5rem;
+  padding: 1.15rem var(--sandbox-gutter);
   border-bottom: 1px solid var(--rule-dark);
+}
+
+.sandbox-header > div {
+  min-width: 0;
 }
 
 .sandbox-header-index {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.55rem;
   color: var(--cobalt-deep);
   font-family: var(--font-data), monospace;
-  font-size: 0.52rem;
+  font-size: 0.6rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .sandbox-header h2 {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
-  font-size: clamp(1.85rem, 4.2cqi, 3.45rem);
-  font-weight: 400;
-  line-height: 0.9;
+  font-family: var(--font-body), sans-serif;
+  font-size: clamp(1.5rem, 3.1cqi, 2.15rem);
+  font-weight: 600;
+  line-height: 1.12;
   letter-spacing: -0.035em;
 }
 
 .sandbox-header p {
-  max-width: 34rem;
+  max-width: 58ch;
   margin: 0.5rem 0 0;
   color: #46463f;
-  font-size: 0.76rem;
-  line-height: 1.45;
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .sandbox-tabs {
@@ -56,17 +63,17 @@
 }
 
 .sandbox-tabs button {
-  min-width: 6.25rem;
+  min-width: 5.25rem;
   min-height: 2.75rem;
   padding: 0 0.9rem;
   color: var(--carbon);
   background: transparent;
   border: 1px solid var(--rule-dark);
   cursor: pointer;
-  font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.8rem;
+  font-weight: 550;
+  letter-spacing: -0.01em;
   transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
 }
 
@@ -74,11 +81,14 @@
   border-left: 0;
 }
 
-.sandbox-tabs button[aria-selected="true"],
-.sandbox-tabs button:hover {
-  color: var(--text-on-route);
-  background: var(--cobalt);
-  border-color: var(--cobalt);
+.sandbox-tabs button[aria-selected="true"] {
+  color: var(--ivory);
+  background: var(--carbon);
+  border-color: var(--carbon);
+}
+
+.sandbox-tabs button:hover:not([aria-selected="true"]) {
+  background: color-mix(in srgb, var(--carbon) 7%, transparent);
 }
 
 .sandbox-tabs button:focus-visible,
@@ -93,7 +103,7 @@
 .sandbox-body {
   display: grid;
   min-height: 15rem;
-  grid-template-columns: minmax(0, 1.5fr) minmax(17rem, 0.72fr);
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.45fr);
   overflow: hidden;
 }
 
@@ -116,7 +126,7 @@
 .sandbox-stage {
   min-width: 0;
   min-height: 0;
-  padding: 1.25rem;
+  padding: var(--sandbox-gutter);
   overflow-y: auto;
   overscroll-behavior: contain;
   border-right: 1px solid var(--rule-dark);
@@ -127,33 +137,64 @@
   display: inline-block;
   color: var(--cobalt-deep);
   font-family: var(--font-data), monospace;
-  font-size: 0.52rem;
-  letter-spacing: 0.06em;
+  font-size: 0.6rem;
+  line-height: 1.5;
+  letter-spacing: 0.025em;
   text-transform: uppercase;
 }
 
 .sandbox-panel-head h3 {
   max-width: 33rem;
-  margin: 0.38rem 0 0;
-  font-family: var(--font-display), sans-serif;
-  font-size: clamp(1.4rem, 3cqi, 2.05rem);
-  font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  margin: 0.55rem 0 0;
+  font-family: var(--font-body), sans-serif;
+  font-size: clamp(1.5rem, 2.8cqi, 2.15rem);
+  font-weight: 580;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
 }
 
 .sandbox-panel-head p {
-  max-width: 42rem;
-  margin: 0.5rem 0 1.15rem;
+  max-width: 58ch;
+  margin: 0.75rem 0 1.35rem;
   color: #4b4b44;
-  font-size: 0.78rem;
-  line-height: 1.5;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.sandbox-panel-head--illustrated {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(11rem, 19cqi, 15rem);
+  align-items: start;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.sandbox-project-intro {
+  min-width: 0;
+}
+
+.sandbox-project-intro p {
+  margin-bottom: 0;
+}
+
+.sandbox-project-art {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  max-height: 10rem;
+  overflow: hidden;
+  background: var(--carbon-soft);
+}
+
+.sandbox-project-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .sandbox-flow-shell,
 .sandbox-architecture-shell {
-  margin-bottom: 1rem;
-  background: white;
+  margin-bottom: 1.25rem;
+  background: color-mix(in srgb, var(--ivory) 40%, white);
   border: 1px solid var(--rule-dark);
 }
 
@@ -173,9 +214,10 @@
 .sandbox-flow-track button {
   display: grid;
   width: 100%;
-  min-height: 4.5rem;
+  min-height: 4.6rem;
   align-content: space-between;
-  padding: 0.7rem;
+  gap: 0.55rem;
+  padding: 0.85rem;
   color: var(--carbon);
   text-align: left;
   background: transparent;
@@ -193,8 +235,9 @@
 
 .sandbox-flow-track button strong,
 .sandbox-layer-grid button strong {
-  font-size: 0.76rem;
-  font-weight: 650;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .sandbox-flow-track button:hover,
@@ -219,32 +262,32 @@
 .sandbox-flow-detail {
   display: grid;
   min-height: 7.5rem;
-  grid-template-columns: minmax(0, 1.3fr) minmax(12rem, 0.7fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
 }
 
 .sandbox-flow-detail > div {
-  padding: 1rem;
+  padding: 1.15rem;
 }
 
 .sandbox-flow-detail p,
 .sandbox-layer-detail p {
   margin: 0.45rem 0 0;
   color: #3f3f39;
-  font-size: 0.78rem;
-  line-height: 1.5;
+  font-size: 0.84rem;
+  line-height: 1.6;
 }
 
 .sandbox-proof-note {
   display: flex;
   align-items: center;
   margin: 0 !important;
-  padding: 1rem;
-  color: var(--ivory) !important;
-  background: var(--carbon);
-  font-family: var(--font-data), monospace;
-  font-size: 0.61rem !important;
-  line-height: 1.55 !important;
+  padding: 0.85rem 1.15rem;
+  color: #515149 !important;
+  background: color-mix(in srgb, var(--carbon) 4%, transparent);
+  border-top: 1px solid var(--rule-dark);
+  font-size: 0.75rem !important;
+  line-height: 1.5 !important;
 }
 
 .sandbox-facts-grid {
@@ -252,12 +295,12 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
   margin: 0;
-  border: 1px solid var(--rule-dark);
+  border-top: 1px solid var(--rule-dark);
 }
 
 .sandbox-facts-grid > div {
   min-width: 0;
-  padding: 0.8rem;
+  padding: 0.85rem 0.8rem;
 }
 
 .sandbox-facts-grid > div + div {
@@ -268,21 +311,23 @@
 .sandbox-sidebar-facts dt {
   color: #55554e;
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  letter-spacing: 0;
 }
 
 .sandbox-facts-grid dd,
 .sandbox-sidebar-facts dd {
-  margin: 0.3rem 0 0;
-  font-size: 0.72rem;
-  font-weight: 650;
-  line-height: 1.35;
+  margin: 0.4rem 0 0;
+  font-size: 0.79rem;
+  font-weight: 550;
+  line-height: 1.5;
 }
 
 .sandbox-sidebar {
-  padding: 1.25rem;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--sandbox-gutter);
   overflow-y: auto;
   overscroll-behavior: contain;
   color: var(--ivory);
@@ -295,31 +340,32 @@
 
 .sandbox-sidebar h4 {
   max-width: 18rem;
-  margin: 0.45rem 0 0.9rem;
+  margin: 0.65rem 0 1.2rem;
   color: var(--ivory);
-  font-family: var(--font-display), sans-serif;
-  font-size: 1.35rem;
-  font-weight: 400;
-  line-height: 1.05;
+  font-family: var(--font-body), sans-serif;
+  font-size: 1.6rem;
+  font-weight: 550;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
 }
 
 .sandbox-sidebar p {
   color: var(--ivory-muted);
-  font-size: 0.76rem;
-  line-height: 1.55;
+  font-size: 0.83rem;
+  line-height: 1.65;
 }
 
 .sandbox-bullet-list {
   margin: 0;
   padding: 0;
   color: var(--ivory-muted);
-  font-size: 0.74rem;
-  line-height: 1.55;
+  font-size: 0.81rem;
+  line-height: 1.6;
   list-style: none;
 }
 
 .sandbox-bullet-list li {
-  padding: 0.7rem 0;
+  padding: 1rem 0;
   border-top: 1px solid var(--rule-light);
 }
 
@@ -335,8 +381,7 @@
   margin: 1rem 0 0;
   padding-left: 0.75rem;
   border-left: 2px solid var(--signal);
-  font-family: var(--font-data), monospace;
-  font-size: 0.61rem !important;
+  font-size: 0.73rem !important;
 }
 
 .sandbox-architecture-status {
@@ -347,9 +392,8 @@
   padding: 0.75rem 0.85rem;
   border-bottom: 1px solid var(--rule-dark);
   font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0;
 }
 
 .sandbox-architecture-status i {
@@ -366,9 +410,10 @@
 
 .sandbox-layer-grid button {
   display: grid;
-  min-height: 4.25rem;
+  min-height: 4.6rem;
   align-content: space-between;
-  padding: 0.7rem;
+  gap: 0.55rem;
+  padding: 0.85rem;
   color: var(--carbon);
   text-align: left;
   background: transparent;
@@ -382,12 +427,14 @@
 
 .sandbox-layer-detail {
   min-height: 7.5rem;
-  padding: 1rem;
+  padding: 1.15rem;
 }
 
 .sandbox-layer-detail h4 {
-  margin: 0.35rem 0 0;
-  font-size: 0.95rem;
+  margin: 0.45rem 0 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .sandbox-sidebar-facts {
@@ -461,9 +508,8 @@
   border: 1px solid var(--rule-dark);
   cursor: pointer;
   font-family: var(--font-data), monospace;
-  font-size: 0.56rem;
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0;
   transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
@@ -484,10 +530,9 @@
 
 .sandbox-slider-control label {
   color: #55554e;
-  font-family: var(--font-data), monospace;
-  font-size: 0.52rem;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 
 .sandbox-slider-head {
@@ -498,7 +543,7 @@
 
 .sandbox-slider-head output {
   font-family: var(--font-data), monospace;
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-weight: 650;
 }
 
@@ -517,10 +562,9 @@
   background: var(--cobalt);
   border: 1px solid var(--cobalt);
   cursor: pointer;
-  font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.79rem;
+  font-weight: 550;
   transition: background 160ms ease;
 }
 
@@ -531,6 +575,7 @@
 @container workbench-app (max-width: 760px) {
   .sandbox-header {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
   }
 
@@ -558,32 +603,8 @@
     border-bottom: 1px solid var(--rule-dark);
   }
 
-  .sandbox-flow-track,
-  .sandbox-layer-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .sandbox-flow-track li:nth-child(3),
-  .sandbox-layer-grid button:nth-child(3) {
-    border-left: 0;
-  }
-
-  .sandbox-flow-track li:nth-child(n + 3),
-  .sandbox-layer-grid button:nth-child(n + 3) {
-    border-top: 1px solid var(--rule-dark);
-  }
-
   .sandbox-flow-detail {
     grid-template-columns: 1fr;
-  }
-
-  .sandbox-facts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .sandbox-facts-grid > div + div {
-    border-top: 1px solid var(--rule-dark);
-    border-left: 0;
   }
 
   .sandbox-controls-cluster {
@@ -600,36 +621,49 @@
 }
 
 @container workbench-app (max-width: 480px) {
-  .sandbox-header,
-  .sandbox-stage,
-  .sandbox-sidebar {
-    padding-right: 0.85rem;
-    padding-left: 0.85rem;
+  .sandbox-header h2 {
+    font-size: clamp(1.35rem, 7cqi, 1.65rem);
   }
 
-  .sandbox-tabs {
-    overflow-x: auto;
+  .sandbox-panel-head--illustrated {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .sandbox-project-art {
+    order: -1;
+    max-height: 9rem;
   }
 
   .sandbox-tabs button {
-    flex: 0 0 auto;
-    min-width: 6.25rem;
+    min-width: 0;
+    padding-right: 0.65rem;
+    padding-left: 0.65rem;
   }
 
   .sandbox-flow-track,
-  .sandbox-layer-grid,
-  .sandbox-controls-cluster {
-    grid-template-columns: 1fr;
+  .sandbox-layer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .sandbox-flow-track li + li,
-  .sandbox-layer-grid button + button {
-    border-top: 1px solid var(--rule-dark);
+  .sandbox-flow-track li:nth-child(3),
+  .sandbox-layer-grid button:nth-child(3) {
     border-left: 0;
   }
 
-  .sandbox-layer-grid button:nth-child(3) {
+  .sandbox-flow-track li:nth-child(n + 3),
+  .sandbox-layer-grid button:nth-child(n + 3) {
     border-top: 1px solid var(--rule-dark);
+  }
+
+  .sandbox-controls-cluster,
+  .sandbox-facts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sandbox-facts-grid > div + div {
+    border-top: 1px solid var(--rule-dark);
+    border-left: 0;
   }
 
   .sandbox-architecture-status {
@@ -652,6 +686,10 @@
 
   .sandbox-presets button:nth-child(3) {
     border-left: 1px solid var(--rule-dark);
+  }
+
+  .sandbox-presets button:nth-child(n + 3) {
+    border-top: 0;
   }
 }
 

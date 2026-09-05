@@ -2394,7 +2394,7 @@ export default function WorkbenchOSV3({
             <span>Sam Bai / Current focus</span>
             <span>Hamilton, NZ</span>
           </div>
-          <h2>Building the company and the products inside it.</h2>
+          <h2>Products, tools, and room to experiment.</h2>
           <p>
             I work with businesses on software direction and production while
             operating Solynth Labs and building Trekky.app.
@@ -2402,7 +2402,7 @@ export default function WorkbenchOSV3({
           <nav className="os-now-actions" aria-label="Workbench starting points">
             <button type="button" onClick={() => openWindow("sandbox")}>
               <strong>See current work</strong>
-              <span>Selected systems and active products</span>
+              <span>Products and developer tools</span>
               <span className="os-now-action-arrow" aria-hidden="true">↗</span>
             </button>
             <button type="button" onClick={() => openWindow("method")}>
@@ -2442,12 +2442,12 @@ export default function WorkbenchOSV3({
             ))}
           </dl>
           <div className="os-stack-foot" aria-hidden="true">
-            <span>{stackRows.length} domains</span>
+            <span>{stackRows.length} areas of work</span>
             <span>
               {stackRows
                 .map(([, value]) => value.split(" · ").length)
                 .reduce((sum, count) => sum + count, 0)}{" "}
-              tools in rotation
+              technologies
             </span>
           </div>
         </div>
@@ -2625,6 +2625,7 @@ export default function WorkbenchOSV3({
         <VectorLab
           idPrefix={windowState.instanceId}
           themeId={session.themeId}
+          isActive={isWorkbenchPresented && activeWorkspaceId === windowState.workspaceId && activeInstanceId === windowState.instanceId && !windowState.minimized}
         />
       );
     }

@@ -3,11 +3,11 @@
 [![Release](https://img.shields.io/github/v/release/sambai-dev/BaiOS?display_name=tag)](https://github.com/sambai-dev/BaiOS/releases/latest)
 [![Code license: AGPL v3](https://img.shields.io/badge/Code_License-AGPL_v3-blue.svg)](./LICENSE)
 
-**BaiOS** is [Sam Bai](https://www.sambai.dev)'s open-source personal operating surface: a sparse public front door backed by an original browser-based desktop environment called the **Workbench**. Workbench session and Archive data stay in the current browser; its live-data and AI tools disclose when they use network-backed services.
+**BaiOS** is [Sam Bai](https://www.sambai.dev)'s personal portfolio and open-source browser desktop. The minimal homepage introduces Sam with a large headline and direct links. Project pages explain the work; the optional **Workbench** contains useful tools, games, and experiments.
 
-The name combines **Bai** with **OS**, with a visual nod to BIOS. Its design language is **Quiet Junction**: carbon grain, monumental ivory type, themeable operational light, and square rules. The full design system is documented in [`DESIGN.md`](./DESIGN.md); the product contract is [`PRODUCT.md`](./PRODUCT.md).
+The name combines **Bai** with **OS**, with a visual nod to BIOS. The homepage leads with large type, generous spacing, plain descriptions, and direct links. Charcoal, ivory, cobalt, and clear controls connect it to the project pages and the more playful Workbench. [`DESIGN.md`](./DESIGN.md) describes the visual system; [`PRODUCT.md`](./PRODUCT.md) describes the product and behavior.
 
----
+Workbench session and Files data stay in the current browser. Market monitor, Web search, and AI assistant identify the external services they use.
 
 ## Quick Start
 
@@ -31,165 +31,199 @@ npm run build
 npm run start
 ```
 
-Requires Node.js 24, matching `.nvmrc`, `package.json`, and the Vercel project runtime.
+Requires Node.js 24, matching `.nvmrc`, `package.json`, and the Vercel project runtime. No environment variables are required to start the site; AI assistant needs the configuration below.
 
----
+`npm run dev` uses `next dev --webpack` for local stylesheet iteration. The production command remains `next build`, using Next.js's default build pipeline.
 
 ## Tech Stack
 
-| Technology    | Version | Purpose                                    |
-| ------------- | ------- | ------------------------------------------ |
-| Next.js       | 16.x    | React framework with App Router            |
-| React         | 19.2    | UI library                                 |
-| TypeScript    | 5.9     | Type safety                                |
-| Tailwind CSS  | v4      | Utility-first styling                      |
-| Framer Motion | 12.x    | Animations and transitions                 |
-| next/font     | Built in | Archivo, Archivo Black, Azeret Mono       |
-
----
+| Technology | Version | Purpose |
+| --- | --- | --- |
+| Next.js | 16.x | App Router, public pages, server API routes |
+| React | 19.2 | UI and application state |
+| TypeScript | 5.9 | Type safety |
+| Tailwind CSS | v4 | Styling alongside component CSS |
+| Framer Motion | 12.x | Interface animations and transitions |
+| Three.js | 0.185.x | Original 3D game and vector scenes |
+| next/font | Built in | Archivo, Archivo Black, Azeret Mono |
 
 ## Architecture
 
-The site has two layers:
+### Public homepage
 
-### 1. Public front door (`PortfolioShell`)
+`app/page.tsx` renders `PortfolioShell` with the shared global styles. The identity header gives Sam's role, Hamilton location, and New Zealand time. The large heading “Sam designs and builds software.” sits above Hamilton coordinates and a simple footer.
 
-A single sparse page (`app/page.tsx` → `app/components/PortfolioShell.tsx`) built around the direct statement “Sam designs and builds software.” It pairs Sam's role as Founder & Product Engineer at Solynth Labs with a personal framing: engineering thinking, design, and working experiments, and direct routes to email, résumé, GitHub, LinkedIn, Solynth Labs, and the optional Workbench.
+The footer has three groups: **Site**, a short personal description; **Direct**, with email, Solynth Labs, and Open Workbench; and **Elsewhere**, with GitHub, BaiOS Source, LinkedIn, and Résumé. The compact header tab also opens Workbench.
 
-Deep links open the Workbench directly:
+The orbit component and original cartridge artwork remain in the repository but are not rendered on the homepage. The supplied Clone was an interaction reference; its media, fonts, logos, and project identities are not used as portfolio content. All Workbench games and tools remain available.
 
+### Project pages
+
+Five public pages live at `/work/trekky`, `/work/rookhold`, `/work/portly`, `/work/agentscope`, and `/work/baios`. Their content comes from `project-case-studies.ts` and renders through `app/work/[slug]/page.tsx`.
+
+Each page explains the project's purpose, implementation choices, and limits with interface evidence and useful links. Captures, sample data, README examples, and simulators are labeled for what they show. Images retain their proportions and offer full-size links.
+
+### Workbench
+
+`WorkbenchOverlay` loads the desktop dynamically. `WorkbenchOSV3` manages applications, workspaces, windows, menus, search, and browser-local session state. Desktop-sized windows can be dragged, resized, minimized, maximized, restored, and snapped. Compact screens show one active window with a taskbar for switching apps.
+
+Existing deep links remain compatible:
+
+```text
+https://www.sambai.dev/?workbench
+https://www.sambai.dev/?app=pulse       # Market monitor in Playground
+https://www.sambai.dev/?app=scratch     # Notes in Notes
+https://www.sambai.dev/?workspace=build # Work workspace
 ```
-https://www.sambai.dev/?workbench          # or ?app=pulse, ?workspace=field, ?open=1
-```
 
-### 2. Workbench (`WorkbenchOSV3`)
-
-An optional second-depth environment loaded dynamically (`ssr: false`) from the shell. It behaves like a small operating surface with draggable, resizable, and snappable windows, a menu bar, system search, Atlas (window overview), three themes, and a registry of working surfaces. The session and Archive persist in the browser. Pulse, Search, and Agent call network-backed services through server routes.
-
----
+Visible labels use Work, Playground, and Notes. Internal IDs such as `build`, `field`, `pulse`, and `scratch` remain stable for saved sessions and links. Apps open in their assigned workspace; an app parameter takes precedence over a conflicting workspace parameter.
 
 ## Project Structure
 
-```
+```text
 BaiOS/
 ├── app/
 │   ├── api/
-│   │   ├── ai/route.ts             # OpenRouter-backed Agent stream
-│   │   ├── crypto/route.ts         # CoinGecko proxy for Pulse (USD/NZD)
-│   │   └── search/route.ts         # Wikipedia search/summary proxy
+│   │   ├── ai/route.ts               # OpenRouter text stream
+│   │   ├── crypto/route.ts           # CoinGecko market snapshots
+│   │   ├── crypto/history/route.ts   # Timestamped CoinGecko price history
+│   │   ├── crypto/sentiment/route.ts # CoinMarketCap Fear & Greed Index
+│   │   └── search/route.ts           # Wikipedia search and summaries
 │   ├── components/
-│   │   ├── PortfolioShell.tsx      # Public front door + Workbench launcher
-│   │   ├── WorkbenchOverlay.tsx    # Lazy motion/Workbench boundary
-│   │   ├── WorkbenchOSV3.tsx       # Workbench OS (windows, menus, Atlas, search)
-│   │   ├── WorkbenchMenuBar.tsx    # App-aware menu system
-│   │   ├── WorkbenchMissionControl.tsx
-│   │   ├── MarketPulseApp.tsx      # Pulse: crypto market monitor
-│   │   ├── BookConsultApp.tsx      # Brief: factual project-enquiry composer
-│   │   ├── CaseStudySandboxApp.tsx # Systems: documented systems + motion simulation
-│   │   ├── AgentWorkflowApp.tsx    # Agent: network-backed model-stream interface
-│   │   ├── SearchApp.tsx           # Search: Wikipedia lookup + Archive handoff
-│   │   ├── SubsurfaceLab.tsx       # Subsurface: input-gated arcade lab
-│   │   ├── RailshiftLab.tsx        # Railshift: three-lane signal runner
-│   │   ├── VectorLab.tsx           # Vector: 3D vector calculator
-│   │   ├── ArchiveApp.tsx          # Archive: writable local file system
-│   │   └── ControlCenterApp.tsx    # Control: theme/session/backup settings
+│   │   ├── PortfolioShell.tsx        # Public page and Workbench launcher
+│   │   ├── ProjectOrbit.tsx          # Retained orbit exploration; not on homepage
+│   │   ├── ProjectThumbnail.tsx      # Retained original project cartridges
+│   │   ├── ProjectMedia.tsx          # Project interface evidence
+│   │   ├── WorkbenchOverlay.tsx      # Lazy desktop boundary
+│   │   ├── WorkbenchOSV3.tsx         # Desktop, windows, search, and session
+│   │   ├── WorkbenchMenuBar.tsx      # Desktop and app-aware menus
+│   │   ├── WorkbenchMissionControl.tsx # Window overview
+│   │   ├── MarketPulseApp.tsx        # Market monitor
+│   │   ├── CaseStudySandboxApp.tsx   # Projects and a spring simulation
+│   │   ├── BookConsultApp.tsx        # Project brief email composer
+│   │   ├── SubsurfaceLab.tsx         # Underwater research game
+│   │   ├── RailshiftLab.tsx          # Metropolitan waterfront runner
+│   │   ├── VectorLab.tsx             # Vector missions and exploration
+│   │   ├── AgentWorkflowApp.tsx      # AI assistant
+│   │   ├── SearchApp.tsx             # Web search and Save to Files
+│   │   ├── ArchiveApp.tsx            # Browser-local Files
+│   │   └── ControlCenterApp.tsx      # Settings and backup tools
 │   ├── lib/
-│   │   ├── workbench-identifiers.ts # Lightweight deep-link ID guards
-│   │   ├── workbench-system.ts     # App registry, workspaces, themes, types
+│   │   ├── portfolio-projects.ts     # Retained orbit entries and geometry
+│   │   ├── project-case-studies.ts   # Five public case pages
+│   │   ├── workbench-system.ts       # App registry, workspaces, themes
+│   │   ├── workbench-app-routing.ts  # App-to-workspace routing
 │   │   ├── workbench-window-manager.ts
-│   │   ├── workbench-backup.ts     # Versioned JSON backup validate/import/export
-│   │   ├── workbench-files.ts      # Archive file system logic
-│   │   └── workbench-sound.ts      # Opt-in sound engine
-│   ├── assets/carbon-grain.webp    # Hashed carbon grain background texture
-│   ├── styles/                     # global.css + lazy per-app stylesheets (Tailwind v4)
-│   ├── favicon.ico                 # Browser favicon generated from icon.svg
-│   ├── layout.tsx                  # Metadata, JSON-LD, fonts
-│   ├── page.tsx                    # Homepage
-│   ├── sitemap.ts                  # Sitemap metadata route
-│   └── opengraph-image.tsx         # Generated OG image
+│   │   ├── workbench-backup.ts       # Validated JSON backup/import/export
+│   │   ├── workbench-files.ts        # Local file system
+│   │   ├── market-data.ts            # Market response validation
+│   │   ├── market-indicators.ts      # EMA calculations
+│   │   ├── market-upstream-cache.ts  # Cache, stale fallback, backoff
+│   │   ├── subsurface-engine.ts      # Game simulation; scene in *-scene.ts
+│   │   ├── railshift-engine.ts       # Runner simulation; scene in *-scene.ts
+│   │   └── vector-lab-scene.ts        # On-demand Three.js vector scene
+│   ├── work/[slug]/page.tsx          # Public project pages
+│   ├── assets/carbon-grain.webp      # Carbon background texture
+│   ├── styles/                      # Global and lazy per-app stylesheets
+│   ├── favicon.ico                  # White-square favicon from icon.svg
+│   ├── layout.tsx                   # Metadata, JSON-LD, fonts
+│   ├── page.tsx                     # Homepage
+│   ├── sitemap.ts                   # Sitemap metadata route
+│   └── opengraph-image.tsx           # Generated OG image
 ├── public/
-│   ├── licenses/FONTS-OFL-1.1.txt  # Deployable font copyright/license text
-│   ├── robots.txt                  # Crawler policy and sitemap location
-│   ├── third-party-notices.txt     # Deployable dependency/content notices
-│   └── resume/SamBai_Resume.8aa80702.pdf # Content-hashed résumé with immutable cache
-├── scripts/build_resume.py         # Résumé DOCX generator (PDF export is separate)
-├── requirements-resume.txt         # Pinned direct dependency for résumé generation
-├── licenses/                       # Third-party license texts
-├── DESIGN.md                       # Quiet Junction design system spec
-├── NOTICE.md                       # License scope and required attribution
-├── PRODUCT.md                      # Product contract
-├── THIRD_PARTY_NOTICES.md          # Dependency, font, and service notices
-├── TRADEMARKS.md                   # BaiOS name and brand policy
+│   ├── portfolio-media/             # Project evidence and gameplay previews
+│   ├── licenses/                    # Deployable font and Three.js licenses
+│   ├── robots.txt                   # Crawler policy and sitemap location
+│   ├── third-party-notices.txt       # Deployable dependency/content notices
+│   └── resume/                      # Content-hashed résumé PDF
+├── scripts/build_resume.py          # Résumé DOCX generator
+├── requirements-resume.txt          # Résumé generation dependency
+├── licenses/                        # Third-party license texts
+├── DESIGN.md                        # Shared visual system
+├── PRODUCT.md                       # Product behavior and boundaries
+├── NOTICE.md                        # License scope and attribution
+├── THIRD_PARTY_NOTICES.md            # Dependency, font, and service notices
+├── TRADEMARKS.md                     # BaiOS name and brand policy
 └── README.md
 ```
 
----
-
 ## The Workbench
 
-### Workspaces
+### Workspaces and applications
 
-| Workspace | Purpose                                            |
-| --------- | -------------------------------------------------- |
-| Build     | Company, systems, and the current shipping surface |
-| Field     | Interactive experiments and spatial tools          |
-| Notes     | Archive, working documents, local scratch space    |
+The registry in `app/lib/workbench-system.ts` assigns every application a home workspace. The Applications launcher uses the same categories.
 
-### Working surfaces
+| Workspace | Applications |
+| --- | --- |
+| **Work** | Welcome, Tech stack, How I work, Contact & links, Project brief, Projects |
+| **Playground** | Market monitor, Subsurface, Railshift, Vector lab |
+| **Notes** | Notes, Terminal, AI assistant, Files, Web search, Settings |
 
-The registry in `app/lib/workbench-system.ts` is the source of truth. It combines professional context and documented systems with local notes, spatial experiments, live-data tools, network-backed search and AI, Archive, and session controls.
+A fresh session opens **Welcome** in Work. Playground and Notes begin empty. A validated saved session restores its windows and workspace state, with apps organized into their assigned workspace.
 
-- **Pulse** fetches live market data through `/api/crypto` (a CoinGecko proxy) with USD/NZD views and stale-response fallbacks.
-- **Search** queries Wikipedia through `/api/search` and can hand a result to the browser-local Archive.
-- **Agent** streams responses through `/api/ai` from the configured model provider; prompts leave the browser and visitors are warned not to include confidential information.
-- **Scratch**, **Vector**, and **Archive** support multiple simultaneous instances through Shift-modified dock activation. Other apps reuse an existing saved instance in the current workspace; the same app may exist in another workspace.
-- **Subsurface** and **Railshift** pause their animation loops whenever inactive.
-- Windows support focus, drag, resize, minimize, close, maximize/restore, and left/right snap; **Atlas** (global F3) can Focus one surface, Raise it without changing the stack, or Show all suspended surfaces.
+Notes, Vector lab, and Files support multiple instances through Shift-modified dock activation. Other apps reuse their saved instance. **Window overview** (`F3`) can focus one window, bring a window to the front while preserving others, or show all minimized windows. Cobalt, Oxide, and Graphite themes change the Workbench accent palette while retaining its structure.
 
-A fresh session starts in Build with one active **Now** window; Field and Notes are empty until a visitor opens something there. An existing validated saved session keeps its open windows and workspace state.
+### Games and tools
 
-### Themes
+- **Subsurface** is an original Three.js underwater research game across three zones. Rise, dive, collect specimens, use sonar, and manage hull and protection. Keyboard and touch controls share the same actions. A 2D fallback preserves the simulation when WebGL is unavailable.
+- **Railshift** is an original Three.js runner through a dense metropolitan city, with trains and a dock-warden pursuer. Short park and waterfront districts interrupt the downtown skyline; a Ferris wheel belongs to the park, and a whale makes rare waterfront appearances. Change lanes, jump, slide, and collect gold. Rocket backpacks launch automatic flight; magnets pull nearby coins along visible curves. Shields, two lives, checkpoints, and coin-charged Overdrive provide recovery and progression. Arrow/WASD keys, Space, Shift, `P` to pause, swipes, and labeled touch controls are supported.
+- **Vector lab** combines a 3D scene with Dock, Thrust, and Lift missions and free Explore mode. Adjust vectors, compare addition, projection, angle, and cross product, then send a probe to test the result. Numeric calculations and mission checks remain usable without WebGL. Vector lab is available in Playground.
+- **Market monitor** shows eight crypto assets in USD or NZD, with 24H, 7D, and 30D price history. EMA 20 and EMA 50 overlays use observed sample periods, with the actual sampling cadence shown beside the chart. Pointer inspection and a keyboard/touch history slider expose individual observations. The watchlist sorts by market cap, gainers, or losers; a separate panel shows the actual CoinMarketCap Fear & Greed Index. Visible views refresh every 90 seconds, and stale data or unavailable services are labeled.
+- **Projects** contains interactive Trekky and BaiOS details and a labeled spring simulation. **Project brief** prepares an email enquiry without inventing a quote or delivery schedule.
+- **Web search** retrieves attributed Wikipedia results and can save them to Files. **AI assistant** streams the configured OpenRouter model's response and makes clear that prompts leave the browser.
 
-Cobalt, Oxide, and Graphite change the Workbench route/depth/signal palette while preserving the carbon-and-ivory structure.
+Games start only on request and pause when the application or page becomes inactive. Resume continues the current in-memory run. Sound is opt-in. Reduced motion removes nonessential movement, and 3D resources are released when no longer needed.
 
 ### Browser-local persistence
 
-Workbench session and Archive data stay in this browser. There is no account, login, remote sync, or remote filesystem for that state. Session data (theme, workspace, window geometry, scratch, Method state, and Archive contents) is validated and committed to browser storage. **Control** can export the session and Archive as a versioned JSON backup, validate and import that backup, or restore the active workspace's default window layout. Imports are size-limited and schema-checked; corrupt saved state is never silently overwritten. Brief drafts, Vector drafts/view state, sound preference, and local game scores use separate browser storage and are not included in Control backups. Pulse, Search, and Agent use network-backed services and are not persistence mechanisms.
+Workbench session and Files data stay in this browser. There is no account, login, remote sync, or remote filesystem for that state. Files supports folders, editable notes, renaming, trash, restoration, and confirmed permanent deletion.
 
----
+**Settings** can download or restore a versioned JSON backup containing session and Files state, or restore a workspace's window layout without replacing content. Session data includes the theme, workspace, window geometry, Notes, and How I work state. Session and Files are validated and saved together. Imports are size-limited and schema-checked; corrupt saved state is preserved for recovery, and conflicting edits from another tab have an explicit resolution path.
+
+Project brief drafts, Vector's per-instance vectors/view/mission progress, sound preference, and local game records use separate browser storage and are **not included in Settings backups**. In-progress games and temporary interface state are not promised to survive a reload. Network-backed market data, Wikipedia results, and AI responses are separate from local persistence.
 
 ## API Routes
 
 | Route | Description |
-| ----- | ----------- |
-| `GET /api/crypto` | Proxies CoinGecko market data, validates currency (`usd`/`nzd`), returns typed 24-hour snapshots, and may serve a last-good snapshot as stale on upstream failure. |
-| `GET /api/search` | Queries Wikipedia, sanitizes the returned summary, and returns attributed result links. |
-| `POST /api/ai` | Validates and rate-limits a prompt, requests the configured OpenRouter model, and streams the text response without exposing provider credentials to the browser. |
+| --- | --- |
+| `GET /api/crypto` | CoinGecko market snapshots for eight assets. Validates `currency=usd\|nzd` and may return a marked stale snapshot after an upstream failure. |
+| `GET /api/crypto/history` | CoinGecko timestamped price observations. Accepts an allowed `coin`, `currency=usd\|nzd`, and `days=1\|7\|30`; returns the actual sampling interval and source timestamp. |
+| `GET /api/crypto/sentiment` | CoinMarketCap's Fear & Greed Index with its source timestamp. Uses the keyless public endpoint by default or the authenticated endpoint when configured. |
+| `GET /api/search` | Queries Wikipedia, sanitizes summaries, and returns attributed result links. |
+| `POST /api/ai` | Validates and rate-limits a prompt, requests the configured OpenRouter model, and streams text without exposing provider credentials. |
 
-### Agent configuration
+Market routes use bounded upstream timeouts, in-flight request deduplication, caching, failure backoff, and marked last-good fallbacks. They do not substitute invented prices or sentiment when no valid response is available.
 
-The Agent route requires both OpenRouter variables below. Copy `.env.example` to `.env.local` for local development, or configure the same names as encrypted environment variables on the deployment platform. `COINGECKO_DEMO_API_KEY` is optional and can be supplied server-side for the Pulse upstream request.
+### Environment configuration
+
+Copy `.env.example` to `.env.local` for local development, or configure the same server-only names on the deployment platform. Both OpenRouter variables are required to enable AI assistant. CoinGecko and CoinMarketCap keys are optional.
 
 ```dotenv
 OPENROUTER_API_KEY=<server-only-openrouter-key>
 OPENROUTER_MODEL=<provider/model-id>
-# Optional; never expose it as NEXT_PUBLIC_*
+
+# Optional CoinGecko demo API key
 COINGECKO_DEMO_API_KEY=<server-only-coingecko-demo-key>
+
+# Optional CoinMarketCap key; the public index works without one
+COINMARKETCAP_API_KEY=<server-only-coinmarketcap-key>
 ```
 
-`OPENROUTER_API_KEY` must remain server-only; do not prefix it with `NEXT_PUBLIC_`. Without either value, `/api/ai` returns a service-unavailable response and the rest of BaiOS remains usable.
+Keep credentials server-only; never prefix them with `NEXT_PUBLIC_`. If either OpenRouter value is missing, `/api/ai` returns a service-unavailable response and the rest of BaiOS remains usable.
 
-The Agent route uses an in-memory, per-instance request limiter. It is a local abuse guard, not a durable or deployment-wide quota: restarts and horizontally scaled instances do not share its counter. Search and Crypto are public proxy routes with bounded upstream timeouts but no per-client request limiter. For a public deployment, configure durable upstream quota and spend controls with OpenRouter or an API gateway.
+The AI route uses an in-memory, per-instance request limiter. Restarts and horizontally scaled instances do not share its counter, so it is not a durable deployment-wide quota. Search and crypto routes have bounded upstream timeouts but no per-client request limiter. For a public deployment, configure durable upstream quota and spend controls with OpenRouter or an API gateway.
 
 ## Accessibility
 
-Core Workbench controls have keyboard paths: menu bars use arrow-key movement, listboxes use roving selection, and window resizing works through arrow keys on the resize grip. Arbitrary desktop window movement remains pointer-driven; keyboard users can focus, resize, maximize/restore, snap through the Window menu, switch workspaces, and open apps through semantic menu and dock controls. Primary global shortcuts are `F3` for Atlas, `Ctrl/Cmd+K` for system search, and `Alt+1…3` for workspaces. Reduced-motion preferences are respected across the public page and every app.
+The homepage uses a semantic headline, labeled navigation, visible focus, and a skip link to the footer links. The headline and footer adapt to small screens. Reduced-motion preferences remove nonessential animation across the site and apps.
 
----
+Workbench menus use arrow-key movement, listboxes use roving selection, and the window resize grip accepts arrow keys. Window dragging is pointer-driven; keyboard users can focus, resize, maximize/restore, snap through the Window menu, switch workspaces, and open applications. Primary global shortcuts are `F3` for Window overview, `Ctrl/Cmd+K` for search, and `Alt+1…3` for workspaces. Inactive compact-screen windows are removed from interaction and accessibility trees until reactivated.
 
 ## Deployment
 
-Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) using this repository's `next.config.ts`, including custom security headers, output tracing, image formats, and résumé caching. Configure the two OpenRouter variables above to enable Agent; the optional CoinGecko key can improve upstream allowance but is not required. The résumé PDF uses a content hash in its filename and a one-year immutable cache header; the legacy stable URL redirects temporarily so future résumé versions cannot be pinned behind a cached redirect.
+Deployed on Vercel ([vercel.com/new](https://vercel.com/new)) using this repository's `next.config.ts`, including custom security headers, output tracing, image formats, and résumé caching. Configure both OpenRouter variables to enable AI assistant; the market provider keys are optional.
+
+The résumé PDF uses a content hash in its filename and a one-year immutable cache header. The legacy stable URL redirects temporarily so future résumé versions cannot be pinned behind a cached redirect.
 
 ### Résumé source generation
 
@@ -200,14 +234,13 @@ python -m pip install -r requirements-resume.txt
 python scripts/build_resume.py
 ```
 
----
-
 ## Documentation
 
-| Document    | Contents                                        |
-| ----------- | ----------------------------------------------- |
-| `DESIGN.md` | Quiet Junction design tokens and component spec |
-| `PRODUCT.md`| Product purpose, positioning, and constraints   |
+| Document | Contents |
+| --- | --- |
+| [`DESIGN.md`](./DESIGN.md) | Shared visual language, typography, artwork, layout, and interaction |
+| [`PRODUCT.md`](./PRODUCT.md) | Project content, application behavior, storage, and accessibility boundaries |
+| [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) | Dependency, font, media, and data-provider notices |
 
 ## Licensing
 
@@ -218,12 +251,14 @@ BaiOS uses a mixed licensing model:
 - **Name and branding:** The BaiOS identity is reserved under the [brand policy](./TRADEMARKS.md).
 - **Personal content:** Sam Bai's résumé, portfolio writing, personal identity, and original media are excluded from the AGPL and reserved as described in [`NOTICE.md`](./NOTICE.md).
 - **Third-party components:** Dependencies, fonts, and external services retain their own licenses and terms, documented in [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
-- **Deployed notices:** A plain-text notice is served at [`/third-party-notices.txt`](./public/third-party-notices.txt), with the font license at [`/licenses/FONTS-OFL-1.1.txt`](./public/licenses/FONTS-OFL-1.1.txt).
+- **Deployed notices:** A plain-text notice is served at [`/third-party-notices.txt`](./public/third-party-notices.txt), with the [font license](./public/licenses/FONTS-OFL-1.1.txt) and [Three.js MIT license](./public/licenses/THREE-MIT.txt).
 
 Modified network deployments must offer their corresponding source code under the AGPL. Public forks must also remove or replace the excluded personal and brand materials unless written permission is granted.
 
 ## Troubleshooting
 
-- **Styles not loading?** Ensure `@import "tailwindcss"` is at the top of `app/styles/global.css` and restart the dev server after config changes.
+- **Styles not updating?** Use `npm run dev` to run the configured Webpack development server, and restart it after configuration changes. Keep `@import "tailwindcss"` at the top of `app/styles/global.css`.
 - **Textures not showing?** The carbon grain lives at `app/assets/carbon-grain.webp` and is referenced from the global and Workbench CSS bundles.
-- **Workbench state lost?** State is browser-local by design. Control → Export backs up the session and Archive only; separately stored Brief/Vector preferences, sound state, and game scores are not exported.
+- **Workbench state lost?** State belongs to the current browser and origin. Settings can download a session and Files backup; separately stored Project brief/Vector state, sound preferences, and game records are not exported.
+- **Market data unavailable?** The interface shows provider failures or stale timestamps. Optional provider keys can be configured server-side; the app does not require them to start.
+- **3D view unavailable?** Check that the browser supports WebGL and hardware acceleration. Subsurface offers a 2D fallback and Vector retains its calculations; Railshift explains when its required 3D view cannot start.

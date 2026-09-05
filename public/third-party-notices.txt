@@ -13,6 +13,7 @@ Next.js 16.3.3                         MIT
 React 19.2.8                          MIT
 React DOM 19.2.8                      MIT
 Framer Motion 12.23.25                MIT
+Three.js 0.185.1                     MIT
 Tailwind CSS 4.1.17                   MIT
 @tailwindcss/postcss 4.1.17           MIT
 TypeScript 5.9.3                      Apache-2.0
@@ -22,6 +23,7 @@ Vitest 4.1.11                         MIT
 @types/node 20.19.25                  MIT
 @types/react 19.2.18                  MIT
 @types/react-dom 19.2.5               MIT
+@types/three 0.185.4                  MIT
 
 Exact transitive versions and declared license identifiers are recorded in the
 project's package-lock.json. Platform-selected production packages can include:
@@ -34,8 +36,11 @@ Upstream sources and controlling notices:
 https://github.com/vercel/next.js
 https://github.com/facebook/react
 https://github.com/motiondivision/motion
+https://github.com/mrdoob/three.js
 https://github.com/lovell/sharp
 https://github.com/libvips/libvips
+
+Three.js copyright and full MIT license: /licenses/THREE-MIT.txt
 
 
 RESUME BUILD TOOLING
@@ -66,6 +71,7 @@ https://openfontlicense.org/open-font-license-official-text/
 EXTERNAL SERVICES AND CONTENT
 
 CoinGecko provides cryptocurrency market data.
+CoinMarketCap provides its Fear & Greed Index.
 OpenRouter processes optional AI requests using the deployment's configured
 model provider.
 Wikimedia APIs provide Wikipedia search results and article summaries.

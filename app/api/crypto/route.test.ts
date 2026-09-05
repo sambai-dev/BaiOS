@@ -11,7 +11,7 @@ function request(query = "", signal?: AbortSignal) {
   return new Request(`https://www.sambai.dev/api/crypto${query}`, { signal });
 }
 
-function marketResponse() {
+function marketResponse(lastUpdated = new Date().toISOString()) {
   return new Response(
     JSON.stringify([
       {
@@ -26,7 +26,7 @@ function marketResponse() {
         low_24h: 90,
         price_change_percentage_24h: 2,
         price_change_percentage_24h_in_currency: 2,
-        last_updated: "2026-08-30T00:00:00.000Z",
+        last_updated: lastUpdated,
         sparkline_in_7d: { price: [90, 95, 100] },
       },
     ]),
@@ -74,7 +74,7 @@ describe("GET /api/crypto", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe(
-      "public, s-maxage=300, stale-while-revalidate=1800",
+      "no-store",
     );
     expect(body).toMatchObject({ currency: "usd", stale: false });
 
@@ -83,7 +83,8 @@ describe("GET /api/crypto", () => {
       RequestInit & { next?: { revalidate?: number } },
     ];
     expect(new URL(url).searchParams.get("vs_currency")).toBe("usd");
-    expect(init.next?.revalidate).toBe(300);
+    expect(init.cache).toBe("no-store");
+    expect(init.next?.revalidate).toBeUndefined();
   });
 
   it("accepts the exact lowercase NZD representation", async () => {
@@ -128,5 +129,134 @@ describe("GET /api/crypto", () => {
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(await response.text()).toBe("");
     expect(errorLog).not.toHaveBeenCalled();
+  });
+
+  it("coalesces simultaneous market requests and reuses fresh prices", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    const upstream = vi.fn().mockResolvedValue(marketResponse());
+    vi.stubGlobal("fetch", upstream);
+
+    const responses = await Promise.all([
+      freshGet(request("?currency=usd")),
+      freshGet(request("?currency=usd")),
+      freshGet(request("?currency=usd")),
+    ]);
+    expect(responses.every((response) => response.status === 200)).toBe(true);
+    expect(upstream).toHaveBeenCalledTimes(1);
+    expect((await freshGet(request("?currency=usd"))).status).toBe(200);
+    expect(upstream).toHaveBeenCalledTimes(1);
+  });
+
+  it("backs off an upstream failure without manufacturing market rows", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    const upstream = vi.fn().mockResolvedValue(new Response(null, { status: 429 }));
+    vi.stubGlobal("fetch", upstream);
+
+    const response = await freshGet(request());
+    expect(response.status).toBe(503);
+    expect(response.headers.get("retry-after")).toBe("60");
+    expect(await response.json()).not.toHaveProperty("coins");
+    await freshGet(request());
+    expect(upstream).toHaveBeenCalledTimes(1);
+  });
+
+  it("marks a successful but outdated provider response stale using source time, not fetch time", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    const sourceTime = new Date(Date.now() - 20 * 60_000).toISOString();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(marketResponse(sourceTime)));
+
+    const response = await freshGet(request());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ stale: true, sourceUpdatedAt: sourceTime });
+    expect(response.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("rejects a days-old snapshot even when the provider returns HTTP200", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(marketResponse(new Date(Date.now() - 6 * 86_400_000).toISOString())));
+
+    const response = await freshGet(request());
+    expect(response.status).toBe(503);
+    expect(await response.json()).not.toHaveProperty("coins");
+  });
+
+  it("does not let one fresh coin hide an outdated row in the same market response", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    const fresh = await marketResponse().json();
+    const old = await marketResponse(new Date(Date.now() - 20 * 60_000).toISOString()).json();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json([...fresh, { ...old[0], id: "solana" }])));
+
+    const response = await freshGet(request());
+    expect(await response.json()).toMatchObject({ stale: true });
+  });
+
+  it("reassesses cached source age without making another upstream request", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    const now = Date.now();
+    const upstream = vi.fn().mockResolvedValue(marketResponse(new Date(now - 14 * 60_000).toISOString()));
+    vi.stubGlobal("fetch", upstream);
+    expect(await (await freshGet(request())).json()).toMatchObject({ stale: false });
+    vi.spyOn(Date, "now").mockReturnValue(now + 2 * 60_000);
+    expect(await (await freshGet(request())).json()).toMatchObject({ stale: true });
+    expect(upstream).toHaveBeenCalledTimes(1);
+  });
+
+  it("excludes a days-old coin before caching even when another coin is fresh", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    const fresh = await marketResponse().json();
+    const expired = await marketResponse(new Date(Date.now() - 6 * 86_400_000).toISOString()).json();
+    const upstream = vi.fn().mockResolvedValue(Response.json([...expired, { ...fresh[0], id: "solana" } ]));
+    vi.stubGlobal("fetch", upstream);
+
+    const response = await freshGet(request());
+    const body = await response.json();
+    expect(body.coins.map((coin: { id: string }) => coin.id)).toEqual(["solana"]);
+    expect(body.stale).toBe(false);
+    expect((await (await freshGet(request())).json()).coins).toEqual(body.coins);
+    expect(upstream).toHaveBeenCalledTimes(1);
+  });
+
+  it("expires individual cached coins and rechecks availability without another upstream fetch", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    const now = Date.now();
+    const fresh = await marketResponse().json();
+    const expiring = await marketResponse(new Date(now - (24 * 60 - 1) * 60_000).toISOString()).json();
+    const upstream = vi.fn().mockResolvedValue(Response.json([...expiring, { ...fresh[0], id: "solana" }]));
+    vi.stubGlobal("fetch", upstream);
+    expect((await (await freshGet(request())).json()).coins).toHaveLength(2);
+    vi.spyOn(Date, "now").mockReturnValue(now + 2 * 60_000);
+
+    const response = await freshGet(request());
+    const body = await response.json();
+    expect(body.coins.map((coin: { id: string }) => coin.id)).toEqual(["solana"]);
+    expect(body.stale).toBe(false);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(upstream).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns503 when the final cached coin expires and never permits edge stale-while-revalidate", async () => {
+    vi.resetModules();
+    const { GET: freshGet } = await import("./route");
+    const now = Date.now();
+    const upstream = vi.fn().mockResolvedValue(marketResponse(new Date(now - (24 * 60 - 1) * 60_000).toISOString()));
+    vi.stubGlobal("fetch", upstream);
+    const initial = await freshGet(request());
+    expect(initial.status).toBe(200);
+    expect(initial.headers.get("cache-control")).toBe("no-store");
+    vi.spyOn(Date, "now").mockReturnValue(now + 2 * 60_000);
+
+    const expired = await freshGet(request());
+    expect(expired.status).toBe(503);
+    expect(expired.headers.get("cache-control")).toBe("no-store");
+    expect(await expired.json()).not.toHaveProperty("coins");
+    expect(upstream).toHaveBeenCalledTimes(1);
   });
 });

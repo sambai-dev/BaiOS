@@ -21,21 +21,21 @@ type AgentWorkflowAppProps = {
 };
 
 const PROVIDER_TARGET_BADGE =
-  "Provider target · OpenRouter · server-side route";
+  "AI provider · OpenRouter";
 
 const PRESETS: Record<AgentPreset, { title: string; prompt: string }> = {
   dashboard: {
-    title: "Synthesize UI Component",
+    title: "Build a chart",
     prompt:
       "Write a zero-dependency React 19 SVG sparkline component in TypeScript. Include strict prop types, an accessible aria-label, and a short usage example. Reply with code only.",
   },
   rls: {
-    title: "Draft Postgres RLS Policy",
+    title: "Draft database access rules",
     prompt:
       "Given a multi-tenant Postgres schema where workspace_files.team_id references team_memberships.team_id, write the Row-Level Security policy SQL that isolates rows per authenticated user via auth.uid(). Explain the leak it prevents in two sentences.",
   },
   pipeline: {
-    title: "Plan an Agent Pipeline",
+    title: "Plan an AI workflow",
     prompt:
       "Design a multi-agent pipeline that summarizes pull request diffs and flags latency regressions. List each worker, its tool surface, and its hand-off. Be concise and concrete.",
   },
@@ -43,25 +43,25 @@ const PRESETS: Record<AgentPreset, { title: string; prompt: string }> = {
 
 const RUN_PHASES: Array<{ name: string; tool: string; detail: string }> = [
   {
-    name: "Prepare Request",
+    name: "Prepare the prompt",
     tool: "client",
-    detail: "The browser prepares the submitted prompt for this site’s route.",
+    detail: "Your browser prepares the prompt to send to this site.",
   },
   {
-    name: "Contact Provider",
+    name: "Contact OpenRouter",
     tool: "server",
-    detail: "The route attempts to request a response from OpenRouter.",
+    detail: "This site asks OpenRouter for a response.",
   },
   {
-    name: "Receive Stream",
+    name: "Receive the response",
     tool: "network",
-    detail: "Response chunks arrive after the provider accepts the request.",
+    detail: "The response arrives a little at a time.",
   },
   {
-    name: "Finalize Display",
+    name: "Show the answer",
     tool: "interface",
     detail:
-      "The client removes hidden thinking blocks and renders visible text.",
+      "The answer appears here, with internal thinking blocks removed.",
   },
 ];
 
@@ -353,11 +353,10 @@ export default function AgentWorkflowApp({
     <div className="agent-app">
       <header className="agent-header">
         <div>
-          <h2>Agent.</h2>
+          <h2>AI assistant.</h2>
           <p>
-            When available, this site&apos;s server route sends prompts to
-            OpenRouter. The model identifier is not exposed here. Do not include
-            confidential information.
+            Ask a question or try an example. Prompts are sent to OpenRouter;
+            model details are not shown. Keep confidential information out of your prompt.
           </p>
         </div>
         <div
@@ -383,7 +382,7 @@ export default function AgentWorkflowApp({
         <div className="agent-main">
           <div className="agent-prompt-box">
             <span className="agent-tag">
-              {lastRun ? "Last submitted prompt" : "Prompt ready to run"}
+              {lastRun ? "Last prompt" : "Try this prompt"}
             </span>
             <p className="agent-prompt-text">{displayedPrompt}</p>
             <div className="agent-prompt-bar">
@@ -396,7 +395,7 @@ export default function AgentWorkflowApp({
                   void runPrompt(displayedPrompt, displayedPromptSource)
                 }
               >
-                {isRunning ? "Request in progress…" : "Run prompt again"}
+                {isRunning ? "Waiting for a response…" : lastRun ? "Send again" : "Send prompt"}
               </button>
             </div>
           </div>
@@ -415,8 +414,8 @@ export default function AgentWorkflowApp({
               type="text"
               value={customPrompt}
               maxLength={2000}
-              placeholder="Ask the agent anything…"
-              aria-label="Ask the agent anything"
+              placeholder="What would you like help with?"
+              aria-label="Your prompt for the AI assistant"
               autoComplete="off"
               disabled={isRunning}
               onChange={(event) => setCustomPrompt(event.target.value)}
@@ -427,7 +426,7 @@ export default function AgentWorkflowApp({
                 className="agent-btn-run"
                 onClick={() => abortRef.current?.abort()}
               >
-                Abort
+                Stop
               </button>
             ) : (
               <button
@@ -435,7 +434,7 @@ export default function AgentWorkflowApp({
                 className="agent-btn-run"
                 disabled={!customPrompt.trim()}
               >
-                Run
+                Send
               </button>
             )}
           </form>
@@ -444,16 +443,16 @@ export default function AgentWorkflowApp({
             <div className="agent-output-head">
               <span className="agent-output-title">
                 {runOutcome === "idle"
-                  ? "No output yet"
+                  ? "Your response will appear here"
                   : runOutcome === "requesting"
-                    ? "Connecting to provider"
+                    ? "Connecting to OpenRouter"
                     : runOutcome === "streaming"
-                      ? "Streaming output"
+                      ? "Receiving the response"
                       : runOutcome === "complete"
-                        ? "Response output"
+                        ? "Response"
                         : runOutcome === "aborted"
-                          ? "Incomplete output"
-                          : "Run failed"}
+                          ? "Response stopped"
+                          : "Request failed"}
               </span>
               <div className="agent-output-meta">
                 <span>≈{estimatedTokenCount} tokens estimated</span>
@@ -471,11 +470,10 @@ export default function AgentWorkflowApp({
               <p className="agent-output-disclosure">
                 <strong>
                   {providerResponseConfirmed
-                    ? "Provider: OpenRouter response confirmed."
-                    : "Provider target: OpenRouter; no provider response confirmed yet."}
+                    ? "Response received from OpenRouter."
+                    : "Waiting for OpenRouter to respond."}
                 </strong>{" "}
-                AI output is unverified and may be inaccurate. Validate code,
-                facts, and security-sensitive guidance before use.
+                This AI response has not been independently checked. Review its code or advice before use.
               </p>
             ) : null}
             <pre className="agent-code-block">
@@ -484,9 +482,9 @@ export default function AgentWorkflowApp({
                   ? errorText
                   : streamedText ||
                     (runOutcome === "requesting"
-                      ? "Waiting for the server route…"
+                      ? "Sending your prompt…"
                       : runOutcome === "streaming"
-                        ? "Waiting for the first response chunk…"
+                        ? "Waiting for the response to begin…"
                         : "")}
               </code>
             </pre>
@@ -494,11 +492,11 @@ export default function AgentWorkflowApp({
         </div>
 
         <aside className="agent-sidebar">
-          <span className="agent-tag">Request lifecycle illustration</span>
-          <h3>Interface stages · simulated</h3>
+          <span className="agent-tag">Illustrated request stages</span>
+          <h3>How the request works</h3>
           <p className="agent-stage-note">
-            These stages describe the client request and stream lifecycle. They
-            are not provider reasoning, tool calls, or execution traces.
+            This illustration follows the request and response. It does not show
+            the model&apos;s thoughts or any work it performs.
           </p>
           <div className="agent-steps-list">
             {RUN_PHASES.map((phase, idx) => {
@@ -530,19 +528,19 @@ export default function AgentWorkflowApp({
             aria-live="polite"
             aria-atomic="true"
           >
-            <h4>Run Status</h4>
+            <h4>Request status</h4>
             <p>
               {runOutcome === "complete"
-                ? "Response stream complete. Output has not been independently verified."
+                ? "Response complete. Check it before use."
                 : runOutcome === "streaming"
-                  ? "Response stream in progress…"
+                  ? "Receiving the response…"
                   : runOutcome === "requesting"
-                    ? "Request sent. Provider response not yet confirmed."
+                    ? "Prompt sent. Waiting for OpenRouter."
                     : runOutcome === "aborted"
-                      ? "Run stopped. Partial output is incomplete."
+                      ? "Stopped. The response may be incomplete."
                       : runOutcome === "error"
-                        ? "Run failed before completion."
-                        : "Idle. Run a preset or ask anything."}
+                        ? "The request could not finish. Try sending it again."
+                        : "Choose an example or write a prompt to begin."}
             </p>
           </div>
         </aside>

@@ -12,6 +12,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import ProjectThumbnail from "./ProjectThumbnail";
 import { playSound } from "../lib/workbench-sound";
 
 const CASE_TABS = [
@@ -25,28 +26,28 @@ type CaseTab = (typeof CASE_TABS)[number]["id"];
 const TREKKY_STEPS = [
   {
     label: "Discover",
-    eyebrow: "Multi-market discovery",
+    eyebrow: "Find opportunities",
     detail:
       "Job sources across New Zealand, Australia, the United States, and Singapore feed one discovery workflow.",
     note: "Duplicate handling and source history keep imported listings reviewable.",
   },
   {
     label: "Organize",
-    eyebrow: "One working system",
+    eyebrow: "Keep the search organized",
     detail:
       "Tracking, contacts, follow-ups, analytics, and Google sync stay connected across the job-search workflow.",
     note: "The product spans web, PWA, an MV3 extension, and authenticated MCP.",
   },
   {
     label: "Prepare",
-    eyebrow: "AI-assisted, human-led",
+    eyebrow: "Prepare an application",
     detail:
       "AI apply kits help prepare application material while the final submission remains with the user.",
-    note: "Automation is review-first: the system assists, and the user submits.",
+    note: "Review the prepared material, then choose when to submit it yourself.",
   },
   {
     label: "Follow through",
-    eyebrow: "Calendar-connected follow-up",
+    eyebrow: "Keep track of what comes next",
     detail:
       "Calendar sync keeps interviews, reminders, and application follow-ups beside tracked work.",
     note: "The same workflow connects discovery, preparation, and follow-up without automating the final submission.",
@@ -62,21 +63,21 @@ const WORKBENCH_LAYERS = [
   },
   {
     label: "State",
-    title: "Typed, versioned local state",
+    title: "A desktop that remembers your work",
     detail:
-      "The session records workspace, window geometry, theme, app data, and the shared editable Archive tree.",
+      "The session saves your workspaces, window positions, theme, app data, and notes in Files.",
   },
   {
-    label: "Commit",
-    title: "Session and Archive move together",
+    label: "Saving",
+    title: "Files and desktop state save together",
     detail:
-      "A content-derived revision commits both stores as one envelope and exposes competing edits from another tab.",
+      "One saved snapshot keeps Files and desktop state in step. If another tab changes the same session, you can choose which version to keep.",
   },
   {
     label: "Recovery",
-    title: "Validation before replacement",
+    title: "Check a backup before restoring it",
     detail:
-      "Versioned JSON backups are schema-checked before import; migration and corrupt-state recovery preserve a safe path back.",
+      "Backups are checked before they replace saved work. Older sessions can be updated, and damaged data is kept for recovery.",
   },
 ] as const;
 
@@ -325,11 +326,11 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
     <div className="sandbox-app">
       <header className="sandbox-header">
         <div>
-          <span className="sandbox-header-index">Systems / 03</span>
-          <h2>Systems &amp; experiments.</h2>
-          <p>Documented product systems beside one clearly labeled local simulation.</p>
+          <span className="sandbox-header-index">Selected work</span>
+          <h2>Projects &amp; experiments.</h2>
+          <p>Trekky, the Workbench, and a small motion experiment.</p>
         </div>
-        <div className="sandbox-tabs" role="tablist" aria-label="System and experiment views">
+        <div className="sandbox-tabs" role="tablist" aria-label="Projects and experiments">
           {CASE_TABS.map((tab, index) => (
             <button
               key={tab.id}
@@ -359,13 +360,19 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
         hidden={activeTab !== "trekky"}
       >
         <div className="sandbox-stage" role="region" aria-label="Trekky system details" tabIndex={0}>
-          <div className="sandbox-panel-head">
-            <span className="sandbox-tag">Owned product · documented scope</span>
-            <h3>Trekky job-search workflow engine.</h3>
-            <p>
-              A live Next.js, React, and TypeScript product operated across web, PWA,
-              an MV3 extension, and authenticated MCP.
-            </p>
+          <div className="sandbox-panel-head sandbox-panel-head--illustrated">
+            <div className="sandbox-project-intro">
+              <span className="sandbox-tag">Trekky · A Solynth Labs product</span>
+              <h3>Bring the job search together.</h3>
+              <p>
+                Find opportunities, track applications, and prepare for what comes next.
+                Trekky connects the web app with an installable app, a browser extension,
+                and authenticated AI tools.
+              </p>
+            </div>
+            <div className="sandbox-project-art" aria-hidden="true">
+              <ProjectThumbnail id="trekky" title="Trekky" subtitle="Job-search workspace" />
+            </div>
           </div>
 
           <div className="sandbox-flow-shell">
@@ -398,40 +405,39 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
 
           <dl className="sandbox-facts-grid">
             <div>
-              <dt>Product surfaces</dt>
-              <dd>Web · PWA · MV3 · MCP</dd>
+              <dt>Available through</dt>
+              <dd>Web, installable app, extension &amp; AI tools</dd>
             </div>
             <div>
-              <dt>Discovery markets</dt>
+              <dt>Job discovery</dt>
               <dd>NZ · AU · US · Singapore</dd>
             </div>
             <div>
-              <dt>Automation boundary</dt>
-              <dd>Review first; users submit</dd>
+              <dt>You stay in control</dt>
+              <dd>Review, then submit yourself</dd>
             </div>
           </dl>
         </div>
 
         <section className="sandbox-sidebar" aria-labelledby="sandbox-trekky-proof-title" tabIndex={0}>
           <span className="sandbox-tag">Coverage</span>
-          <h4 id="sandbox-trekky-proof-title">One workflow across four product surfaces.</h4>
+          <h4 id="sandbox-trekky-proof-title">One search, wherever you work.</h4>
           <ul className="sandbox-bullet-list">
             <li>
-              <strong>Multiple surfaces:</strong> one workflow reaches web, installable,
-              extension, and authenticated tool contexts.
+              <strong>Use it where you work:</strong> the web app, installable app,
+              browser extension, and connected tools share one workflow.
             </li>
             <li>
-              <strong>Workflow continuity:</strong> tracking, contacts, calendar sync, and
+              <strong>Keep the details together:</strong> tracking, contacts, calendar sync, and
               follow-ups stay connected.
             </li>
             <li>
-              <strong>Human control:</strong> AI helps prepare work without submitting on a
-              person&apos;s behalf.
+              <strong>Stay in control:</strong> AI helps prepare an application;
+              you review and submit it.
             </li>
           </ul>
           <p className="sandbox-sidebar-note">
-            This view shows documented build scope. Product outcomes and performance measurements
-            are not included.
+            A look at what the product does and how its parts connect.
           </p>
         </section>
       </div>
@@ -444,20 +450,25 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
         hidden={activeTab !== "workbench"}
       >
         <div className="sandbox-stage" role="region" aria-label="Workbench architecture details" tabIndex={0}>
-          <div className="sandbox-panel-head">
-            <span className="sandbox-tag">This portfolio · observable architecture</span>
-            <h3>Browser-local state with a recovery path.</h3>
-            <p>
-              The surrounding Workbench is the proof: a typed window system, editable Archive,
-              atomic local commits, and validated backup controls.
-            </p>
+          <div className="sandbox-panel-head sandbox-panel-head--illustrated">
+            <div className="sandbox-project-intro">
+              <span className="sandbox-tag">Workbench · This portfolio</span>
+              <h3>A desktop you can make your own.</h3>
+              <p>
+                Move windows, switch between tasks, and keep notes in Files. Your layout
+                and saved work stay in this browser, with backups when you need them.
+              </p>
+            </div>
+            <div className="sandbox-project-art" aria-hidden="true">
+              <ProjectThumbnail id="workbench" title="BaiOS" subtitle="Desktop in a browser" />
+            </div>
           </div>
 
           <div className="sandbox-architecture-shell">
             <div className="sandbox-architecture-status" aria-hidden="true">
               <span>Browser</span>
               <i />
-              <span>Committed state</span>
+              <span>Saved work</span>
               <i />
               <span>Recovery</span>
             </div>
@@ -488,24 +499,24 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
         </div>
 
         <section className="sandbox-sidebar" aria-labelledby="sandbox-local-boundary-title" tabIndex={0}>
-          <span className="sandbox-tag">Local means local</span>
-          <h4 id="sandbox-local-boundary-title">A precise persistence boundary.</h4>
+          <span className="sandbox-tag">Saved in this browser</span>
+          <h4 id="sandbox-local-boundary-title">Your files stay here.</h4>
           <p>
-            Workbench session and Archive data stay in this browser. They are not uploaded and do
-            not imply an account, remote sync, or cross-device storage.
+            Your desktop session and Files are saved on this device. Download a backup
+            to keep a copy or move them to another browser. They do not sync automatically.
           </p>
           <dl className="sandbox-sidebar-facts">
             <div>
-              <dt>Editable</dt>
+              <dt>Save</dt>
               <dd>Folders, notes, window state</dd>
             </div>
             <div>
-              <dt>Portable</dt>
-              <dd>Visitor-triggered JSON backup</dd>
+              <dt>Back up</dt>
+              <dd>Download a JSON file</dd>
             </div>
             <div>
-              <dt>Defensive</dt>
-              <dd>Validation, conflicts, migration</dd>
+              <dt>Recover</dt>
+              <dd>Checked backups and older sessions</dd>
             </div>
           </dl>
         </section>
@@ -520,11 +531,11 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
       >
         <div className="sandbox-stage" role="region" aria-label="Motion simulation controls" tabIndex={0}>
           <div className="sandbox-panel-head">
-            <span className="sandbox-tag">Local simulation · editable parameters</span>
-            <h3>Spring response, made inspectable.</h3>
+            <span className="sandbox-tag">Motion · A spring simulation</span>
+            <h3>See how a spring settles.</h3>
             <p>
-              Tune stiffness and damping while the spring moves, then trigger a new impulse to
-              compare the response. Values below describe this demo only.
+              Adjust stiffness and damping, then move the spring again to compare the
+              response. The values describe this simulation.
             </p>
           </div>
 
@@ -609,25 +620,23 @@ export default function CaseStudySandboxApp({ isActive }: CaseStudySandboxAppPro
                 playSound("snap");
               }}
             >
-              Trigger impulse
+              Move the spring
             </button>
           </div>
         </div>
 
         <section className="sandbox-sidebar" aria-labelledby="sandbox-motion-limits-title" tabIndex={0}>
-          <span className="sandbox-tag">Observable behavior</span>
-          <h4 id="sandbox-motion-limits-title">A simulation with clear limits.</h4>
+          <span className="sandbox-tag">How it works</span>
+          <h4 id="sandbox-motion-limits-title">A small study in motion.</h4>
           <ul className="sandbox-bullet-list">
             <li>
-              <strong>Inputs:</strong> sliders and presets tune the active trajectory without
-              starting it again.
+              <strong>Adjust:</strong> sliders and presets change the spring while it moves.
             </li>
             <li>
-              <strong>Integration:</strong> the demo advances a damped spring on Canvas.
+              <strong>Watch:</strong> a Canvas drawing shows the spring slowing toward its target.
             </li>
             <li>
-              <strong>Lifecycle:</strong> drawing pauses when hidden and stops once the spring
-              settles.
+              <strong>Pause:</strong> drawing stops when hidden or once the spring settles.
             </li>
           </ul>
           <p className="sandbox-sidebar-note">

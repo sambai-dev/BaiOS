@@ -46,28 +46,28 @@ const SERVICE_AREAS: Record<
   { title: string; subtitle: string; description: string }
 > = {
   direction: {
-    title: "Product direction",
-    subtitle: "Clarify the product decision",
+    title: "Shape a product",
+    subtitle: "Product direction",
     description:
-      "Clarify the product decision and define the first useful version.",
+      "Work out what to build and what the first useful version needs to do.",
   },
   interface: {
-    title: "Interface & workflow build",
-    subtitle: "Production design engineering",
+    title: "Build an interface",
+    subtitle: "Design & engineering",
     description:
-      "Design and build production interfaces, stateful workflows, and the systems behind them.",
+      "Design and build the screens, workflows, and systems your product needs.",
   },
   architecture: {
-    title: "Architecture & AI workflow review",
-    subtitle: "Technical decision support",
+    title: "Review a system",
+    subtitle: "Architecture & AI workflows",
     description:
-      "Review architecture, data flows, and AI-assisted workflows, then identify the next decisions.",
+      "Look through the architecture, data flows, or AI workflow and decide what to change.",
   },
   ongoing: {
-    title: "Ongoing product production",
-    subtitle: "Embedded product engineering",
+    title: "Keep improving a product",
+    subtitle: "Ongoing engineering",
     description:
-      "Work across product direction, design engineering, and delivery as the product evolves.",
+      "Work together on design, engineering, and releases as your product grows.",
   },
 };
 
@@ -477,7 +477,7 @@ Email Sam Bai at Solynth Labs to discuss this brief.
         <div>
           <h2>Project brief.</h2>
           <p>
-            Shape a factual project enquiry. Your draft stays in this browser.
+            Tell me what you have in mind. Your draft stays in this browser until you email it.
           </p>
         </div>
         <div
@@ -498,7 +498,7 @@ Email Sam Bai at Solynth Labs to discuss this brief.
             onClick={() => setActiveView("builder")}
             onKeyDown={(event) => handleTabKeyDown(event, "builder")}
           >
-            Build brief
+            Write a brief
           </button>
           <button
             ref={(node) => {
@@ -528,16 +528,15 @@ Email Sam Bai at Solynth Labs to discuss this brief.
         <div className="book-contact-card">
           <div className="book-contact-meta">
             <span className="book-tag">Direct contact</span>
-            <h3>Start a project conversation.</h3>
+            <h3>Tell me what you&apos;re working on.</h3>
             <p>
-              Send the problem, product decision, or system you need help with.
-              The brief is optional and deliberately avoids promising a quote,
-              schedule, or engagement format.
+              Share what you want to build, what needs to change, or where you need
+              another perspective. Use the brief if it helps, or just send an email.
             </p>
             <ul className="book-contact-bullets">
-              <li>Describe the outcome or decision that matters.</li>
-              <li>Add constraints and target timing only when known.</li>
-              <li>Discuss the brief and next steps directly.</li>
+              <li>What are you trying to do?</li>
+              <li>What constraints or timing should I know about?</li>
+              <li>What would you like help with?</li>
             </ul>
           </div>
           <div className="book-contact-actions">
@@ -547,7 +546,7 @@ Email Sam Bai at Solynth Labs to discuss this brief.
               className="book-cta-primary"
               onClick={handleEmailAction}
             >
-              Email project enquiry
+              Email Sam
             </a>
             <button
               type="button"
@@ -555,17 +554,17 @@ Email Sam Bai at Solynth Labs to discuss this brief.
               onClick={copyBriefToClipboard}
             >
               {copied
-                ? "Copied planning brief"
+                ? "Brief copied"
                 : copyFailed
                   ? "Copy blocked: download instead"
-                  : "Copy planning brief"}
+                  : "Copy brief"}
             </button>
             <button
               type="button"
               className="book-cta-secondary"
               onClick={downloadBrief}
             >
-              Download Markdown
+              Download brief (.md)
             </button>
           </div>
         </div>
@@ -740,7 +739,7 @@ Email Sam Bai at Solynth Labs to discuss this brief.
               <h3>{activeService?.title ?? "No service area selected"}</h3>
               <p>
                 {activeService?.description ??
-                  "Choose a starting point only if one fits. This does not define a package or commitment."}
+                  "Choose a starting point if one fits, or describe the project in your own words."}
               </p>
             </div>
 
@@ -764,7 +763,7 @@ Email Sam Bai at Solynth Labs to discuss this brief.
             </dl>
 
             <p className="book-brief-note">
-              Planning brief (not a quote or delivery estimate).
+              We can discuss scope, pricing, and timing after you get in touch.
             </p>
           </div>
 
@@ -774,7 +773,7 @@ Email Sam Bai at Solynth Labs to discuss this brief.
               className="book-cta-primary"
               onClick={handleEmailAction}
             >
-              Email project enquiry
+              Email Sam
             </a>
             <button
               type="button"
@@ -782,24 +781,24 @@ Email Sam Bai at Solynth Labs to discuss this brief.
               onClick={copyBriefToClipboard}
             >
               {copied
-                ? "Copied planning brief"
+                ? "Brief copied"
                 : copyFailed
                   ? "Copy blocked: download instead"
-                  : "Copy planning brief"}
+                  : "Copy brief"}
             </button>
             <button
               type="button"
               className="book-cta-secondary"
               onClick={downloadBrief}
             >
-              Download Markdown
+              Download brief (.md)
             </button>
             <button
               type="button"
               className="book-cta-link"
               onClick={() => setActiveView("contact", "contact-action")}
             >
-              Read contact guidance →
+              Contact details →
             </button>
           </div>
         </section>

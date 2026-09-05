@@ -14,7 +14,7 @@ const archivoBlack = Archivo_Black({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-display",
-  preload: false,
+  preload: true,
 });
 
 const azeretMono = Azeret_Mono({
@@ -82,12 +82,12 @@ const jsonLdString = JSON.stringify(jsonLd)
   .replace(/&/g, "\\u0026");
 
 const designContract = `<!--
-THESIS: Sam designs and builds software. The public front door states that plainly; the Workbench supplies the evidence.
-OWN-WORLD: Carbon grain, ivory condensed type, cobalt operational light, square rules, and a live Workbench console.
-STORY: Meet Sam, understand Solynth, visit the company, enter the Workbench, or make contact.
-FIRST VIEWPORT: Identity sits top-left, a live aperture top-right, the statement owns the field, and useful links anchor the bottom.
-FORM: Quiet Junction, grounded direction 3, seed 18eae09c.
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+THESIS: Sam designs and builds software. A minimal personal introduction with direct contact and Workbench access.
+OWN-WORLD: A quiet personal portfolio with carbon and ivory surfaces, Archivo typography, restrained cobalt, and generous space.
+STORY: Meet Sam, find contact and résumé links, or open Workbench to explore.
+FIRST VIEWPORT: Identity, one large headline, coordinates, compact Workbench access, and a simple footer.
+FORM: The original typography-led homepage with Site, Direct, and Elsewhere link groups; the computer lab lives inside Workbench.
+FINISH: Verify project and contact links, keyboard and touch interaction, responsive layout, and production performance.
 -->`;
 
 export default function RootLayout({
