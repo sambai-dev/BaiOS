@@ -19,7 +19,6 @@ const groups = [
     entries: [
       { slug: "trekky", status: "Live product", action: "Visit Trekky" },
       { slug: "entangle", status: "Research tool", action: "Open Entangle" },
-      { slug: "rentakl", status: "Demo · Sample listings", action: "Try RentAKL" },
     ],
   },
   {

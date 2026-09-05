@@ -16,7 +16,7 @@ export const PORTFOLIO_TOPICS = {
   products: {
     match: "overview of Sam's products, SaaS, websites, or selected work",
     answer:
-      "The product work includes Trekky for job search, Entangle for quantum research, and RentAKL for exploring rentals. Trekky is a live product, Entangle is a public research tool, and RentAKL is a demo with sample listings. All projects has the websites and project notes.",
+      "The product work includes Trekky for job search and Entangle for quantum research. Trekky is a live product, and Entangle is a public research tool. All projects has the websites and project notes.",
   },
   trekky: {
     match: "Trekky, job search, applications, interviews, or follow-ups",
@@ -27,11 +27,6 @@ export const PORTFOLIO_TOPICS = {
     match: "Entangle, quantum research, quantum states, or circuit simulations",
     answer:
       "Entangle is a public quantum research tool for exploring evidence, states, small circuits, and bounded simulations. Local simulations are labeled as simulations; they are not live quantum hardware results. You can explore it at entangle-quantum.vercel.app.",
-  },
-  rentakl: {
-    match: "RentAKL, Auckland rentals, rental maps, or housing demo",
-    answer:
-      "RentAKL explores an Auckland rental search with a map and listing details. The public website currently uses sample listings, so it should be treated as a demonstration rather than live rental inventory. The demo is at rentakl.vercel.app.",
   },
   opensource: {
     match: "public GitHub, open-source projects, developer tools, or source links",

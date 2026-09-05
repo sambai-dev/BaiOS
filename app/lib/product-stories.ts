@@ -36,36 +36,4 @@ export const webProductStories: ProjectCaseStudy[] = [
       { label: "Execution", value: "Bounded simulation" },
     ],
   },
-  {
-    slug: "rentakl",
-    title: "RentAKL",
-    eyebrow: "Rental research · interactive demo",
-    tagline: "Compare Auckland rentals with more context.",
-    summary:
-      "A map-first rental research demo that puts weekly rents, local benchmarks, location accuracy, and risk explanations beside the listing.",
-    stack: ["Next.js", "TypeScript", "Supabase", "PostGIS", "TanStack Query", "MapLibre", "Node.js"],
-    links: [{ label: "Explore RentAKL", href: "https://rentakl.vercel.app" }],
-    sections: [
-      {
-        title: "A weekly price leaves questions open",
-        body:
-          "A weekly rent tells you the cost, but very little about how a listing compares. I built RentAKL to put that context beside the property: the local price range, the accuracy of its location, and details that deserve a closer look.",
-      },
-      {
-        title: "Connect the map to the detail",
-        body:
-          "I paired a map-first dashboard with listing details, suburb and bedroom benchmarks, and deterministic risk explanations. Location precision stays visible. The public version demonstrates the workflow with sample listings, so it should be explored as a product demo rather than live rental inventory.",
-      },
-      {
-        title: "Keep heavy work outside the request",
-        body:
-          "I separated ingestion from the Next.js interface, placing heavier parsing and extraction in a worker with shared schemas. I also reserved exact pins for address-level coordinates. A suburb-level source stays approximate instead of gaining false precision just because it appears on a map.",
-      },
-    ],
-    facts: [
-      { label: "Status", value: "Demo with sample listings" },
-      { label: "Focus", value: "Auckland rentals" },
-      { label: "Context", value: "Rent · location · risk signals" },
-    ],
-  },
 ];

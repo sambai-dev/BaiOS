@@ -59,11 +59,11 @@ The orbit component and original cartridge artwork remain in the repository but 
 
 ### Project pages
 
-The public directory at `/work` groups **Products & web apps** (Trekky, Entangle, and RentAKL) and **Open-source tools** (Rookhold, Portly, and AgentScope). It distinguishes Entangle's research tool and RentAKL's sample-listing demo. Website links open the products directly; project notes explain the work.
+The public directory at `/work` groups **Products & web apps** (Trekky and Entangle) and **Open-source tools** (Rookhold, Portly, and AgentScope). It identifies Entangle as a research tool. Website links open the products directly; project notes explain the work.
 
-Seven public case pages cover those six projects and BaiOS. Entangle and RentAKL join the five existing pages. Their content comes from `project-case-studies.ts` and `product-stories.ts` and renders through `app/work/[slug]/page.tsx`; `project-directory.css` styles the directory.
+Six public case pages cover those five projects and BaiOS. Entangle joins the five existing pages. Their content comes from `project-case-studies.ts` and `product-stories.ts` and renders through `app/work/[slug]/page.tsx`; `project-directory.css` styles the directory.
 
-First-person notes explain why Sam built each project, how it works, and the engineering choices and limits. The two new pages use text without invented interface images. Existing captures, sample data, README examples, and simulators are labeled for what they show. Images retain their proportions and offer full-size links. Source links point only to public repositories. Case-page headers and the Workbench Projects app provide an **All projects** link back to the directory.
+First-person notes explain why Sam built each project, how it works, and the engineering choices and limits. Entangle's new page uses text without invented interface images. Existing captures, sample data, README examples, and simulators are labeled for what they show. Images retain their proportions and offer full-size links. Source links point only to public repositories. Case-page headers and the Workbench Projects app provide an **All projects** link back to the directory.
 
 ### Workbench
 
@@ -112,7 +112,7 @@ BaiOS/
 │   │   └── ControlCenterApp.tsx      # Settings and backup tools
 │   ├── lib/
 │   │   ├── portfolio-projects.ts     # Retained orbit entries and geometry
-│   │   ├── project-case-studies.ts   # Seven public case pages
+│   │   ├── project-case-studies.ts   # Six public case pages
 │   │   ├── product-stories.ts        # First-person product notes
 │   │   ├── workbench-system.ts       # App registry, workspaces, themes
 │   │   ├── workbench-app-routing.ts  # App-to-workspace routing

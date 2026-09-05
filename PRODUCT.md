@@ -40,11 +40,11 @@ Personal Notes and visitor-created files remain local Workbench content.
 
 ## Project Pages
 
-The plain public directory at `/work` groups Products & web apps (Trekky, Entangle, and RentAKL) and Open-source tools (Rookhold, Portly, and AgentScope). Entangle is a research tool, and RentAKL is a demo using sample listings. Visitors can open each website directly or read its project notes.
+The plain public directory at `/work` groups Products & web apps (Trekky and Entangle) and Open-source tools (Rookhold, Portly, and AgentScope). Entangle is a research tool. Visitors can open each website directly or read its project notes.
 
-Seven public case pages describe those six projects and BaiOS. Entangle and RentAKL join the five existing pages. Their content lives in `app/lib/project-case-studies.ts` and `app/lib/product-stories.ts` and renders through `app/work/[slug]/page.tsx`. Each page has a clear title and purpose, source-backed project details, useful links, and routes back to the portfolio and Workbench. The All projects link in each case-page header returns to `/work`.
+Six public case pages describe those five projects and BaiOS. Entangle joins the five existing pages. Their content lives in `app/lib/project-case-studies.ts` and `app/lib/product-stories.ts` and renders through `app/work/[slug]/page.tsx`. Each page has a clear title and purpose, source-backed project details, useful links, and routes back to the portfolio and Workbench. The All projects link in each case-page header returns to `/work`.
 
-First-person notes explain why Sam built each project, how it works, and the engineering decisions and tradeoffs in human language without em dashes. The two new pages are text-only and do not use invented interface images. Repository links are provided only for public source; private repositories are not linked.
+First-person notes explain why Sam built each project, how it works, and the engineering decisions and tradeoffs in human language without em dashes. Entangle's new page is text-only and does not use invented interface images. Repository links are provided only for public source; private repositories are not linked.
 
 Trekky's page uses light ivory surfaces and a genuine earlier light-theme sample dashboard, labeled as an empty sample board. Other project pages remain dark while sharing the same typography and controls.
 

@@ -103,9 +103,9 @@ Thumbnails are readable entry points rather than evidence of a product interface
 
 ## Public Project Pages
 
-The plain public directory at `/work` uses readable rows grouped into Products & web apps (Trekky, Entangle, and RentAKL) and Open-source tools (Rookhold, Portly, and AgentScope). Status labels distinguish Entangle's research tool and RentAKL's sample-listing demo. Direct website links and project-note links make their destinations clear. `project-directory.css` defines this surface.
+The plain public directory at `/work` uses readable rows grouped into Products & web apps (Trekky and Entangle) and Open-source tools (Rookhold, Portly, and AgentScope). Entangle is labeled as a research tool. Direct website links and project-note links make their destinations clear. `project-directory.css` defines this surface.
 
-Seven case pages cover those six projects and BaiOS. Entangle and RentAKL join the five existing pages with text-only notes and no invented interface images. `project-case-studies.ts` and `product-stories.ts` supply the content. A project page combines a clear identity and purpose, factual details and links, readable first-person sections explaining the work, and navigation to the next project, portfolio, or Workbench. The All projects link in each case-page header returns to the directory. Source links appear only for public repositories.
+Six case pages cover those five projects and BaiOS. Entangle joins the five existing pages with text-only notes and no invented interface images. `project-case-studies.ts` and `product-stories.ts` supply the content. A project page combines a clear identity and purpose, factual details and links, readable first-person sections explaining the work, and navigation to the next project, portfolio, or Workbench. The All projects link in each case-page header returns to the directory. Source links appear only for public repositories.
 
 Trekky uses an ivory reading surface with dark ink and its genuine earlier light-theme sample dashboard. Other project pages use charcoal. Shared typography, square controls, cobalt actions, and layout keep these variants connected.
 
