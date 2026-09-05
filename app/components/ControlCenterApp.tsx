@@ -59,7 +59,7 @@ const SESSION_COPY: Record<
 > = {
   fresh: {
     label: "New session",
-    detail: "No recovered layout was found on this device.",
+    detail: "No saved desktop was found in this browser.",
   },
   restored: {
     label: "Session restored",
@@ -67,7 +67,7 @@ const SESSION_COPY: Record<
   },
   saving: {
     label: "Saving locally",
-    detail: "Workbench memory is being updated on this device.",
+    detail: "Saving your desktop in this browser.",
   },
 };
 
@@ -76,7 +76,7 @@ const CONFIRMATION_COPY: Record<
   { heading: string; detail: string; action: string }
 > = {
   restore: {
-    heading: "Restore the authored layout?",
+    heading: "Restore the default layout?",
     detail:
       "Every window in the active workspace returns to its starting position. Notes and other local content stay intact.",
     action: "Restore layout",
@@ -84,7 +84,7 @@ const CONFIRMATION_COPY: Record<
   import: {
     heading: "Import a session backup?",
     detail:
-      "After validation, the selected backup replaces your current Archive, workspace layout, theme, and window settings.",
+      "The selected backup will be checked, then replace your current Files, workspace layout, theme, and window settings.",
     action: "Choose backup",
   },
 };
@@ -163,16 +163,16 @@ export default function ControlCenterApp({
   return (
     <section
       className="control-center-app"
-      aria-label="Workbench control center"
+      aria-label="Workbench settings"
     >
       <header className="control-center-header">
         <div className="control-center-identity">
           <span className="control-center-mark" aria-hidden="true">
-            CC
+            ⚙
           </span>
           <div>
-            <h2>Control center</h2>
-            <p>Shape the Workbench, then carry the session forward.</p>
+            <h2>Settings</h2>
+            <p>Make this desktop your own and manage your saved work.</p>
           </div>
         </div>
 
@@ -197,10 +197,9 @@ export default function ControlCenterApp({
             aria-labelledby={themeTitleId}
           >
             <header className="control-center-section-heading">
-              <h3 id={themeTitleId}>Theme memory</h3>
+              <h3 id={themeTitleId}>Appearance</h3>
               <p>
-                Choose the Workbench route light. The active theme is remembered
-                with this local session.
+                Choose a desktop colour theme. Your choice is saved in this browser.
               </p>
             </header>
 
@@ -251,7 +250,7 @@ export default function ControlCenterApp({
                 </div>
               ) : (
                 <p className="control-center-empty-state">
-                  No palettes are available in this build.
+                  No themes are available.
                 </p>
               )}
             </fieldset>
@@ -264,8 +263,7 @@ export default function ControlCenterApp({
             <header className="control-center-section-heading">
               <h3 id={workspaceTitleId}>Workspaces</h3>
               <p>
-                Move between saved arrangements. Each space keeps its own working
-                context.
+                Switch between desktops. Each workspace keeps its own open windows.
               </p>
             </header>
 
@@ -309,8 +307,8 @@ export default function ControlCenterApp({
 
           <section className="control-center-section">
             <header className="control-center-section-heading">
-              <h3>Tactile Web Audio</h3>
-              <p>Subtle mechanical relays and haptic sound synthesis on window and dock actions.</p>
+              <h3>Sound effects</h3>
+              <p>Play a short sound when you use windows and desktop controls.</p>
             </header>
             <div className="control-center-workspace-options">
               <button
@@ -327,8 +325,8 @@ export default function ControlCenterApp({
               >
                 <span className="control-center-workspace-index">FX</span>
                 <span className="control-center-option-copy">
-                  <strong>Synthesized Audio Feedback</strong>
-                  <small>Zero-asset Web Audio API oscillator synthesis.</small>
+                  <strong>Play interface sounds</strong>
+                  <small>Turn sounds on or off for desktop actions.</small>
                 </span>
                 <span className="control-center-option-state">
                   {soundActive ? "Enabled" : "Muted"}
@@ -344,7 +342,7 @@ export default function ControlCenterApp({
             aria-labelledby={sessionTitleId}
           >
             <header>
-              <h3 id={sessionTitleId}>Session memory</h3>
+              <h3 id={sessionTitleId}>Saved desktop</h3>
               <p>{sessionCopy.detail}</p>
             </header>
 
@@ -373,7 +371,7 @@ export default function ControlCenterApp({
                   {typeof session.openWindows === "number"
                     ? `${session.openWindows} open${
                         session.minimizedWindows
-                          ? ` · ${session.minimizedWindows} min`
+                          ? ` · ${session.minimizedWindows} minimized`
                           : ""
                       }`
                     : "N/A"}
@@ -381,7 +379,7 @@ export default function ControlCenterApp({
               </div>
               <div>
                 <dt>Storage</dt>
-                <dd>This device</dd>
+                <dd>This browser</dd>
               </div>
             </dl>
           </section>
@@ -391,8 +389,8 @@ export default function ControlCenterApp({
             aria-labelledby={operationsTitleId}
           >
             <header className="control-center-section-heading">
-              <h3 id={operationsTitleId}>Session controls</h3>
-              <p>Back up the local environment or return its layout to baseline.</p>
+              <h3 id={operationsTitleId}>Backup & restore</h3>
+              <p>Download a backup, restore saved work, or reset window positions.</p>
             </header>
 
             <div className="control-center-action-list">
@@ -403,7 +401,7 @@ export default function ControlCenterApp({
               >
                 <span>
                   <strong>Export session</strong>
-                  <small>Download the current Workbench state.</small>
+                  <small>Download saved windows, notes, and Files.</small>
                 </span>
                 <span aria-hidden="true">Export</span>
               </button>
@@ -422,7 +420,7 @@ export default function ControlCenterApp({
               >
                 <span>
                   <strong>Import session</strong>
-                  <small>Recover a validated Workbench backup.</small>
+                  <small>Replace this browser’s saved desktop and Files.</small>
                 </span>
                 <span aria-hidden="true">Import</span>
               </button>

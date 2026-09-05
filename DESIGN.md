@@ -234,17 +234,15 @@ The form language is square and mechanical. Panels, windows, controls, text fiel
 
 ### Workbench Aperture
 
-The aperture is a small live instrument, not a promotional card. On desktop it rests at a compact 11.4rem width with its detail rows collapsed, then expands to `clamp(18rem, 22vw, 21rem)` on hover or focus to reveal its operational body and action. It uses carbon, a one-pixel cobalt border, a cobalt title strip, and a signal live dot; the width and border carry the invitation with no scale transform. Opening and closing use the aperture’s measured center as the origin of a 720ms circular reveal, so the transition remains spatially truthful after responsive gutter or viewport changes; reduced motion receives a 150ms opacity fade.
+The aperture rests as a compact embedded tab at the top-right of the public header. Hover or keyboard focus expands it to reveal the Work, Playground, and Notes routes and an Open Workbench action. Desktop expansion is positioned over the page so the header, headline, and links do not move. Touch layouts keep the action visible. The measured center still controls the circular Workbench reveal, with a short fade for reduced motion.
 
 ### Public Front Door
 
-The public surface is a single quiet composition. The identity line is “Founder & Product Engineer, Solynth Labs” and the exact statement “Sam designs and builds software.” holds the center as two deliberate beats, breaking after “and.” The intro line is “A personal site: engineering thinking, design, and working experiments.” Direct links expose Sam's email address, Solynth Labs, and “Open Workbench” without conversion-copy wrappers. Desktop uses a responsive `clamp(4rem, 10vw, 12rem)` horizontal inset and a `clamp(4.75rem, 10vw, 11rem)` statement. The statement is uninterrupted display text with no embedded controls. Compact widths collapse the gutter, type, and line gap without changing the hierarchy; short viewports may scroll rather than clip controls. The front door carries no explanatory deck, project grid, or Workbench telemetry outside the aperture.
-
-The aperture uses differentiated, truthful labels: Build / Work, Field / Labs, Notes / Local, Atlas / Map, Archive / Browser, and Session / State. It avoids stale counts and claims that a fresh session has already been saved. Its visible action always says “Open Workbench.”
+The public surface is a single quiet composition. The identity line is “Founder & Product Engineer, Solynth Labs” and the exact statement “Sam designs and builds software.” holds the center. Desktop breaks after “and”; mobile wraps into “Sam designs / and builds / software.” The intro remains “A personal site: engineering thinking, design, and working experiments.” Direct links expose Sam's email, Solynth Labs, and Open Workbench. Visible arrows identify links without requiring hover; mobile targets are comfortably spaced. Display type uses Archivo at 650 weight, a 0.98 desktop line-height, and restrained tracking. Keep the carbon grain, ivory type, cobalt period, and compact hover aperture. No project grid or extra marketing copy belongs in this front door.
 
 ### Workbench Menu Bar
 
-The top bar combines the S/B mark, current app and workspace context, five app-aware menus, system controls, and local time. Workbench, File, View, Window, and Go expose only actions meaningful to the active window; File offers a new window only for multi-instance apps, Window changes Maximize to Restore when appropriate, and Go lists all three workspaces. The semantic menubar and popup menus use roving focus, arrows, Home, End, Enter, Space, Escape, and Tab-close behavior. Selected and focused controls invert to signal; destructive actions use a local dark-red treatment rather than a new global color token.
+The top panel follows familiar desktop conventions with a Workbench identity, two menus (Desktop and Window), direct Work / Playground / Notes workspace switching at desktop sizes, and labeled Overview, Search, and Back to site controls. Desktop includes About Sam, Settings, Files, backup download, window arrangement, and workspace actions. Window retains meaningful actions for the active app. Controls use readable sentence case and Archivo body text; abbreviations and shortcut-only mobile buttons are not permitted. Compact layouts retain the two menus and labeled system controls, with workspace switching available through Desktop and Overview. Menus retain arrow-key navigation, visible focus, and Escape dismissal.
 
 ### Workbench Window
 
@@ -252,7 +250,7 @@ Windows use ivory content, carbon title bars, square clipping, structural shadow
 
 ### Workbench Dock
 
-The dock is generated from the current app registry rather than a documented fixed count. It exposes professional context, Systems, Brief, local tools, experiments, Search, Agent, Archive, and Control with exact Closed, Suspended, Active, or Running status. Shift-modified click or dock activation requests a new instance only where the registry explicitly permits multiple instances; other apps reuse a saved instance within the current workspace. The dock shows that instance count as a small signal badge and becomes horizontally scrollable before labels need to compress.
+The bottom taskbar contains a persistent Applications button and only the applications open in the current workspace. Each running app shows Active, Running, or Minimized state, and multi-instance counts are retained. Shift-click opens another window only for apps that support it. Applications opens a searchable launcher with All, Work, Tools, and Labs categories; every app has a plain name and short description. Search remains a separate global command surface. The application list scrolls beneath a fixed search field and category controls. The taskbar scrolls horizontally on small screens without hiding Applications.
 
 ### Systems, Brief, Search, and Agent
 
@@ -268,15 +266,15 @@ System search is a modal editable combobox and listbox. Ctrl/Cmd+K opens it and 
 
 ### Atlas
 
-Atlas is the original cross-workspace map and clutter-control surface. It opens modally, exposes Build, Field, and Notes as semantic workspace tabs, and previews only the selected workspace's open windows; minimized windows are labeled Suspended. Focus is the default selection mode: choosing a preview restores and raises that surface while suspending its open siblings. Raise restores and raises without changing the stack, while Show all reverses Focus for the inspected workspace. Dense workspaces use a compact aspect-aware preview grid. Tabs support arrows, Home, and End; preview buttons support spatial four-arrow movement and Enter. Atlas traps focus, and global F3 opens it even when a Workbench text field owns focus.
+The visible name is Window overview. It maps the Work, Playground, and Notes workspaces and shows open windows with Visible or Minimized states. Focus one shows a selected window while minimizing its siblings; Bring to front preserves the other windows; Show all restores minimized windows. The selected behavior is explained directly above the previews. Preview sizes remain bounded even for portrait windows, and initial focus must not scroll the mode controls away. Workspace tabs and directional preview navigation remain keyboard accessible. The internal Atlas identifier is retained for compatible saved links and commands.
 
 ### Archive
 
-Archive is a bounded, writable file environment shared by all Archive windows in the browser. It supports indexed search, folder and note creation, note editing, rename, trash, restore, recursive permanent deletion, breadcrumbs, list/grid views, and location shortcuts. Each Archive window remembers its current folder while sharing the same validated tree. Listbox traversal supports arrows, Home, End, Enter, F2, and Delete; destructive actions require confirmation. Its footer states that the archive lives only in the browser and nothing is uploaded. Archive does not represent uploads, arbitrary attachments, remote storage, or collaboration.
+The visible app name is Files. It organizes notes and folders stored in the current browser, with search, list and grid views, folder paths, editing, rename, trash, restore, and confirmed permanent deletion. File operations and saved data are unchanged; internal Archive identifiers remain compatible. Copy explains that notes and folders stay in this browser and are included in Settings backups.
 
 ### Control
 
-Control is the local settings and recovery instrument. Its real radio inputs switch among cobalt, oxide, and graphite; workspace controls route to Build, Field, or Notes; an `aria-live` status reports session writes. Export downloads a dated, versioned JSON backup containing the validated session and Archive tree. Import validates and replaces that paired state rather than merging it. Restore default layout resets geometry, size, snap, and maximize state for existing windows in the current workspace without recreating closed defaults or deleting extra instances.
+The visible app name is Settings. It exposes Appearance, workspace controls, Sound effects, and backup and restore operations using plain descriptions. Theme radios still change cobalt, oxide, and graphite as a coherent palette. Backups contain validated workspace/session and Files state; separate app-specific storage remains outside the backup where documented. Restore default layout changes window geometry without replacing content. Internal Control identifiers and saved data remain compatible.
 
 ### Method Tabs
 

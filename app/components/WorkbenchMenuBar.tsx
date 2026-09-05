@@ -9,9 +9,11 @@ import {
   useCallback,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from "react";
+import type { WorkspaceId } from "../lib/workbench-system";
 
 export type WorkbenchMenuItem = {
   id: string;
@@ -33,6 +35,9 @@ export type WorkbenchMenuBarProps = {
   backgroundInert?: boolean;
   time: string;
   workspaceLabel: string;
+  workspaces: Array<{ id: WorkspaceId; label: string }>;
+  activeWorkspaceId: WorkspaceId;
+  onSwitchWorkspace: (id: WorkspaceId) => void;
   menus: WorkbenchMenu[];
   onOpenMissionControl: () => void;
   onOpenSearch: () => void;
@@ -61,12 +66,51 @@ export default function WorkbenchMenuBar({
   backgroundInert = false,
   time,
   workspaceLabel,
-  menus,
+  workspaces,
+  activeWorkspaceId,
+  onSwitchWorkspace,
+  menus: sourceMenus,
   onOpenMissionControl,
   onOpenSearch,
   onClosePortfolio,
   portfolioButtonRef,
 }: WorkbenchMenuBarProps) {
+  const menus = useMemo<WorkbenchMenu[]>(() => {
+    const items = (id: string) => sourceMenus.find((menu) => menu.id === id)?.items ?? [];
+    const readableLabels: Record<string, string> = {
+      about: "About Sam",
+      control: "Settings",
+      "open-archive-root": "Open files",
+      export: "Download a backup",
+      tidy: "Arrange windows",
+      "close-all": "Close all windows in this workspace",
+    };
+    const readable = (item: WorkbenchMenuItem): WorkbenchMenuItem => ({
+      ...item,
+      label: readableLabels[item.id] ?? item.label,
+    });
+    return [
+      {
+        id: "desktop",
+        label: "Desktop",
+        items: [
+          ...items("workbench").filter((item) => item.id !== "return"),
+          ...items("file").filter((item) => ["open-archive-root", "export"].includes(item.id)),
+          ...items("view").filter((item) => item.id === "tidy"),
+          ...items("go").filter((item) => item.id !== "go-archive"),
+        ].map(readable),
+      },
+      {
+        id: "window",
+        label: "Window",
+        items: [
+          ...items("file").filter((item) => item.id === "new-active" && !item.disabled),
+          ...items("window"),
+          ...items("file").filter((item) => item.id === "close-window"),
+        ].map(readable),
+      },
+    ];
+  }, [sourceMenus]);
   const instanceId = safeId(useId());
   const barRef = useRef<HTMLElement>(null);
   const triggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -343,10 +387,9 @@ export default function WorkbenchMenuBar({
       inert={backgroundInert || undefined}
     >
       <div className="wmb-leading">
-        <span className="wmb-mark" aria-hidden="true">S/B</span>
         <div className="wmb-context">
-          <span className="wmb-context-name">Workbench</span>
-          <strong>{activeAppLabel}</strong>
+          <span className="wmb-mark" aria-hidden="true">S/B</span>
+          <strong>Workbench</strong>
         </div>
 
         <nav className="wmb-menu-strip" aria-label="Application menus">
@@ -368,13 +411,6 @@ export default function WorkbenchMenuBar({
                     aria-haspopup="menu"
                     aria-expanded={isOpen}
                     aria-controls={isOpen ? menuId : undefined}
-                    data-compact-label={
-                      menu.id === "workbench"
-                        ? "WB"
-                        : menu.id === "window"
-                          ? "WIN"
-                          : menu.label
-                    }
                     tabIndex={focusedMenuIndex === menuIndex ? 0 : -1}
                     onClick={() => {
                       if (isOpen) closeMenu(true);
@@ -387,6 +423,7 @@ export default function WorkbenchMenuBar({
                     }}
                   >
                     <span className="wmb-menu-label">{menu.label}</span>
+                    <span className="wmb-chevron" aria-hidden="true">⌄</span>
                   </button>
                 </div>
               );
@@ -395,33 +432,54 @@ export default function WorkbenchMenuBar({
         </nav>
       </div>
 
+      <nav className="wmb-workspaces" aria-label="Workspaces">
+        {workspaces.map((workspace, index) => (
+          <button
+            key={workspace.id}
+            type="button"
+            aria-pressed={workspace.id === activeWorkspaceId}
+            title={`Switch to ${workspace.label} workspace (Alt+${index + 1})`}
+            onClick={() => onSwitchWorkspace(workspace.id)}
+          >
+            <span className="wmb-workspace-dot" aria-hidden="true" />
+            {workspace.label}
+          </button>
+        ))}
+      </nav>
+
       <div className="wmb-system" role="group" aria-label="System controls">
         <div className="wmb-system-data">
-          <span className="wmb-workspace"><i aria-hidden="true" />{workspaceLabel}</span>
-          <span>{time}</span>
+          <span aria-label={`New Zealand time ${time}`}>{time}<span className="wmb-timezone"> NZ</span></span>
         </div>
         <button
           type="button"
-          aria-label="Open Atlas overview"
+          aria-label="Window overview"
+          title="See all windows and workspaces (F3)"
           aria-keyshortcuts="F3"
           onClick={onOpenMissionControl}
         >
-          <span className="wmb-control-label">Atlas</span><kbd>F3</kbd>
+          <svg className="wmb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true"><rect x="2" y="3" width="7" height="6" /><rect x="12" y="3" width="6" height="10" /><rect x="2" y="12" width="7" height="5" /></svg>
+          <span className="wmb-control-label">Overview</span>
         </button>
         <button
           type="button"
           aria-keyshortcuts="Control+K Meta+K"
+          title="Find applications, files, and commands (Ctrl or ⌘ + K)"
           onClick={onOpenSearch}
         >
-          <span className="wmb-control-label">Search</span><kbd>Ctrl K</kbd>
+          <svg className="wmb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4.5 4.5" /></svg>
+          <span className="wmb-control-label">Search</span>
         </button>
         <button
           ref={portfolioButtonRef}
           type="button"
           aria-keyshortcuts="Escape"
+          aria-label="Back to portfolio"
+          title="Back to the portfolio (Escape)"
           onClick={onClosePortfolio}
         >
-          <span className="wmb-control-label">Portfolio</span><kbd>Esc</kbd>
+          <svg className="wmb-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M17 10H3m6-6-6 6 6 6" /></svg>
+          <span className="wmb-control-label">Back<span className="wmb-back-detail"> to site</span></span>
         </button>
       </div>
 
@@ -434,7 +492,7 @@ export default function WorkbenchMenuBar({
           style={{ left: menuPosition.left, top: menuPosition.top }}
         >
           <div className="wmb-popup-label" aria-hidden="true">
-            <span>{activeAppLabel}</span>
+            <span>{activeMenu.id === "desktop" ? workspaceLabel : activeAppLabel}</span>
             <strong>{activeMenu.label}</strong>
           </div>
           {activeMenu.items.map((item, itemIndex) => (

@@ -231,14 +231,14 @@ export default function PortfolioShell() {
             </span>
             <span className="aperture-body" aria-hidden="true">
               <span className="aperture-column">
-                <span>BUILD / WORK</span>
-                <span>FIELD / LABS</span>
-                <span>NOTES / LOCAL</span>
+                <span>Work</span>
+                <span>Playground</span>
+                <span>Notes</span>
               </span>
               <span className="aperture-signal">
-                <span>ATLAS / MAP</span>
-                <span>ARCHIVE / BROWSER</span>
-                <span>SESSION / STATE</span>
+                <span>Projects &amp; process</span>
+                <span>Tools &amp; experiments</span>
+                <span>Saved in this browser</span>
               </span>
             </span>
             <span className="aperture-action">Open Workbench</span>
@@ -250,17 +250,9 @@ export default function PortfolioShell() {
             className="hero-statement"
             aria-label="Sam designs and builds software."
           >
-            <span className="hero-line">
-              <span className="hero-line-inner">Sam designs and</span>
-            </span>
-            <span className="hero-line">
-              <span className="hero-line-inner">
-                builds software
-                <span className="hero-period" aria-hidden="true">
-                  .
-                </span>
-              </span>
-            </span>
+            <span className="hero-opening">Sam designs</span>{" "}
+            <span className="hero-conjunction">and</span>{" "}
+            <span className="hero-build">builds software<span className="hero-period" aria-hidden="true">.</span></span>
           </h1>
           <p className="hero-coordinates" aria-hidden="true">
             37.7889°S · 175.4646°E · Hamilton NZ

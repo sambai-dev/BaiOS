@@ -52,7 +52,7 @@ const locationIds = [
 ] as const;
 
 const archiveLimitMessage =
-  "Archive is at its safe local limit. Delete an item or shorten a note before adding more.";
+  "Files is full. Delete an item or shorten a note before adding more.";
 const ARCHIVE_RENDER_BATCH = 200;
 
 function isContainer(node: FileNode | undefined) {
@@ -62,7 +62,7 @@ function isContainer(node: FileNode | undefined) {
 function kindLabel(kind: FileNode["kind"]) {
   if (kind === "app") return "Application";
   if (kind === "external") return "External link";
-  if (kind === "root") return "Volume";
+  if (kind === "root") return "Files";
   return `${kind.slice(0, 1).toUpperCase()}${kind.slice(1)}`;
 }
 
@@ -566,8 +566,8 @@ export default function ArchiveApp({
       >
         <header className="archive-titlebar">
         <div>
-          <span>Local volume / 01</span>
-          <strong>Archive</strong>
+          <span>Saved in this browser</span>
+          <strong>Files</strong>
         </div>
         <label className="archive-search" htmlFor={searchId}>
           <span>Search</span>
@@ -582,14 +582,14 @@ export default function ArchiveApp({
               pendingProgressiveFocusIndexRef.current = null;
               setRenderedItemLimit(ARCHIVE_RENDER_BATCH);
             }}
-            placeholder="Files, notes, systems"
+            placeholder="Find notes, folders, or shortcuts"
             autoComplete="off"
           />
         </label>
         </header>
 
       <div className="archive-shell">
-        <aside className="archive-locations" aria-label="Archive locations">
+        <aside className="archive-locations" aria-label="File locations">
           <span className="archive-section-label">Locations</span>
           <nav>
             {locations.map((location) => (
@@ -601,24 +601,24 @@ export default function ArchiveApp({
                 onClick={() => navigateTo(location.id)}
               >
                 <span className="archive-node-mark" data-kind={location.kind} aria-hidden="true" />
-                <span>{location.kind === "root" ? "Archive" : location.name}</span>
+                <span>{location.kind === "root" ? "Files" : location.name}</span>
               </button>
             ))}
           </nav>
           <dl className="archive-volume-readout">
-            <div><dt>Mode</dt><dd>Local</dd></div>
+            <div><dt>Storage</dt><dd>This browser</dd></div>
             <div><dt>Items</dt><dd>{files.nodes.length - 2}</dd></div>
           </dl>
         </aside>
 
-        <section className="archive-browser" aria-label="Archive browser">
+        <section className="archive-browser" aria-label="File browser">
           <div className="archive-browser-head">
             <nav className="archive-breadcrumb" aria-label="Current folder path">
               {breadcrumb.map((node, index) => (
                 <span key={node.id}>
                   {index > 0 ? <span aria-hidden="true">/</span> : null}
                   <button type="button" onClick={() => navigateTo(node.id)}>
-                    {node.kind === "root" ? "Archive" : node.name}
+                    {node.kind === "root" ? "Files" : node.name}
                   </button>
                 </span>
               ))}
@@ -626,7 +626,7 @@ export default function ArchiveApp({
             <div
               className="archive-toolbar"
               role="group"
-              aria-label="Archive controls"
+              aria-label="File controls"
             >
               <button
                 type="button"
@@ -703,13 +703,13 @@ export default function ArchiveApp({
             aria-live="polite"
             aria-atomic="true"
           >
-            <span>{normalizedQuery ? `Search / ${normalizedQuery}` : currentFolder?.name}</span>
+            <span>{normalizedQuery ? `Search: ${normalizedQuery}` : currentFolder?.kind === "root" ? "Files" : currentFolder?.name}</span>
             <span>
               {displayItems.length} {displayItems.length === 1 ? "item" : "items"}
               {hasMoreItems ? ` · ${renderedItems.length} shown` : ""}
               {" · "}
               {archiveCompactNumberFormat.format(fileIndex.noteCharacterCount)}{" "}
-              chars stored
+              characters saved
             </span>
           </div>
 
@@ -720,7 +720,7 @@ export default function ArchiveApp({
                 data-view={viewMode}
                 role="listbox"
                 aria-label={
-                  normalizedQuery ? "Archive search results" : "Folder contents"
+                  normalizedQuery ? "File search results" : "Folder contents"
                 }
               >
                 {renderedItems.map((node, index) => {
@@ -729,7 +729,7 @@ export default function ArchiveApp({
                     ? path
                         .slice(0, -1)
                         .map((item) =>
-                          item.kind === "root" ? "Archive" : item.name,
+                          item.kind === "root" ? "Files" : item.name,
                         )
                         .join(" / ")
                     : node.summary;
@@ -836,7 +836,7 @@ export default function ArchiveApp({
               ) : null}
 
               <p className="archive-preview-summary">
-                {selectedNode.summary || "A locally created archive item."}
+                {selectedNode.summary || "Created and saved in this browser."}
               </p>
 
               <dl className="archive-preview-meta">
@@ -850,7 +850,7 @@ export default function ArchiveApp({
                     {fileIndex
                       .getNodePath(selectedNode.id)
                       .map((node) =>
-                        node.kind === "root" ? "Archive" : node.name,
+                        node.kind === "root" ? "Files" : node.name,
                       )
                       .join(" / ")}
                   </dd>
@@ -871,7 +871,7 @@ export default function ArchiveApp({
 
               {selectedNode.kind === "note" ? (
                 <label className="archive-note-editor" htmlFor={noteEditorId}>
-                  <span>{selectedIsTrashed ? "Note body / read only in trash" : "Note body / saves locally"}</span>
+                  <span>{selectedIsTrashed ? "Note · restore from trash to edit" : "Note · saves in this browser"}</span>
                   <textarea
                     id={noteEditorId}
                     value={selectedNode.content}
@@ -953,7 +953,7 @@ export default function ArchiveApp({
 
         <footer className="archive-local-note">
           <span className="archive-local-indicator" aria-hidden="true" />
-          This archive lives only in this browser. Nothing is uploaded.
+          Files and notes stay in this browser. Nothing is uploaded.
         </footer>
       </div>
 

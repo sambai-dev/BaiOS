@@ -95,37 +95,37 @@ const VectorLab = dynamic(() => import("./VectorLab"), {
 
 const MarketPulseApp = dynamic(() => import("./MarketPulseApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Pulse…</div>,
+  loading: () => <div className="os-app-loading">Loading Market monitor…</div>,
 });
 
 const BookConsultApp = dynamic(() => import("./BookConsultApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Brief…</div>,
+  loading: () => <div className="os-app-loading">Loading Project brief…</div>,
 });
 
 const CaseStudySandboxApp = dynamic(() => import("./CaseStudySandboxApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Systems…</div>,
+  loading: () => <div className="os-app-loading">Loading Projects…</div>,
 });
 
 const AgentWorkflowApp = dynamic(() => import("./AgentWorkflowApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Agent…</div>,
+  loading: () => <div className="os-app-loading">Loading AI assistant…</div>,
 });
 
 const SearchApp = dynamic(() => import("./SearchApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Search…</div>,
+  loading: () => <div className="os-app-loading">Loading Web search…</div>,
 });
 
 const ArchiveApp = dynamic(() => import("./ArchiveApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Archive…</div>,
+  loading: () => <div className="os-app-loading">Loading Files…</div>,
 });
 
 const ControlCenterApp = dynamic(() => import("./ControlCenterApp"), {
   ssr: false,
-  loading: () => <div className="os-app-loading">Loading Control…</div>,
+  loading: () => <div className="os-app-loading">Loading Settings…</div>,
 });
 
 import { playSound } from "../lib/workbench-sound";
@@ -170,6 +170,7 @@ type ResizeSession = {
 
 type PaletteAction = {
   id: string;
+  appId?: WorkbenchAppId;
   label: string;
   meta: string;
   terms: string;
@@ -233,6 +234,44 @@ const stackRows = [
   ["Product mode", "SaaS · Automation · AI-assisted workflows"],
 ] as const;
 
+const dockGroupLabels = ["Work", "Tools", "Labs"] as const;
+type DockGroup = (typeof dockGroupLabels)[number];
+const dockGroupByApp = {
+  now: "Work",
+  stack: "Work",
+  method: "Work",
+  links: "Work",
+  book: "Work",
+  sandbox: "Work",
+  scratch: "Tools",
+  console: "Tools",
+  pulse: "Tools",
+  agent: "Tools",
+  archive: "Tools",
+  search: "Tools",
+  control: "Tools",
+  lab: "Labs",
+  railshift: "Labs",
+  vector: "Labs",
+} satisfies Record<WorkbenchAppId, DockGroup>;
+
+const legacyAppLabels: Record<WorkbenchAppId, string> = {
+  now: "Now", stack: "Stack", method: "Method", scratch: "Scratch",
+  console: "Console", links: "Links", pulse: "Pulse", book: "Brief",
+  sandbox: "Systems", agent: "Agent", lab: "Subsurface", railshift: "Railshift",
+  vector: "Vector", archive: "Archive", search: "Search", control: "Control",
+};
+
+function getWindowDisplayTitle(windowState: WorkbenchWindow) {
+  const legacyLabel = legacyAppLabels[windowState.appId];
+  if (windowState.title === legacyLabel) return getWorkbenchApp(windowState.appId).label;
+  const suffix = windowState.title.slice(legacyLabel.length);
+  if (windowState.title.startsWith(legacyLabel) && /^ \d+$/.test(suffix)) {
+    return `${getWorkbenchApp(windowState.appId).label}${suffix}`;
+  }
+  return windowState.title;
+}
+
 const methodSteps = [
   {
     id: "clarify",
@@ -242,7 +281,7 @@ const methodSteps = [
   {
     id: "shape",
     label: "Shape",
-    text: "Turn ambiguity into a legible product surface and technical path.",
+    text: "Turn the idea into a clear design and a practical technical plan.",
   },
   {
     id: "ship",
@@ -355,6 +394,8 @@ export default function WorkbenchOSV3({
     "Type help to inspect available commands.",
   ]);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [isAppLauncher, setIsAppLauncher] = useState(false);
+  const [launcherGroup, setLauncherGroup] = useState<"All" | DockGroup>("All");
   const [paletteQuery, setPaletteQuery] = useState("");
   const [paletteActiveIndex, setPaletteActiveIndex] = useState(0);
   const [isAtlasOpen, setIsAtlasOpen] = useState(false);
@@ -1149,7 +1190,7 @@ export default function WorkbenchOSV3({
       current.activeWorkspaceId,
     );
     commitWindowResult(result, current.activeWorkspaceId);
-    setNotice("All open surfaces in this workspace are visible again.");
+    setNotice("All open windows in this workspace are visible again.");
   }, [commitWindowResult]);
 
   const updateWindowData = useCallback(
@@ -1189,8 +1230,15 @@ export default function WorkbenchOSV3({
     setIsAtlasOpen(false);
     setPaletteQuery("");
     setPaletteActiveIndex(0);
+    setIsAppLauncher(false);
     setIsPaletteOpen(true);
   }, []);
+
+  const openApplications = useCallback(() => {
+    openPalette();
+    setIsAppLauncher(true);
+    setLauncherGroup("All");
+  }, [openPalette]);
 
   const closePalette = useCallback(() => {
     const invoker = paletteInvokerRef.current;
@@ -1360,7 +1408,7 @@ export default function WorkbenchOSV3({
       anchor.click();
       anchor.remove();
       URL.revokeObjectURL(href);
-      setNotice("Session backup exported with local Archive content.");
+      setNotice("Backup downloaded with your workspace and local files.");
       return true;
     } catch {
       setNotice("The current Workbench state could not be packaged for export.");
@@ -1398,7 +1446,7 @@ export default function WorkbenchOSV3({
         setStorageBlocked(false);
         setSessionStatus("restored");
         setLastSaved(formatSavedTime(parsed.session.updatedAt));
-        setNotice("Session and Archive restored from the selected backup.");
+        setNotice("Your workspace and files were restored from the backup.");
       } catch {
         setNotice("The selected backup could not be read.");
       } finally {
@@ -1873,7 +1921,7 @@ export default function WorkbenchOSV3({
         response = "Current workspace cleared. Applications remain available in the dock.";
       } else if (command === "atlas") {
         openAtlas();
-        response = "Atlas opened.";
+        response = "Window overview opened.";
       } else if (command === "search") {
         openPalette();
         response = "System search opened.";
@@ -1911,8 +1959,9 @@ export default function WorkbenchOSV3({
   const paletteActions = useMemo<PaletteAction[]>(() => {
     const appActions = workbenchApps.map((app) => ({
       id: `app-${app.id}`,
+      appId: app.id,
       label: `Open ${app.label}`,
-      meta: "Application",
+      meta: app.summary,
       terms: `${app.id} ${app.summary} ${app.keywords.join(" ")}`,
       run: () =>
         openWindow(app.id, {
@@ -1936,7 +1985,7 @@ export default function WorkbenchOSV3({
           : "Focus";
       return {
         id: `window-${windowState.instanceId}`,
-        label: `${action} ${windowState.title}`,
+        label: `${action} ${getWindowDisplayTitle(windowState)}`,
         meta: `${
           workspaces.find((workspace) => workspace.id === windowState.workspaceId)
             ?.label ?? windowState.workspaceId
@@ -1956,7 +2005,7 @@ export default function WorkbenchOSV3({
       .map((node) => ({
         id: `file-${node.id}`,
         label: node.name,
-        meta: `Archive · ${getNodePath(files, node.id)
+        meta: `Files · ${getNodePath(files, node.id)
           .slice(1, -1)
           .map((item) => item.name)
           .join(" / ") || node.kind}`,
@@ -1976,14 +2025,14 @@ export default function WorkbenchOSV3({
     const systemActions: PaletteAction[] = [
       {
         id: "system-atlas",
-        label: "Open Atlas",
+        label: "Window overview",
         meta: "System · F3",
         terms: "overview windows workspaces surfaces",
         run: openAtlas,
       },
       {
         id: "system-tidy",
-        label: "Tidy current workspace",
+        label: "Arrange windows",
         meta: "System",
         terms: "reset arrange layout",
         restoreInvoker: true,
@@ -2029,6 +2078,9 @@ export default function WorkbenchOSV3({
   const filteredPaletteActions = useMemo(
     () =>
       paletteActions
+        .filter((action) => !isAppLauncher || (
+          action.appId && (launcherGroup === "All" || dockGroupByApp[action.appId] === launcherGroup)
+        ))
         .map((action, index) => ({
           action,
           index,
@@ -2038,7 +2090,7 @@ export default function WorkbenchOSV3({
         .sort((left, right) => right.score - left.score || left.index - right.index)
         .slice(0, 18)
         .map((result) => result.action),
-    [paletteActions, paletteQuery],
+    [isAppLauncher, launcherGroup, paletteActions, paletteQuery],
   );
 
   useEffect(() => {
@@ -2070,12 +2122,12 @@ export default function WorkbenchOSV3({
         items: [
           {
             id: "about",
-            label: "Open Now",
+            label: "About Sam",
             onSelect: () => openWindow("now"),
           },
           {
             id: "control",
-            label: "Open Control",
+            label: "Settings",
             onSelect: () => openWindow("control"),
           },
           {
@@ -2103,7 +2155,7 @@ export default function WorkbenchOSV3({
           },
           {
             id: "open-archive-root",
-            label: "Open Archive root",
+            label: "Open Files",
             onSelect: () => openArchiveAt(ROOT_FILE_ID),
           },
           {
@@ -2128,7 +2180,7 @@ export default function WorkbenchOSV3({
         items: [
           {
             id: "atlas",
-            label: "Open Atlas",
+            label: "Window overview",
             shortcut: "F3",
             onSelect: openAtlas,
           },
@@ -2198,7 +2250,7 @@ export default function WorkbenchOSV3({
           })),
           {
             id: "go-archive",
-            label: "Open Archive",
+            label: "Open Files",
             onSelect: () => openArchiveAt(ROOT_FILE_ID),
           },
         ],
@@ -2368,7 +2420,10 @@ export default function WorkbenchOSV3({
     if (windowState.appId === "now") {
       return (
         <div className="os-now">
-          <span className="os-now-kicker">Start here / choose a route</span>
+          <div className="os-now-kicker">
+            <span>Sam Bai / Current focus</span>
+            <span>Hamilton, NZ</span>
+          </div>
           <h2>Building the company and the products inside it.</h2>
           <p>
             I work with businesses on software direction and production while
@@ -2378,14 +2433,17 @@ export default function WorkbenchOSV3({
             <button type="button" onClick={() => openWindow("sandbox")}>
               <strong>See current work</strong>
               <span>Selected systems and active products</span>
+              <span className="os-now-action-arrow" aria-hidden="true">↗</span>
             </button>
             <button type="button" onClick={() => openWindow("method")}>
               <strong>Explore how I work</strong>
               <span>From product question to shipped software</span>
+              <span className="os-now-action-arrow" aria-hidden="true">↗</span>
             </button>
             <button type="button" onClick={() => openWindow("book")}>
               <strong>Start a project</strong>
               <span>Prepare a concise project brief</span>
+              <span className="os-now-action-arrow" aria-hidden="true">↗</span>
             </button>
           </nav>
           <dl className="os-signal-list">
@@ -2393,9 +2451,7 @@ export default function WorkbenchOSV3({
             <div><dt>Trekky.app</dt><dd>Current product</dd></div>
             <div><dt>Consulting</dt><dd>Open</dd></div>
           </dl>
-          <p className="os-now-foot" aria-hidden="true">
-            NZT {time} · Hamilton, New Zealand
-          </p>
+          <p className="os-now-foot">Find tools and experiments in the Applications menu.</p>
         </div>
       );
     }
@@ -2536,7 +2592,7 @@ export default function WorkbenchOSV3({
       };
       return (
         <div className="os-scratch">
-          <label htmlFor={scratchId}>Scratchpad</label>
+          <label htmlFor={scratchId}>Your note</label>
           <textarea
             id={scratchId}
             value={scratchText}
@@ -2661,10 +2717,10 @@ export default function WorkbenchOSV3({
             });
             if (outcome !== currentFiles) {
               replaceFiles(outcome);
-              setNotice(`Saved "${note.title}" in Archive.`);
+              setNotice(`Saved "${note.title}" in Files.`);
               return true;
             } else {
-              setNotice("Archive is full; could not save that note.");
+              setNotice("Files is full; could not save that note.");
               return false;
             }
           }}
@@ -2817,6 +2873,9 @@ export default function WorkbenchOSV3({
     (windowState) =>
       windowState.workspaceId === activeWorkspaceId && !windowState.minimized,
   );
+  const hasOpenWorkspaceWindows = mountedWindows.some(
+    (windowState) => windowState.workspaceId === activeWorkspaceId,
+  );
   const revealClipOrigin = `${Math.round(revealOrigin.x)}px ${Math.round(
     revealOrigin.y,
   )}px`;
@@ -2864,10 +2923,13 @@ export default function WorkbenchOSV3({
         Skip to active window
       </button>
       <WorkbenchMenuBar
-        activeAppLabel={activeWindow?.title ?? "Desktop"}
+        activeAppLabel={activeWindow ? getWindowDisplayTitle(activeWindow) : "Desktop"}
         backgroundInert={isModalSurfaceOpen}
         time={time}
         workspaceLabel={activeWorkspace.label}
+        workspaces={workspaces}
+        activeWorkspaceId={activeWorkspaceId}
+        onSwitchWorkspace={switchWorkspace}
         menus={menus}
         onOpenMissionControl={openAtlas}
         onOpenSearch={openPalette}
@@ -2898,7 +2960,7 @@ export default function WorkbenchOSV3({
           if (
             isCompact ||
             target.closest(
-              ".os-window, .os-dock, .os-desktop-icons, .os-system-notice, .os-context-menu",
+              ".os-window, .os-dock, .os-workspace-map, .os-desktop-icons, .os-system-notice, .os-context-menu",
             )
           ) {
             return;
@@ -2910,10 +2972,38 @@ export default function WorkbenchOSV3({
           });
         }}
       >
-        <div className="os-field-copy" aria-hidden="true">
-          <span>SAM / PERSONAL WORKBENCH</span>
-          <strong>Build.<br />Ship.<br />Learn.</strong>
-        </div>
+        <nav
+          className="os-workspace-map"
+          aria-label="Workspace shortcuts"
+          aria-hidden={isPaletteOpen || undefined}
+          inert={isPaletteOpen || undefined}
+        >
+          <div className="os-workspace-map-heading">
+            <span>Personal workbench</span>
+            <span>Switch workspace</span>
+          </div>
+          <strong className="os-workspace-watermark" aria-hidden="true">{activeWorkspace.label}.</strong>
+          <div className="os-workspace-map-routes">
+            {workspaces.map((workspace, index) => {
+              const openCount = session.windows.filter(
+                (windowState) => windowState.workspaceId === workspace.id && windowState.open,
+              ).length;
+              return (
+                <button
+                  key={workspace.id}
+                  type="button"
+                  aria-pressed={workspace.id === activeWorkspaceId}
+                  title={workspace.description}
+                  onClick={() => switchWorkspace(workspace.id)}
+                >
+                  <span>{workspace.label}<kbd>Alt {index + 1}</kbd></span>
+                  <small>{openCount ? `${openCount} open ${openCount === 1 ? "window" : "windows"}` : "No open windows"}</small>
+                </button>
+              );
+            })}
+          </div>
+          <p>{activeWorkspace.description}</p>
+        </nav>
         <span className="os-coordinate os-coordinate-top" aria-hidden="true">
           {activeWorkspace.label} / {visibleWindows.length.toString().padStart(2, "0")} LIVE
         </span>
@@ -2932,68 +3022,30 @@ export default function WorkbenchOSV3({
             className="os-desktop-object"
             onClick={() => openArchiveAt(ROOT_FILE_ID)}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">AR</span>
-            <span>Archive</span>
-          </button>
-          <button type="button" className="os-desktop-object" onClick={openAtlas}>
-            <span className="os-desktop-object-mark" aria-hidden="true">AT</span>
-            <span>Atlas</span>
-          </button>
-          <button
-            type="button"
-            className="os-desktop-object"
-            onClick={() => openWindow("lab")}
-          >
-            <span className="os-desktop-object-mark" aria-hidden="true">SS</span>
-            <span>Subsurface</span>
-          </button>
-          <button
-            type="button"
-            className="os-desktop-object"
-            onClick={() => openWindow("railshift")}
-          >
-            <span className="os-desktop-object-mark" aria-hidden="true">RS</span>
-            <span>Railshift</span>
-          </button>
-          <button
-            type="button"
-            className="os-desktop-object"
-            onClick={() => openWindow("pulse")}
-          >
-            <span className="os-desktop-object-mark" aria-hidden="true">PX</span>
-            <span>Pulse</span>
-          </button>
-          <button
-            type="button"
-            className="os-desktop-object"
-            onClick={() => openWindow("book")}
-          >
-            <span className="os-desktop-object-mark" aria-hidden="true">BR</span>
-            <span>Brief</span>
+            <span className="os-desktop-object-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M3 6h7l2 3h9v11H3Z" /><path d="M3 9h9" /></svg>
+            </span>
+            <span>{getWorkbenchApp("archive").label}</span>
           </button>
           <button
             type="button"
             className="os-desktop-object"
             onClick={() => openWindow("sandbox")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">SY</span>
-            <span>Systems</span>
-          </button>
-          <button
-            type="button"
-            className="os-desktop-object"
-            onClick={() => openWindow("agent")}
-          >
-            <span className="os-desktop-object-mark" aria-hidden="true">AG</span>
-            <span>Agent</span>
+            <span className="os-desktop-object-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M4 4h16v16H4zM4 9h16M10 9v11" /></svg>
+            </span>
+            <span>{getWorkbenchApp("sandbox").label}</span>
           </button>
           <button
             type="button"
             className="os-desktop-object"
             onClick={() => openWindow("control")}
           >
-            <span className="os-desktop-object-mark" aria-hidden="true">CC</span>
-            <span>Control</span>
+            <span className="os-desktop-object-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M6 3v5m0 5v8M12 3v10m0 5v3M18 3v3m0 5v10M3 8h6v5H3zM9 13h6v5H9zM15 6h6v5h-6z" /></svg>
+            </span>
+            <span>{getWorkbenchApp("control").label}</span>
           </button>
         </nav>
 
@@ -3036,14 +3088,19 @@ export default function WorkbenchOSV3({
             aria-hidden={isPaletteOpen || undefined}
             inert={isPaletteOpen || undefined}
           >
-            <p>{activeWorkspace.label} is clear.</p>
-            <button type="button" onClick={() => openWindow("now")}>Open Now</button>
-            <button type="button" onClick={openPalette}>Search Workbench</button>
+            <p>{hasOpenWorkspaceWindows
+              ? "Your windows are minimized. Reopen one from the taskbar."
+              : `No apps open in ${activeWorkspace.label}.`}</p>
+            {!hasOpenWorkspaceWindows && (
+              <button type="button" onClick={() => openWindow("now")}>About Sam</button>
+            )}
+            <button type="button" onClick={openApplications}>Open Applications</button>
           </div>
         )}
 
         <AnimatePresence>
           {mountedWindows.map((windowState, renderIndex) => {
+            const displayTitle = getWindowDisplayTitle(windowState);
             const isActive = activeInstanceId === windowState.instanceId;
             const isWorkspaceHidden =
               windowState.workspaceId !== activeWorkspaceId;
@@ -3074,7 +3131,7 @@ export default function WorkbenchOSV3({
                 key={windowState.instanceId}
                 style={style}
                 role="region"
-                aria-label={`${windowState.title} window`}
+                aria-label={`${displayTitle} window`}
                 aria-hidden={
                   isPresentationHidden || isPaletteOpen ? true : undefined
                 }
@@ -3117,9 +3174,9 @@ export default function WorkbenchOSV3({
                   onPointerDown={(event) => startDrag(event, windowState.instanceId)}
                   onDoubleClick={() => toggleMaximize(windowState.instanceId)}
                 >
-                  <span>{windowState.title}</span>
+                  <span className="os-window-title">{displayTitle}</span>
                   <span className="os-window-state">
-                    {isActive ? "Active" : "Standby"}
+                    {isActive ? "Active" : ""}
                   </span>
                   <div
                     className="os-window-controls"
@@ -3127,26 +3184,29 @@ export default function WorkbenchOSV3({
                   >
                     <button
                       type="button"
-                      aria-label={`Minimize ${windowState.title} window`}
+                      aria-label={`Minimize ${displayTitle} window`}
+                      title="Minimize to taskbar"
                       onClick={() => minimizeWindow(windowState.instanceId)}
                     >
-                      Minimize
+                      <span aria-hidden="true">−</span>
                     </button>
                     <button
                       type="button"
                       aria-label={`${
                         windowState.maximized ? "Restore" : "Maximize"
-                      } ${windowState.title} window`}
+                      } ${displayTitle} window`}
+                      title={windowState.maximized ? "Restore window size" : "Maximize window"}
                       onClick={() => toggleMaximize(windowState.instanceId)}
                     >
-                      {windowState.maximized ? "Restore" : "Maximize"}
+                      <span aria-hidden="true">{windowState.maximized ? "❐" : "□"}</span>
                     </button>
                     <button
                       type="button"
-                      aria-label={`Close ${windowState.title} window`}
+                      aria-label={`Close ${displayTitle} window`}
+                      title="Close window"
                       onClick={() => closeWindow(windowState.instanceId)}
                     >
-                      Close
+                      <span aria-hidden="true">×</span>
                     </button>
                   </div>
                 </div>
@@ -3154,7 +3214,7 @@ export default function WorkbenchOSV3({
                   className={`os-window-content os-app-${windowState.appId}`}
                   tabIndex={0}
                   role="region"
-                  aria-label={`${windowState.title} content`}
+                  aria-label={`${displayTitle} content`}
                 >
                   <WorkbenchAppBoundary resetKey={windowState.instanceId}>
                     {renderApp(windowState)}
@@ -3164,7 +3224,7 @@ export default function WorkbenchOSV3({
                   <button
                     type="button"
                     className="os-window-resize"
-                    aria-label={`Resize ${windowState.title} window`}
+                    aria-label={`Resize ${displayTitle} window`}
                     onPointerDown={(event) =>
                       startResize(event, windowState.instanceId)
                     }
@@ -3197,10 +3257,17 @@ export default function WorkbenchOSV3({
           aria-hidden={isPaletteOpen || undefined}
           inert={isPaletteOpen || undefined}
         >
-          <div className="os-dock-label">
-            <span>{activeWorkspace.label}</span>
-            <span>Choose an application</span>
-          </div>
+          <button
+            type="button"
+            className="os-applications-trigger"
+            onClick={openApplications}
+            aria-haspopup="dialog"
+            aria-expanded={isPaletteOpen && isAppLauncher}
+          >
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M2 2h5v5H2zM13 2h5v5h-5zM2 13h5v5H2zM13 13h5v5h-5z" /></svg>
+            <span>Applications</span>
+          </button>
+          <div className="os-running-apps">
           {workbenchApps.map((app) => {
             const instances = session.windows.filter(
               (windowState) =>
@@ -3208,11 +3275,10 @@ export default function WorkbenchOSV3({
                 windowState.workspaceId === activeWorkspaceId,
             );
             const openInstances = instances.filter((windowState) => windowState.open);
+            if (!openInstances.length) return null;
             const isAppActive = activeWindow?.appId === app.id;
-            const status = !openInstances.length
-              ? "Closed"
-              : openInstances.every((windowState) => windowState.minimized)
-                ? "Suspended"
+            const status = openInstances.every((windowState) => windowState.minimized)
+                ? "Minimized"
                 : isAppActive
                   ? "Active"
                   : "Running";
@@ -3224,6 +3290,7 @@ export default function WorkbenchOSV3({
                 }}
                 type="button"
                 className={isAppActive ? "is-active" : undefined}
+                data-status={status.toLowerCase()}
                 data-instance-count={
                   openInstances.length > 1 ? openInstances.length : undefined
                 }
@@ -3245,6 +3312,11 @@ export default function WorkbenchOSV3({
               </button>
             );
           })}
+          {!hasOpenWorkspaceWindows && (
+            <span className="os-taskbar-empty">No open apps in {activeWorkspace.label}</span>
+          )}
+          </div>
+          <span className="os-taskbar-hint">{activeWorkspace.label} workspace</span>
         </nav>
 
         {contextMenu && (
@@ -3285,10 +3357,10 @@ export default function WorkbenchOSV3({
           >
             <span>{activeWorkspace.label} / Desktop</span>
             <button type="button" role="menuitem" onClick={openPalette}>
-              Search Workbench <kbd>Ctrl K</kbd>
+              Find an app or file <kbd>Ctrl K</kbd>
             </button>
             <button type="button" role="menuitem" onClick={openAtlas}>
-              Open Atlas <kbd>F3</kbd>
+              Window overview <kbd>F3</kbd>
             </button>
             <button type="button" role="menuitem" onClick={tidyCurrentWorkspace}>
               Tidy workspace
@@ -3298,14 +3370,14 @@ export default function WorkbenchOSV3({
               role="menuitem"
               onClick={() => openWindow("archive", { forceNew: true })}
             >
-              New Archive window
+              New Files window
             </button>
             <button
               type="button"
               role="menuitem"
               onClick={() => openWindow("control")}
             >
-              Open Control
+              Settings
             </button>
           </div>
         )}
@@ -3313,19 +3385,20 @@ export default function WorkbenchOSV3({
         <AnimatePresence>
           {isPaletteOpen && (
             <m.div
-              className="os-palette-backdrop"
+              className={`os-palette-backdrop${isAppLauncher ? " is-launcher" : ""}`}
               initial={prefersReducedMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.16 }}
               onPointerDown={(event) => {
                 if (event.currentTarget === event.target) closePalette();
               }}
             >
               <m.section
-                className="os-palette"
+                className={`os-palette${isAppLauncher ? " os-app-launcher" : ""}`}
                 role="dialog"
                 aria-modal="true"
-                aria-label="Search the Workbench"
+                aria-label={isAppLauncher ? "Applications" : "Search the Workbench"}
                 initial={
                   prefersReducedMotion
                     ? false
@@ -3337,14 +3410,15 @@ export default function WorkbenchOSV3({
                     ? { opacity: 0 }
                     : { opacity: 0, y: -8 }
                 }
+                transition={{ duration: prefersReducedMotion ? 0 : 0.16 }}
               >
                 <div className="os-palette-search">
-                  <label htmlFor="workbench-system-search">Search everything</label>
+                  <label htmlFor="workbench-system-search">{isAppLauncher ? "Applications" : "Search everything"}</label>
                   <button
                     type="button"
                     className="os-palette-close"
                     onClick={closePalette}
-                    aria-label="Close Workbench search"
+                    aria-label={isAppLauncher ? "Close Applications" : "Close Workbench search"}
                   >
                     Close <kbd aria-hidden="true">Esc</kbd>
                   </button>
@@ -3404,10 +3478,27 @@ export default function WorkbenchOSV3({
                         if (action) runPaletteAction(action);
                       }
                     }}
-                    placeholder="Apps, windows, workspaces, files, commands"
+                    placeholder={isAppLauncher ? "Find an application…" : "Find apps, windows or files…"}
                     autoComplete="off"
                   />
                 </div>
+                {isAppLauncher && (
+                  <div className="os-launcher-categories" role="group" aria-label="Application categories">
+                    {(["All", ...dockGroupLabels] as const).map((group) => (
+                      <button
+                        type="button"
+                        key={group}
+                        aria-pressed={launcherGroup === group}
+                        onClick={() => {
+                          setLauncherGroup(group);
+                          setPaletteActiveIndex(0);
+                        }}
+                      >
+                        {group}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div
                   className="os-palette-results"
                   id="workbench-system-search-results"
@@ -3431,12 +3522,12 @@ export default function WorkbenchOSV3({
                         onFocus={() => setPaletteActiveIndex(index)}
                         onClick={() => runPaletteAction(action)}
                       >
-                        <span>{action.label}</span>
+                        <span>{isAppLauncher && action.appId ? getWorkbenchApp(action.appId).label : action.label}</span>
                         <span>{action.meta}</span>
                       </button>
                     ))
                   ) : (
-                    <p>No local result matches “{paletteQuery}”.</p>
+                    <p>No {isAppLauncher ? "application" : "result"} matches “{paletteQuery}”.</p>
                   )}
                 </div>
               </m.section>
@@ -3527,7 +3618,10 @@ export default function WorkbenchOSV3({
         open={isAtlasOpen}
         currentWorkspaceId={activeWorkspaceId}
         workspaces={workspaces}
-        windows={session.windows.filter((windowState) => windowState.open)}
+        windows={session.windows.filter((windowState) => windowState.open).map((windowState) => ({
+          ...windowState,
+          title: getWindowDisplayTitle(windowState),
+        }))}
         onSelect={selectAtlasWindow}
         onRestoreAll={restoreAtlasWorkspace}
         onSwitchWorkspace={(workspaceId) => {

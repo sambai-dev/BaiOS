@@ -4,7 +4,6 @@
 "use client";
 
 import {
-  type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   useId,
@@ -131,6 +130,7 @@ export default function WorkbenchMissionControl({
 }: WorkbenchMissionControlProps) {
   const titleId = useId();
   const descriptionId = useId();
+  const selectionHintId = useId();
   const panelId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -165,7 +165,9 @@ export default function WorkbenchMissionControl({
       const firstWindow = dialogRef.current?.querySelector<HTMLElement>(
         "[data-mission-window]",
       );
-      (firstWindow ?? closeButtonRef.current ?? dialogRef.current)?.focus();
+      (firstWindow ?? closeButtonRef.current ?? dialogRef.current)?.focus({
+        preventScroll: true,
+      });
     });
 
     return () => {
@@ -252,23 +254,23 @@ export default function WorkbenchMissionControl({
       >
         <header className="mission-control-header">
           <div>
-            <h2 id={titleId}>All working surfaces.</h2>
+            <h2 id={titleId}>Window overview</h2>
             <p id={descriptionId} className="mission-control-description">
-              Atlas maps every workspace. Focus clears the stage around one
-              surface; Raise preserves the current stack.
+              Find an open window or switch workspaces. Choose what happens when
+              you select a window below.
             </p>
           </div>
           <div className="mission-control-header-meta">
             <p>
-              {windows.length.toString().padStart(2, "0")} windows ·{" "}
-              {workspaces.length.toString().padStart(2, "0")} spaces
+              {windows.length} {windows.length === 1 ? "window" : "windows"} ·{" "}
+              {workspaces.length} workspaces
             </p>
             <button
               ref={closeButtonRef}
               type="button"
               className="mission-control-close"
               onClick={onClose}
-              aria-label="Close Atlas"
+              aria-label="Close window overview"
             >
               Close <span aria-hidden="true">Esc</span>
             </button>
@@ -303,7 +305,7 @@ export default function WorkbenchMissionControl({
                 }
               >
                 <span>{workspace.label}</span>
-                <span>{workspaceWindowCount.toString().padStart(2, "0")}</span>
+                <span>{workspaceWindowCount}</span>
               </button>
             );
           })}
@@ -319,11 +321,11 @@ export default function WorkbenchMissionControl({
             <div>
               <p>{currentWorkspace?.label ?? "Current workspace"}</p>
               <p>
-                {runningWindowCount.toString().padStart(2, "0")} running
+                {runningWindowCount} visible
                 {suspendedWindowCount > 0 && (
                   <>
                     {" · "}
-                    {suspendedWindowCount.toString().padStart(2, "0")} suspended
+                    {suspendedWindowCount} minimized
                   </>
                 )}
               </p>
@@ -331,31 +333,40 @@ export default function WorkbenchMissionControl({
             <div
               className="mission-control-actions"
               role="group"
-              aria-label="Atlas selection behavior"
+              aria-label="What happens when you select a window"
+              aria-describedby={selectionHintId}
             >
               <button
                 type="button"
                 aria-pressed={selectionMode === "focus"}
+                title="Show the selected window and minimize the others"
                 onClick={() => setSelectionMode("focus")}
               >
-                Focus
+                Focus one
               </button>
               <button
                 type="button"
                 aria-pressed={selectionMode === "raise"}
+                title="Show the selected window and keep the others visible"
                 onClick={() => setSelectionMode("raise")}
               >
-                Raise
+                Bring to front
               </button>
               <button
                 type="button"
                 onClick={onRestoreAll}
+                title="Restore all minimized windows in this workspace"
                 disabled={suspendedWindowCount === 0}
               >
                 Show all
               </button>
             </div>
           </div>
+          <p id={selectionHintId} className="mission-control-selection-hint" aria-live="polite">
+            {selectionMode === "focus"
+              ? "Select a window to show it on its own. The other windows will be minimized."
+              : "Select a window to bring it to the front. The other windows stay visible."}
+          </p>
 
           {visibleWindows.length > 0 ? (
             <div
@@ -369,14 +380,6 @@ export default function WorkbenchMissionControl({
                   className={`mission-window-preview${
                     windowState.minimized ? " is-minimized" : ""
                   }`}
-                  style={
-                    {
-                      "--mission-window-aspect":
-                        Math.max(1, windowState.width) +
-                        " / " +
-                        Math.max(1, windowState.height),
-                    } as CSSProperties
-                  }
                   data-mission-window={windowState.instanceId}
                   onClick={() =>
                     onSelect(windowState.instanceId, selectionMode)
@@ -405,8 +408,8 @@ export default function WorkbenchMissionControl({
                     (selectionMode === "focus"
                       ? "Focus only"
                       : windowState.minimized
-                        ? "Restore and raise"
-                        : "Raise") +
+                        ? "Restore and bring to front:"
+                        : "Bring to front:") +
                     " " +
                     windowState.title
                   }
@@ -420,7 +423,7 @@ export default function WorkbenchMissionControl({
                   >
                     <span className="mission-window-chrome">
                       <span />
-                      <span>{windowState.appId}</span>
+                      <span>{windowState.title}</span>
                     </span>
                     <span className="mission-window-geometry">
                       <span className="mission-geometry-rail" />
@@ -431,36 +434,27 @@ export default function WorkbenchMissionControl({
                       <span className="mission-geometry-line mission-geometry-line-c" />
                     </span>
                     {windowState.minimized && (
-                      <span className="mission-window-suspended">Suspended</span>
+                      <span className="mission-window-suspended">Minimized</span>
                     )}
                   </span>
                   <span className="mission-window-caption">
                     <span>
                       <strong>{windowState.title}</strong>
-                      <small>{windowState.appId}</small>
+                      <small>{windowState.minimized ? "Minimized" : "Visible"}</small>
                     </span>
-                    <span>
-                      <small>
-                        {Math.round(windowState.width)}×
-                        {Math.round(windowState.height)}
-                      </small>
-                      <small>Z{windowState.z}</small>
-                      <small>
-                        {selectionMode === "focus" ? "Focus only" : "Raise"}
-                      </small>
-                    </span>
+                    <span className="mission-window-open" aria-hidden="true">↗</span>
                   </span>
                 </button>
               ))}
             </div>
           ) : (
             <div className="mission-control-empty">
-              <span aria-hidden="true">00</span>
+              <span aria-hidden="true">0</span>
               <div>
-                <h3>Nothing is staged here.</h3>
+                <h3>No open windows</h3>
                 <p>
-                  This workspace is clear. Choose another space or close
-                  Atlas to open an application.
+                  Switch to another workspace, or close this overview and use
+                  Applications to open something here.
                 </p>
               </div>
             </div>

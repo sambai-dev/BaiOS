@@ -46,15 +46,15 @@ describe("workbench session defaults", () => {
 
   it("keeps truthful proof-surface identities on stable ids and aliases", () => {
     expect(getWorkbenchApp("book")).toMatchObject({
-      label: "Brief",
+      label: "Project brief",
       keywords: expect.arrayContaining(["book", "consult", "scope"]),
     });
     expect(getWorkbenchApp("sandbox")).toMatchObject({
-      label: "Systems",
+      label: "Projects",
       keywords: expect.arrayContaining(["sandbox", "case study"]),
     });
     expect(getWorkbenchApp("agent")).toMatchObject({
-      label: "Agent",
+      label: "AI assistant",
     });
   });
 

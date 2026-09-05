@@ -41,33 +41,28 @@
 }
 
 .mission-control-description,
+.mission-control-selection-hint,
 .mission-control-header-meta p,
 .mission-control-panel-heading p,
 .mission-window-caption,
 .mission-control-workspaces button {
-  font-family: var(--font-data), monospace;
-}
-
-.mission-control-header-meta p,
-.mission-control-panel-heading p,
-.mission-control-workspaces button {
-  text-transform: uppercase;
+  font-family: var(--font-body), sans-serif;
 }
 
 .mission-control-header h2 {
   margin: 0;
   font-family: var(--font-display), sans-serif;
-  font-size: clamp(2.1rem, 4vw, 4.4rem);
+  font-size: clamp(1.8rem, 3.1vw, 3.25rem);
   font-weight: 400;
-  line-height: 0.86;
+  line-height: 1.08;
   letter-spacing: -0.04em;
 }
 
 .mission-control-description {
-  max-width: 48rem;
+  max-width: 46rem;
   margin: 0.9rem 0 0;
   color: #4a4a43;
-  font-size: 0.66rem;
+  font-size: 0.9rem;
   line-height: 1.55;
 }
 
@@ -82,20 +77,19 @@
 .mission-control-header-meta p {
   margin: 0;
   color: #606058;
-  font-size: 0.58rem;
+  font-size: 0.78rem;
 }
 
 .mission-control-close {
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   padding: 0 0.8rem;
   color: var(--ivory);
   background: var(--carbon);
   border: 1px solid var(--carbon);
   border-radius: 0;
   cursor: pointer;
-  font-family: var(--font-data), monospace;
-  font-size: 0.6rem;
-  text-transform: uppercase;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.84rem;
   transition: color 150ms ease, background 150ms ease;
 }
 
@@ -127,17 +121,17 @@
 .mission-control-workspaces button {
   display: flex;
   min-width: 10rem;
-  min-height: 3rem;
+  min-height: 3.4rem;
   flex: 1 0 auto;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.9rem;
+  padding: 0 1.1rem;
   color: var(--ivory-muted);
   background: transparent;
   border-right: 1px solid var(--rule-light);
   border-radius: 0;
   cursor: pointer;
-  font-size: 0.58rem;
+  font-size: 0.86rem;
   transition: color 150ms ease, background 150ms ease;
 }
 
@@ -188,7 +182,7 @@
 .mission-control-panel-heading p {
   margin: 0;
   color: #55554e;
-  font-size: 0.58rem;
+  font-size: 0.82rem;
 }
 
 .mission-control-panel-heading p:first-child {
@@ -202,17 +196,17 @@
 }
 
 .mission-control-actions button {
-  min-height: 2.25rem;
-  padding: 0 0.7rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.9rem;
   color: var(--carbon);
   background: transparent;
   border: 1px solid var(--carbon);
   border-right: 0;
   border-radius: 0;
   cursor: pointer;
-  font-family: var(--font-data), monospace;
-  font-size: 0.58rem;
-  text-transform: uppercase;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.25;
   transition: color 150ms ease, background 150ms ease;
 }
 
@@ -239,6 +233,13 @@
   background: rgba(17, 17, 15, 0.06);
   cursor: not-allowed;
   opacity: 0.42;
+}
+
+.mission-control-selection-hint {
+  margin: 0.75rem 0 0;
+  color: #55554e;
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
 
 .mission-control-grid {
@@ -328,7 +329,8 @@
   position: relative;
   display: grid;
   min-height: 0;
-  aspect-ratio: var(--mission-window-aspect, 1);
+  max-height: 12rem;
+  aspect-ratio: 16 / 10;
   margin: 0.8rem 0.8rem 0;
   overflow: hidden;
   grid-template-rows: 1.55rem minmax(0, 1fr);
@@ -347,9 +349,8 @@
   color: var(--ivory-muted);
   background: var(--carbon);
   border-bottom: 1px solid var(--rule-light);
-  font-family: var(--font-data), monospace;
-  font-size: 0.45rem;
-  text-transform: uppercase;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.64rem;
 }
 
 .mission-window-chrome > span:first-child {
@@ -537,10 +538,9 @@
   padding: 0.42rem;
   color: var(--ivory);
   background: var(--carbon);
-  font-family: var(--font-data), monospace;
-  font-size: 0.48rem;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.72rem;
   text-align: center;
-  text-transform: uppercase;
 }
 
 .mission-window-caption {
@@ -560,24 +560,25 @@
   gap: 0.18rem;
 }
 
-.mission-window-caption > span:last-child {
+.mission-window-caption > .mission-window-open {
+  flex: 0 0 auto;
   align-items: flex-end;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .mission-window-caption strong {
   overflow: hidden;
-  font-size: 0.64rem;
+  font-size: 0.86rem;
   font-weight: 700;
   text-overflow: ellipsis;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .mission-window-caption small {
   color: #5c5c55;
-  font-size: 0.48rem;
-  line-height: 1.2;
-  text-transform: uppercase;
+  font-size: 0.72rem;
+  line-height: 1.35;
 }
 
 .mission-window-preview:hover .mission-window-caption small,
@@ -674,13 +675,13 @@
   }
 
   .mission-control-header h2 {
-    font-size: clamp(2.25rem, 12vw, 3.4rem);
+    font-size: clamp(1.8rem, 7vw, 2.5rem);
   }
 
   .mission-control-description {
     max-width: 36rem;
     margin-top: 0.65rem;
-    font-size: 0.58rem;
+    font-size: 0.85rem;
   }
 
   .mission-control-header-meta {
@@ -691,7 +692,7 @@
   }
 
   .mission-control-close {
-    min-height: 2.25rem;
+    min-height: 2.75rem;
   }
 
   .mission-control-close span {
@@ -702,6 +703,9 @@
     min-width: 0;
     min-height: 2.75rem;
     flex: 1 1 0;
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+    font-size: 0.8rem;
   }
 
   .mission-control-panel {
@@ -734,10 +738,6 @@
 
   .mission-window-caption {
     padding: 0.6rem 0.5rem;
-  }
-
-  .mission-window-caption > span:last-child small:first-child {
-    display: none;
   }
 
   .mission-control-empty {

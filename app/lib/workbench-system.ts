@@ -78,18 +78,18 @@ export const workspaces: Array<{
 }> = [
   {
     id: "build",
-    label: "Build",
-    description: "Company, systems, and the current shipping surface.",
+    label: "Work",
+    description: "About Sam, current projects, and ways to get in touch.",
   },
   {
     id: "field",
-    label: "Field",
-    description: "Interactive experiments and spatial tools.",
+    label: "Playground",
+    description: "Games, interactive experiments, and tools to explore.",
   },
   {
     id: "notes",
     label: "Notes",
-    description: "Archive, working documents, and local scratch space.",
+    description: "Notes and files saved in this browser.",
   },
 ];
 
@@ -102,19 +102,19 @@ export const workbenchThemes: Array<{
   {
     id: "cobalt",
     label: "Cobalt",
-    description: "The original operational route light.",
+    description: "Blue desktop with green highlights.",
     swatch: "#4c5ce5",
   },
   {
     id: "oxide",
     label: "Oxide",
-    description: "A warmer field for late working sessions.",
+    description: "Warm orange desktop with amber highlights.",
     swatch: "#ba5b3f",
   },
   {
     id: "graphite",
     label: "Graphite",
-    description: "A quieter neutral system with blue-white focus.",
+    description: "Grey desktop with pale blue highlights.",
     swatch: "#515963",
   },
 ];
@@ -122,9 +122,9 @@ export const workbenchThemes: Array<{
 export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "now",
-    label: "Now",
-    summary: "Current operating context.",
-    keywords: ["current", "solynth", "trekky", "consulting"],
+    label: "Welcome",
+    summary: "Meet Sam and explore what he is working on.",
+    keywords: ["now", "about", "current", "solynth", "trekky", "consulting"],
     supportsMultiple: false,
     defaultWidth: 540,
     defaultHeight: 500,
@@ -133,9 +133,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "stack",
-    label: "Stack",
-    summary: "Production systems and tooling.",
-    keywords: ["react", "next", "typescript", "cloudflare", "mobile"],
+    label: "Tech stack",
+    summary: "The languages, frameworks, and tools Sam uses.",
+    keywords: ["stack", "react", "next", "typescript", "cloudflare", "mobile"],
     supportsMultiple: false,
     defaultWidth: 400,
     defaultHeight: 355,
@@ -144,9 +144,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "method",
-    label: "Method",
-    summary: "Clarify, shape, ship, and learn.",
-    keywords: ["process", "product", "decision", "delivery"],
+    label: "How I work",
+    summary: "How Sam takes an idea from first questions to delivery.",
+    keywords: ["method", "process", "product", "decision", "delivery"],
     supportsMultiple: false,
     defaultWidth: 395,
     defaultHeight: 205,
@@ -155,9 +155,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "scratch",
-    label: "Scratch",
-    summary: "A local browser notebook.",
-    keywords: ["note", "text", "idea", "draft"],
+    label: "Notes",
+    summary: "Write a note saved in this browser.",
+    keywords: ["scratch", "note", "text", "idea", "draft"],
     supportsMultiple: true,
     defaultWidth: 395,
     defaultHeight: 205,
@@ -166,9 +166,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "console",
-    label: "Console",
-    summary: "A command surface for the system.",
-    keywords: ["terminal", "command", "help", "system"],
+    label: "Terminal",
+    summary: "Use text commands to open apps and manage this desktop.",
+    keywords: ["console", "terminal", "command", "help", "system"],
     supportsMultiple: false,
     defaultWidth: 400,
     defaultHeight: 205,
@@ -177,9 +177,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "links",
-    label: "Links",
-    summary: "Company, product, and contact routes.",
-    keywords: ["email", "github", "linkedin", "resume"],
+    label: "Contact & links",
+    summary: "Email Sam, view his résumé, or visit his work.",
+    keywords: ["links", "email", "github", "linkedin", "resume"],
     supportsMultiple: false,
     defaultWidth: 390,
     defaultHeight: 300,
@@ -188,9 +188,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "pulse",
-    label: "Pulse",
-    summary: "A CoinGecko-powered 24-hour crypto market monitor.",
-    keywords: ["crypto", "bitcoin", "ethereum", "price", "market", "coingecko"],
+    label: "Market monitor",
+    summary: "Check crypto prices and 24-hour changes from CoinGecko.",
+    keywords: ["pulse", "crypto", "bitcoin", "ethereum", "price", "market", "coingecko"],
     supportsMultiple: false,
     defaultWidth: 760,
     defaultHeight: 460,
@@ -199,10 +199,11 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "book",
-    label: "Brief",
-    summary: "Prepare a factual project enquiry with service area, focus, timing, and context.",
+    label: "Project brief",
+    summary: "Outline your project and prepare an email enquiry.",
     keywords: [
       "project brief",
+      "brief",
       "book",
       "consult",
       "consultation",
@@ -222,8 +223,8 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "sandbox",
-    label: "Systems",
-    summary: "Documented product systems and an interactive motion simulation.",
+    label: "Projects",
+    summary: "Explore Trekky, this desktop, and a motion simulation.",
     keywords: [
       "systems",
       "sandbox",
@@ -243,8 +244,8 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "agent",
-    label: "Agent",
-    summary: "Model-stream interface with transparent request lifecycle.",
+    label: "AI assistant",
+    summary: "Send a prompt to an AI model and read its response.",
     keywords: [
       "agent",
       "ai",
@@ -264,7 +265,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "lab",
     label: "Subsurface",
-    summary: "A live depth-control experiment.",
+    summary: "Keep a small craft afloat and avoid obstacles.",
     keywords: ["game", "canvas", "depth", "sonar"],
     supportsMultiple: false,
     defaultWidth: 650,
@@ -275,7 +276,7 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   {
     id: "railshift",
     label: "Railshift",
-    summary: "A high-speed three-lane signal runner.",
+    summary: "Switch lanes, jump, and duck in an arcade runner.",
     keywords: ["game", "runner", "rail", "arcade", "canvas", "score"],
     supportsMultiple: false,
     defaultWidth: 720,
@@ -285,9 +286,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "vector",
-    label: "Vector",
-    summary: "A spatial vector calculator.",
-    keywords: ["3d", "calculator", "math", "canvas"],
+    label: "Vector lab",
+    summary: "Explore two 3D vectors and calculate their products.",
+    keywords: ["vector", "3d", "calculator", "math", "canvas"],
     supportsMultiple: true,
     defaultWidth: 720,
     defaultHeight: 450,
@@ -296,9 +297,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "archive",
-    label: "Archive",
-    summary: "A writable local filesystem.",
-    keywords: ["files", "folders", "notes", "documents", "local archive"],
+    label: "Files",
+    summary: "Create and organize notes and folders in this browser.",
+    keywords: ["archive", "files", "folders", "notes", "documents", "local archive"],
     supportsMultiple: true,
     defaultWidth: 760,
     defaultHeight: 470,
@@ -307,8 +308,8 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "search",
-    label: "Search",
-    summary: "Wikipedia-backed lookup with a save-to-Archive handoff.",
+    label: "Web search",
+    summary: "Search Wikipedia and save useful results to Files.",
     keywords: ["search", "lookup", "summary", "wikipedia", "archive", "find"],
     supportsMultiple: false,
     defaultWidth: 640,
@@ -318,9 +319,9 @@ export const workbenchApps: WorkbenchAppDefinition[] = [
   },
   {
     id: "control",
-    label: "Control",
-    summary: "Theme, workspace, and session controls.",
-    keywords: ["settings", "theme", "session", "workspace", "restore"],
+    label: "Settings",
+    summary: "Change the theme, manage workspaces, and back up your data.",
+    keywords: ["control", "settings", "theme", "session", "workspace", "restore"],
     supportsMultiple: false,
     defaultWidth: 520,
     defaultHeight: 400,
