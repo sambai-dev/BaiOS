@@ -30,7 +30,7 @@ The writing uses a direct personal voice and specific descriptions. Headings, la
 
 The headline is “Sam designs and builds software.” The identity header gives Sam's name, Founder & Product Engineer role at Solynth Labs, Hamilton location, and New Zealand time. Hamilton coordinates appear beneath the headline.
 
-The footer contains Selected work, Direct, and Elsewhere. Selected work replaces the generic Site description with direct website links to Trekky, Rivet, and Clearfold plus All projects at `/work`. Direct links to Sam's email, Solynth Labs, and Open Workbench. Elsewhere links to GitHub, BaiOS Source, LinkedIn, and Résumé. The original giant headline remains unchanged; the headline and footer adapt to small screens.
+The footer contains Selected work, Direct, and Elsewhere. Selected work replaces the generic Site description with a direct website link to Trekky plus All projects at `/work`. Direct links to Sam's email, Solynth Labs, and Open Workbench. Elsewhere links to GitHub, BaiOS Source, LinkedIn, and Résumé. The original giant headline remains unchanged; the headline and footer adapt to small screens.
 
 Workbench remains available through the compact header tab and the Open Workbench footer link. Games, Market monitor, Vector lab, and the other desktop applications remain available through Workbench.
 
@@ -40,11 +40,11 @@ Personal Notes and visitor-created files remain local Workbench content.
 
 ## Project Pages
 
-The plain public directory at `/work` groups Products & web apps (Trekky, Rivet, Clearfold, Entangle, and RentAKL) and Open-source tools (Rookhold, Portly, and AgentScope). Rivet is a private workspace requiring sign-in, Clearfold is a preproduction preview, Entangle is a research tool, and RentAKL is a demo using sample listings. Visitors can open each website directly or read its project notes.
+The plain public directory at `/work` groups Products & web apps (Trekky, Entangle, and RentAKL) and Open-source tools (Rookhold, Portly, and AgentScope). Entangle is a research tool, and RentAKL is a demo using sample listings. Visitors can open each website directly or read its project notes.
 
-Nine public case pages describe those eight projects and BaiOS. Rivet, Clearfold, Entangle, and RentAKL join the five existing pages. Their content lives in `app/lib/project-case-studies.ts` and `app/lib/product-stories.ts` and renders through `app/work/[slug]/page.tsx`. Each page has a clear title and purpose, source-backed project details, useful links, and routes back to the portfolio and Workbench. The All projects link in each case-page header returns to `/work`.
+Seven public case pages describe those six projects and BaiOS. Entangle and RentAKL join the five existing pages. Their content lives in `app/lib/project-case-studies.ts` and `app/lib/product-stories.ts` and renders through `app/work/[slug]/page.tsx`. Each page has a clear title and purpose, source-backed project details, useful links, and routes back to the portfolio and Workbench. The All projects link in each case-page header returns to `/work`.
 
-First-person notes explain why Sam built each project, how it works, and the engineering decisions and tradeoffs in human language without em dashes. The four new pages are text-only and do not use invented interface images. Repository links are provided only for public source; private repositories are not linked.
+First-person notes explain why Sam built each project, how it works, and the engineering decisions and tradeoffs in human language without em dashes. The two new pages are text-only and do not use invented interface images. Repository links are provided only for public source; private repositories are not linked.
 
 Trekky's page uses light ivory surfaces and a genuine earlier light-theme sample dashboard, labeled as an empty sample board. Other project pages remain dark while sharing the same typography and controls.
 
@@ -118,7 +118,7 @@ Market monitor, Web search, and Ask about Sam make network requests. Their servi
 - Project pages: `app/work/[slug]/page.tsx`, `app/lib/project-case-studies.ts`, and `app/lib/product-stories.ts`.
 - Original thumbnails: `app/components/ProjectThumbnail.tsx`; interface and gameplay evidence: `public/portfolio-media/`.
 - Desktop, apps, games, renderers, state, and recovery: `app/components/`, `app/lib/`, and their tests.
-- Résumé: `public/resume/SamBai_Resume.8aa80702.pdf`.
+- Résumé: `public/resume/SamBai_Resume.562eb942.pdf`.
 - Company context: https://solynthlabs.com/; product context: https://trekky.app/.
 - Shared visual direction and component behavior: `DESIGN.md`.
 

@@ -410,18 +410,6 @@ def build():
         "Founded and run a New Zealand software studio; lead product discovery, architecture, implementation, deployment and client support.",
     )
 
-    add_product_header(doc, "Rivet", "Construction operations - client project", "Aug 2026 - Present")
-    add_bullet(
-        doc,
-        "Built and deployed a private construction-operations PWA for a New Zealand residential builder, joining project, task, exception, approval, calendar and notification workflows for the director and project managers.",
-        num_id,
-    )
-    add_bullet(
-        doc,
-        "Designed server-authoritative schedule proposals that reject stale changes and commit dates, audit records and notifications atomically; added scoped authentication and conflict-aware IndexedDB sync through transactional Hono APIs on Cloudflare Workers.",
-        num_id,
-    )
-
     add_product_header(doc, "Trekky", "Job-search product", "May 2026 - Present")
     add_bullet(
         doc,

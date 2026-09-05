@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/resume/SamBai_Resume.pdf",
-        destination: "/resume/SamBai_Resume.8aa80702.pdf",
+        destination: "/resume/SamBai_Resume.562eb942.pdf",
         permanent: false,
       },
     ];
@@ -59,7 +59,7 @@ const nextConfig: NextConfig = {
       {
         // The content hash is part of the filename, so this response can be
         // cached immutably without making the legacy stable URL stale.
-        source: "/resume/SamBai_Resume.8aa80702.pdf",
+        source: "/resume/SamBai_Resume.562eb942.pdf",
         headers: [
           {
             key: "Cache-Control",

@@ -89,7 +89,7 @@ Screenshots retain their native proportions on project pages. Dense interface ex
 
 “Sam designs and builds software.” leads the page in large ivory type with a cobalt full stop. Hamilton coordinates sit beneath the headline. The identity header names Sam, his role at Solynth Labs, Hamilton, New Zealand, and the local time.
 
-The footer has three groups separated from the hero by a fine rule. Selected work replaces the generic Site description with direct website links to Trekky, Rivet, and Clearfold and an All projects link to `/work`. Direct contains email, Solynth Labs, and Open Workbench. Elsewhere contains GitHub, BaiOS Source, LinkedIn, and Résumé. The original giant headline remains unchanged; the headline and footer reflow on narrow screens.
+The footer has three groups separated from the hero by a fine rule. Selected work replaces the generic Site description with a direct website link to Trekky and an All projects link to `/work`. Direct contains email, Solynth Labs, and Open Workbench. Elsewhere contains GitHub, BaiOS Source, LinkedIn, and Résumé. The original giant headline remains unchanged; the headline and footer reflow on narrow screens.
 
 The compact header tab and Open Workbench footer link offer the desktop as an optional next step.
 
@@ -103,9 +103,9 @@ Thumbnails are readable entry points rather than evidence of a product interface
 
 ## Public Project Pages
 
-The plain public directory at `/work` uses readable rows grouped into Products & web apps (Trekky, Rivet, Clearfold, Entangle, and RentAKL) and Open-source tools (Rookhold, Portly, and AgentScope). Status labels distinguish Rivet's private workspace requiring sign-in, Clearfold's preproduction preview, Entangle's research tool, and RentAKL's sample-listing demo. Direct website links and project-note links make their destinations clear. `project-directory.css` defines this surface.
+The plain public directory at `/work` uses readable rows grouped into Products & web apps (Trekky, Entangle, and RentAKL) and Open-source tools (Rookhold, Portly, and AgentScope). Status labels distinguish Entangle's research tool and RentAKL's sample-listing demo. Direct website links and project-note links make their destinations clear. `project-directory.css` defines this surface.
 
-Nine case pages cover those eight projects and BaiOS. Rivet, Clearfold, Entangle, and RentAKL join the five existing pages with text-only notes and no invented interface images. `project-case-studies.ts` and `product-stories.ts` supply the content. A project page combines a clear identity and purpose, factual details and links, readable first-person sections explaining the work, and navigation to the next project, portfolio, or Workbench. The All projects link in each case-page header returns to the directory. Source links appear only for public repositories.
+Seven case pages cover those six projects and BaiOS. Entangle and RentAKL join the five existing pages with text-only notes and no invented interface images. `project-case-studies.ts` and `product-stories.ts` supply the content. A project page combines a clear identity and purpose, factual details and links, readable first-person sections explaining the work, and navigation to the next project, portfolio, or Workbench. The All projects link in each case-page header returns to the directory. Source links appear only for public repositories.
 
 Trekky uses an ivory reading surface with dark ink and its genuine earlier light-theme sample dashboard. Other project pages use charcoal. Shared typography, square controls, cobalt actions, and layout keep these variants connected.
 

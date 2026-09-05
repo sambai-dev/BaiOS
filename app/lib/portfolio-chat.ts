@@ -16,22 +16,12 @@ export const PORTFOLIO_TOPICS = {
   products: {
     match: "overview of Sam's products, SaaS, websites, or selected work",
     answer:
-      "The product work includes Trekky for job search, Rivet for construction teams, Clearfold for digital-asset research, Entangle for quantum research, and RentAKL for exploring rentals. Their stages differ: Trekky is live, Rivet requires sign-in, Clearfold is a preview, and RentAKL uses sample listings. All projects has the websites and project notes.",
+      "The product work includes Trekky for job search, Entangle for quantum research, and RentAKL for exploring rentals. Trekky is a live product, Entangle is a public research tool, and RentAKL is a demo with sample listings. All projects has the websites and project notes.",
   },
   trekky: {
     match: "Trekky, job search, applications, interviews, or follow-ups",
     answer:
       "Trekky brings job discovery, application preparation, tracking, and follow-ups together around each role. Sam builds and operates it through Solynth Labs. It is a live product; personal workspaces require an account. You can visit trekky.app or read its project notes in All projects.",
-  },
-  rivet: {
-    match: "Rivet, construction teams, managers, directors, or construction work",
-    answer:
-      "Rivet is a construction workspace. It gives managers practical task controls and directors a focused view of decisions, milestones, and programme risk. The website at rivet-workspace.vercel.app requires sign-in. The portfolio has a public introduction to the project.",
-  },
-  clearfold: {
-    match: "Clearfold, digital-asset research, market preview, or investment workspace",
-    answer:
-      "Clearfold connects digital-asset research with source evidence and operating records. Its public website is a pre-production, read-only market preview, rather than a finished public SaaS. It does not submit trades or withdrawals. The preview is at clearfold.vercel.app.",
   },
   entangle: {
     match: "Entangle, quantum research, quantum states, or circuit simulations",

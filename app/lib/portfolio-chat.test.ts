@@ -25,7 +25,7 @@ describe("reviewed portfolio answers", () => {
     null, {}, [], 1, "", "hello", "[]", "null", "true",
     '{"topics":[]}',
     '{"topics":["sam","sam"]}',
-    '{"topics":["sam","trekky","rivet","contact"]}',
+    '{"topics":["sam","trekky","entangle","contact"]}',
     '{"topics":["unknown"]}',
     '{"topics":["constructor"]}',
     '{"topics":["__proto__"]}',

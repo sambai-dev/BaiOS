@@ -18,8 +18,6 @@ const groups = [
     id: "products",
     entries: [
       { slug: "trekky", status: "Live product", action: "Visit Trekky" },
-      { slug: "rivet", status: "Workspace · Sign-in required", action: "Visit Rivet" },
-      { slug: "clearfold", status: "Product preview", action: "Visit Clearfold" },
       { slug: "entangle", status: "Research tool", action: "Open Entangle" },
       { slug: "rentakl", status: "Demo · Sample listings", action: "Try RentAKL" },
     ],

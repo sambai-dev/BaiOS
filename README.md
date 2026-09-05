@@ -53,17 +53,17 @@ Requires Node.js 24, matching `.nvmrc`, `package.json`, and the Vercel project r
 
 `app/page.tsx` renders `PortfolioShell` with the shared global styles. The identity header gives Sam's role, Hamilton location, and New Zealand time. The large heading “Sam designs and builds software.” sits above Hamilton coordinates and a simple footer.
 
-The footer has three groups: **Selected work**, with direct website links to Trekky, Rivet, and Clearfold plus **All projects** at `/work`; **Direct**, with email, Solynth Labs, and Open Workbench; and **Elsewhere**, with GitHub, BaiOS Source, LinkedIn, and Résumé. Selected work replaces the generic Site description while preserving the large headline. The compact header tab also opens Workbench.
+The footer has three groups: **Selected work**, with a direct website link to Trekky plus **All projects** at `/work`; **Direct**, with email, Solynth Labs, and Open Workbench; and **Elsewhere**, with GitHub, BaiOS Source, LinkedIn, and Résumé. Selected work replaces the generic Site description while preserving the large headline. The compact header tab also opens Workbench.
 
 The orbit component and original cartridge artwork remain in the repository but are not rendered on the homepage. The supplied Clone was an interaction reference; its media, fonts, logos, and project identities are not used as portfolio content. All Workbench games and tools remain available.
 
 ### Project pages
 
-The public directory at `/work` groups **Products & web apps** (Trekky, Rivet, Clearfold, Entangle, and RentAKL) and **Open-source tools** (Rookhold, Portly, and AgentScope). It distinguishes Rivet's private workspace requiring sign-in, Clearfold's preproduction preview, Entangle's research tool, and RentAKL's sample-listing demo. Website links open the products directly; project notes explain the work.
+The public directory at `/work` groups **Products & web apps** (Trekky, Entangle, and RentAKL) and **Open-source tools** (Rookhold, Portly, and AgentScope). It distinguishes Entangle's research tool and RentAKL's sample-listing demo. Website links open the products directly; project notes explain the work.
 
-Nine public case pages cover those eight projects and BaiOS. Rivet, Clearfold, Entangle, and RentAKL join the five existing pages. Their content comes from `project-case-studies.ts` and `product-stories.ts` and renders through `app/work/[slug]/page.tsx`; `project-directory.css` styles the directory.
+Seven public case pages cover those six projects and BaiOS. Entangle and RentAKL join the five existing pages. Their content comes from `project-case-studies.ts` and `product-stories.ts` and renders through `app/work/[slug]/page.tsx`; `project-directory.css` styles the directory.
 
-First-person notes explain why Sam built each project, how it works, and the engineering choices and limits. The four new pages use text without invented interface images. Existing captures, sample data, README examples, and simulators are labeled for what they show. Images retain their proportions and offer full-size links. Source links point only to public repositories. Case-page headers and the Workbench Projects app provide an **All projects** link back to the directory.
+First-person notes explain why Sam built each project, how it works, and the engineering choices and limits. The two new pages use text without invented interface images. Existing captures, sample data, README examples, and simulators are labeled for what they show. Images retain their proportions and offer full-size links. Source links point only to public repositories. Case-page headers and the Workbench Projects app provide an **All projects** link back to the directory.
 
 ### Workbench
 
@@ -112,7 +112,7 @@ BaiOS/
 │   │   └── ControlCenterApp.tsx      # Settings and backup tools
 │   ├── lib/
 │   │   ├── portfolio-projects.ts     # Retained orbit entries and geometry
-│   │   ├── project-case-studies.ts   # Nine public case pages
+│   │   ├── project-case-studies.ts   # Seven public case pages
 │   │   ├── product-stories.ts        # First-person product notes
 │   │   ├── workbench-system.ts       # App registry, workspaces, themes
 │   │   ├── workbench-app-routing.ts  # App-to-workspace routing

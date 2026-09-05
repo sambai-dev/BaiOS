@@ -270,14 +270,6 @@ export default function PortfolioShell() {
               <span className="index-link-text">Trekky <span className="index-work-purpose">· Job search</span></span>
               <span className="index-arrow" aria-hidden="true">↗</span>
             </a>
-            <a className="index-link" href="https://rivet-workspace.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Rivet construction workspace, sign-in required">
-              <span className="index-link-text">Rivet <span className="index-work-purpose">· Construction</span></span>
-              <span className="index-arrow" aria-hidden="true">↗</span>
-            </a>
-            <a className="index-link" href="https://clearfold.vercel.app/" target="_blank" rel="noopener noreferrer">
-              <span className="index-link-text">Clearfold <span className="index-work-purpose">· Product preview</span></span>
-              <span className="index-arrow" aria-hidden="true">↗</span>
-            </a>
             <Link className="index-link" href="/work" prefetch={false}>
               <span className="index-link-text">All projects &amp; the thinking behind them</span>
               <span className="index-arrow" aria-hidden="true">→</span>
@@ -363,7 +355,7 @@ export default function PortfolioShell() {
             </a>
             <a
               className="index-link"
-              href="/resume/SamBai_Resume.8aa80702.pdf"
+              href="/resume/SamBai_Resume.562eb942.pdf"
               target="_blank"
               rel="noopener noreferrer"
             >
